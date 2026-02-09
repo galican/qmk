@@ -1008,7 +1008,7 @@ static void open_rgb(void) {
     key_press_time = timer_read32();
 
     if (!sober) {
-        snled27351_sw_return_normal(0);
+        // snled27351_sw_return_normal(0);
         // wait_ms(1);
         // snled27351_sw_return_normal(1);
 
@@ -1380,8 +1380,10 @@ static void handle_charging_indication(void) {
     // }
 }
 
-bool low_vol_warning = false;
-bool low_vol_off     = false;
+bool     low_vol_warning     = false;
+bool     low_vol_off         = false;
+bool     low_vol_bl_off      = false;
+uint32_t low_vol_bl_off_time = 0;
 
 static void handle_low_battery_warning(void) {
     // 低电量警告（电量≤20%）
@@ -1465,12 +1467,24 @@ static void handle_low_battery_shutdow(void) {
 
     if (bts_info.bt_info.low_vol_offed) {
         if (timer_elapsed32(pressed_time) > 1000) {
-            // rgb_matrix_sethsv_noeeprom(rgb_matrix_config.hsv.h, rgb_matrix_config.hsv.s, 80);
             kb_sleep_flag = true;
         }
         low_vol_off         = true;
         low_vol_offed_sleep = true;
+
+        if (!low_vol_bl_off_time) low_vol_bl_off_time = timer_read32();
     }
+
+    if (timer_elapsed32(low_vol_bl_off_time) > 10 * 60 * 1000) {
+        low_vol_bl_off      = false;
+        low_vol_bl_off_time = 0;
+    } else {
+        low_vol_bl_off = true;
+    }
+    // else {
+    //     low_vol_bl_off      = false;
+    //     low_vol_bl_off_time = 0;
+    // }
 }
 
 static battery_charge_state_t get_battery_charge_state(void) {

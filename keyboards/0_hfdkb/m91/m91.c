@@ -329,9 +329,12 @@ static bool backlight_shut_down = false;
 static uint32_t low_power_entry_time = 0;
 
 extern bool low_vol_warning;
+extern bool low_vol_bl_off;
+
+extern uint32_t low_vol_bl_off_time;
 
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
-    if (!rgb_matrix_get_flags()) {
+    if (!rgb_matrix_get_flags() || low_vol_bl_off) {
         rgb_matrix_set_color_all(0, 0, 0);
     }
 
@@ -343,7 +346,6 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
 
         if (timer_elapsed32(low_power_entry_time) > 5000) {
             rgb_matrix_set_color_all(0, 0, 0);
-            // rgb_matrix_sethsv(rgb_matrix_config.hsv.h, rgb_matrix_config.hsv.s, 80);
         }
     } else {
         if (backlight_shut_down) {
