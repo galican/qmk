@@ -1475,16 +1475,14 @@ static void handle_low_battery_shutdow(void) {
         if (!low_vol_bl_off_time) low_vol_bl_off_time = timer_read32();
     }
 
-    if (timer_elapsed32(low_vol_bl_off_time) > 10 * 60 * 1000) {
+    // Only check timer if it's active (non-zero)
+    if (low_vol_bl_off_time && timer_elapsed32(low_vol_bl_off_time) > (10 * 60 * 1000)) {
         low_vol_bl_off      = false;
         low_vol_bl_off_time = 0;
-    } else {
+    } else if (low_vol_bl_off_time) {
         low_vol_bl_off = true;
     }
-    // else {
-    //     low_vol_bl_off      = false;
-    //     low_vol_bl_off_time = 0;
-    // }
+    // When low_vol_bl_off_time is 0, maintain previous low_vol_bl_off state
 }
 
 static battery_charge_state_t get_battery_charge_state(void) {
