@@ -1405,6 +1405,7 @@ static void handle_low_battery_warning(void) {
         // rgb_matrix_set_color_all(0, 0, 0);
         // if (low_vol_shut_down) {
         // rgb_matrix_set_color_all(RGB_OFF);
+        if (!low_vol_warning) low_vol_warning = true;
 
         if (!is_in_low_power_state) {
             is_in_low_power_state = true;
@@ -1471,18 +1472,8 @@ static void handle_low_battery_shutdow(void) {
         }
         low_vol_off         = true;
         low_vol_offed_sleep = true;
-
-        if (!low_vol_bl_off_time) low_vol_bl_off_time = timer_read32();
+        low_vol_bl_off      = true;
     }
-
-    // Only check timer if it's active (non-zero)
-    if (low_vol_bl_off_time && timer_elapsed32(low_vol_bl_off_time) > (10 * 60 * 1000)) {
-        low_vol_bl_off      = false;
-        low_vol_bl_off_time = 0;
-    } else if (low_vol_bl_off_time) {
-        low_vol_bl_off = true;
-    }
-    // When low_vol_bl_off_time is 0, maintain previous low_vol_bl_off state
 }
 
 static battery_charge_state_t get_battery_charge_state(void) {
@@ -1608,7 +1599,9 @@ bool bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
         } else {
             if (low_vol_off) {
                 low_vol_off = false;
+                if (!low_vol_bl_off_time) low_vol_bl_off_time = timer_read32();
             }
+
             if (low_vol_warning) {
                 low_vol_warning = false;
             }
@@ -1618,6 +1611,11 @@ bool bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
                 memset(&low_battery_warning, 0, sizeof(low_battery_warning_t));
             }
         }
+    }
+
+    if (low_vol_bl_off_time && timer_elapsed32(low_vol_bl_off_time) > (10 * 60 * 1000)) {
+        low_vol_bl_off      = false;
+        low_vol_bl_off_time = 0;
     }
 
     // 闪烁效果处理
