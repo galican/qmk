@@ -1386,8 +1386,6 @@ bool     low_vol_bl_off      = false;
 uint32_t low_vol_bl_off_time = 0;
 
 static void handle_low_battery_warning(void) {
-    // 低电量警告（电量≤20%）
-
     // static uint32_t low_vol_off_time = 0;
 
     // if (bts_info.bt_info.pvol < 10) {
