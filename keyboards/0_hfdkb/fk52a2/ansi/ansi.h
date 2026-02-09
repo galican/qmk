@@ -12,9 +12,9 @@ enum bt_keycodes {
     BT_HOST3,
     BT_2_4G,
     // BT_USB,
-    BT_VOL,
     // KC_LOCK,
     KC_W2UP,
     KC_SPOTLIGHT,
+    BT_VOL,
     RGB_TEST,
 };

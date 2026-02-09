@@ -921,7 +921,10 @@ void open_rgb(void) {
     if (!sober) {
 #ifdef RGB_DRIVER_SDB_PIN
         setPinOutput(RGB_DRIVER_SDB_PIN);
+        writePinLow(RGB_DRIVER_SDB_PIN);
+        wait_ms(1);
         writePinHigh(RGB_DRIVER_SDB_PIN);
+        rgb_matrix_init();
 #endif
 
         if (bak_rgb_toggle) {

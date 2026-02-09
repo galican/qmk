@@ -139,8 +139,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 }
 
 static uint8_t get_pvol_from_uart(void) {
-    uint8_t uart_data_read[3] = {0};
-    uint8_t uart_data_send[3] = {0};
+    static uint8_t uart_data_read[3] = {0};
+    uint8_t        uart_data_send[3] = {0};
 
     if (uart3_available()) {
         uart3_receive(uart_data_read, 3);
@@ -153,11 +153,10 @@ static uint8_t get_pvol_from_uart(void) {
         if (dev_info.devs == DEVS_USB || ((dev_info.devs != DEVS_USB) && !kb_sleep_flag && bts_info.bt_info.paired)) {
             uart_transmit(uart_data_send, 3);
         }
-
-        return uart_data_read[1];
     }
 
-    return 94;
+    return uart_data_read[1];
+    // return 94;
 }
 
 static void set_led_state(void) {

@@ -12,7 +12,7 @@ static uint8_t color_tab[][3] = {
     {HSV_GREEN},  // GREEN
     {HSV_BLUE},   // BLUE
     {HSV_YELLOW}, // YELLOW
-    {HSV_WHITE},  // WHITE
+    // {HSV_WHITE},  // WHITE
     {HSV_PURPLE}, // PURPLE
     {HSV_CYAN},   // CYAN
 };
@@ -22,7 +22,7 @@ enum led_light_color {
     LED_COLOR_GREEN,
     LED_COLOR_BLUE,
     LED_COLOR_YELLOW,
-    LED_COLOR_WHITE,
+    // LED_COLOR_WHITE,
     LED_COLOR_PURPLE,
     LED_COLOR_CYAN,
     LED_COLOR_COUNT,
@@ -102,7 +102,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 } else {
                     dev_info.color_index++;
                 }
-                if (dev_info.color_index != LED_COLOR_WHITE) rgb_matrix_config.hsv.h = color_tab[dev_info.color_index][0];
+                // if (dev_info.color_index != LED_COLOR_WHITE)
+                rgb_matrix_config.hsv.h = color_tab[dev_info.color_index][0];
                 eeconfig_update_user(dev_info.raw);
             }
             return false;
@@ -113,7 +114,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 } else {
                     dev_info.color_index--;
                 }
-                if (dev_info.color_index != LED_COLOR_WHITE) rgb_matrix_config.hsv.h = color_tab[dev_info.color_index][0];
+                // if (dev_info.color_index != LED_COLOR_WHITE)
+                rgb_matrix_config.hsv.h = color_tab[dev_info.color_index][0];
                 eeconfig_update_user(dev_info.raw);
             }
             return false;
@@ -274,10 +276,10 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
         }
     }
 
-    if ((dev_info.color_index == LED_COLOR_WHITE) && !Low_power) {
-        uint8_t brightness = rgb_matrix_get_val();
-        llv_rgb_matrix_set_color_all(brightness / 2, brightness / 2, brightness / 2);
-    }
+    // if ((dev_info.color_index == LED_COLOR_WHITE) && !Low_power) {
+    //     uint8_t brightness = rgb_matrix_get_val();
+    //     llv_rgb_matrix_set_color_all(brightness / 2, brightness / 2, brightness / 2);
+    // }
 
 #    ifdef BT_MODE_ENABLE
     if (bt_indicator_rgb(led_min, led_max) != true) {

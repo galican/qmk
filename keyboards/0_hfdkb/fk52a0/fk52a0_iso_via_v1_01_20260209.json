@@ -1,0 +1,340 @@
+{
+    "name": "FK52A0",
+    "vendorId": "0xFFFE",
+    "productId": "0x0030",
+    "keycodes": ["qmk_lighting"],
+    "menus": [
+      {
+        "label": "Lighting",
+        "content": [
+          {
+            "label": "Backlight",
+            "content": [
+              {
+                "label": "Brightness",
+                "type": "range",
+                "options": [0, 200],
+                "content": ["id_qmk_rgb_matrix_brightness", 3, 1]
+              },
+              {
+                "label": "Effect",
+                "type": "dropdown",
+                "content": ["id_qmk_rgb_matrix_effect", 3, 2],
+                "options": [
+                  ["All Off", 0],
+                  ["SOLID_COLOR", 1],
+                  ["GRADIENT_UP_DOWN", 2],
+                  ["GRADIENT_LEFT_RIGHT", 3],
+                  ["BREATHING", 4],
+                  ["BAND_PINWHEEL_SAT", 5],
+                  ["BAND_PINWHEEL_VAL", 6],
+                  ["BAND_SPIRAL_SAT", 7],
+                  ["BAND_SPIRAL_VAL", 8],
+                  ["CYCLE_ALL", 9],
+                  ["CYCLE_LEFT_RIGHT", 10],
+                  ["CYCLE_UP_DOWN", 11],
+                  ["RAINBOW_MOVING_CHEVRON", 12],
+                  ["CYCLE_OUT_IN", 13],
+                  ["CYCLE_OUT_IN_DUAL", 14],
+                  ["CYCLE_PINWHEEL", 15],
+                  ["CYCLE_SPIRAL", 16],
+                  ["DUAL_BEACON", 17],
+                  ["RAINBOW_BEACON", 18],
+                  ["RAINBOW_PINWHEELS", 19],
+                  ["FLOWER_BLOOMING", 20],
+                  ["RAINDROPS", 21],
+                  ["JELLYBEAN_RAINDROPS", 22],
+                  ["HUE_BREATHING", 23],
+                  ["HUE_PENDULUM", 24],
+                  ["HUE_WAVE", 25],
+                  ["PIXEL_FRACTAL", 26],
+                  ["PIXEL_FLOW", 27],
+                  ["TYPING_HEATMAP", 28],
+                  ["DIGITAL_RAIN", 29],
+                  ["SOLID_REACTIVE_SIMPLE", 30],
+                  ["SOLID_REACTIVE", 31],
+                  ["SOLID_REACTIVE_WIDE", 32],
+                  ["SOLID_REACTIVE_MULTIWIDE", 33],
+                  ["SOLID_REACTIVE_CROSS", 34],
+                  ["SOLID_REACTIVE_MULTICROSS", 35],
+                  ["SOLID_REACTIVE_NEXUS", 36],
+                  ["SOLID_REACTIVE_MULTINEXUS", 37],
+                  ["SPLASH", 38],
+                  ["MULTISPLASH", 39],
+                  ["SOLID_SPLASH", 40],
+                  ["SOLID_MULTISPLASH", 41],
+                  ["STARLIGHT", 42],
+                  ["STARLIGHT_SMOOTH", 43],
+                  ["RIVERFLOW", 44]
+                ]
+              },
+              {
+                "showIf": "{id_qmk_rgb_matrix_effect} != 0",
+                "label": "Effect Speed",
+                "type": "range",
+                "options": [0, 255],
+                "content": ["id_qmk_rgb_matrix_effect_speed", 3, 3]
+              },
+              {
+                "showIf": "{id_qmk_rgb_matrix_effect} != 0",
+                "label": "Color",
+                "type": "color",
+                "content": ["id_qmk_rgb_matrix_color", 3, 4]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "matrix": { "rows": 6, "cols": 19 },
+    "customKeycodes":[
+        {"name":"2_4G","title":"2_4G","shortName":"2_4G"},
+        {"name":"Vol_ Check","title":"Check the voltage of battery","shortName":"Vcheck"},
+        {"name":"KC_ W2UP","title":"Switch W/A/S/D to arrow keys","shortName":"W2UP"}
+    ],
+    "layouts": {
+      "keymap":[
+        [
+          {
+            "c": "#777777"
+          },
+          "0,0",
+          {
+            "x": 1,
+            "c": "#aaaaaa"
+          },
+          "0,2",
+          "0,3",
+          "0,4",
+          "0,5",
+          {
+            "x": 0.5,
+            "c": "#cccccc"
+          },
+          "0,6",
+          "0,7",
+          "0,8",
+          "0,9",
+          {
+            "x": 0.5,
+            "c": "#aaaaaa"
+          },
+          "0,10",
+          "0,11",
+          "0,12",
+          "0,13",
+          {
+            "x": 0.25,
+            "c": "#cccccc"
+          },
+          "0,14",
+          {
+            "x": 0.25
+          },
+          "0,15",
+          "0,16",
+          "0,17",
+          "0,18"
+        ],
+        [
+          {
+            "y": 0.5
+          },
+          "1,0",
+          "1,1",
+          "1,2",
+          "1,3",
+          "1,4",
+          "1,5",
+          "1,6",
+          "1,7",
+          "1,8",
+          "1,9",
+          "1,10",
+          "1,11",
+          "1,12",
+          {
+            "c": "#aaaaaa",
+            "w": 2
+          },
+          "1,13",
+          {
+            "x": 0.25,
+            "c": "#cccccc"
+          },
+          "1,14",
+          {
+            "x": 0.25
+          },
+          "1,15",
+          "1,16",
+          "1,17",
+          "1,18"
+        ],
+        [
+          {
+            "w": 1.5,
+            "c": "#aaaaaa"
+          },
+          "2,0",
+          {
+            "c": "#cccccc"
+          },
+          "2,1",
+          "2,2",
+          "2,3",
+          "2,4",
+          "2,5",
+          "2,6",
+          "2,7",
+          "2,8",
+          "2,9",
+          "2,10",
+          "2,11",
+          "2,12",
+          {
+            "x": 0.25,
+            "c": "#777777",
+            "w": 1.25,
+            "h": 2,
+            "w2": 1.5,
+            "h2": 1,
+            "x2": -0.25
+          },
+          "2,13",
+          {
+            "x": 0.25,
+            "c": "#cccccc"
+          },
+          "2,14",
+          {
+            "x": 0.25
+          },
+          "2,15",
+          "2,16",
+          "2,17",
+          {
+            "h": 2
+          },
+          "2,18"
+        ],
+        [
+          {
+            "w": 1.75,
+            "c": "#aaaaaa"
+          },
+          "3,0",
+          {
+            "c": "#cccccc"
+          },
+          "3,1",
+          "3,2",
+          "3,3",
+          "3,4",
+          "3,5",
+          "3,6",
+          "3,7",
+          "3,8",
+          "3,9",
+          "3,10",
+          "3,11",
+          "3,13",
+          {
+            "x": 1.5,
+            "c": "#cccccc"
+          },
+          "3,14",
+          {
+            "x": 0.25
+          },
+          "3,15",
+          "3,16",
+          "3,17"
+        ],
+        [
+          {
+            "c": "#aaaaaa",
+            "w": 1.25
+          },
+          "4,0",
+          "4,1",
+          {
+            "c": "#cccccc"
+          },
+          "4,2",
+          "4,3",
+          "4,4",
+          "4,5",
+          "4,6",
+          "4,7",
+          "4,8",
+          "4,9",
+          "4,10",
+          "4,11",
+          {
+            "c": "#aaaaaa",
+            "w": 1.75
+          },
+          "4,13",
+          {
+            "c": "#777777"
+          },
+          "4,14",
+          {
+            "x": 1.5,
+            "c": "#cccccc"
+          },
+          "4,15",
+          "4,16",
+          "4,17",
+          {
+            "h": 2
+          },
+          "4,18"
+        ],
+        [
+          {
+            "c": "#aaaaaa",
+            "w": 1.25
+          },
+          "5,0",
+          {
+            "w": 1.25
+          },
+          "5,1",
+          {
+            "w": 1.25
+          },
+          "5,2",
+          {
+            "c": "#cccccc",
+            "w": 6.25
+          },
+          "5,6",
+          {
+            "c": "#aaaaaa",
+            "w": 1.25
+          },
+          "5,11",
+          {
+            "w": 1.25
+          },
+          "5,12",
+          {
+            "x": 0.5,
+            "c": "#777777"
+          },
+          "5,13",
+          "5,14",
+          "5,15",
+          {
+            "x": 0.5,
+            "w": 2,
+            "c": "#cccccc"
+          },
+          "5,16",
+          "5,17"
+        ]
+      ]
+    }
+}

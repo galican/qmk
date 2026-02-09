@@ -788,7 +788,7 @@ static void bt_used_pin_init(void) {
 #endif
 
 #ifdef RGB_DRIVER_SDB_PIN
-    setPinOutputPushPull(RGB_DRIVER_SDB_PIN);
+    setPinOutput(RGB_DRIVER_SDB_PIN);
     writePinHigh(RGB_DRIVER_SDB_PIN);
 #endif
 }
@@ -929,7 +929,11 @@ void open_rgb(void) {
 
     if (!sober) {
 #ifdef RGB_DRIVER_SDB_PIN
+        setPinOutput(RGB_DRIVER_SDB_PIN);
+        writePinLow(RGB_DRIVER_SDB_PIN);
+        wait_ms(1);
         writePinHigh(RGB_DRIVER_SDB_PIN);
+        rgb_matrix_init();
 #endif
 
         // snled27351_sw_return_normal(0);
@@ -1145,12 +1149,12 @@ static void bat_low_level_ind(void) {
             rgb_matrix_set_color_all(0, 0, 0);
 
             rgb_matrix_set_color(rgb_index_table[dev_info.devs], 100, 0, 0);
-        } else if (low_bat_vol_off) {
-            rgb_matrix_set_color_all(0, 0, 0);
+        }
 
+        if (low_bat_vol_off) {
             if (!Low_power_blink_time) Low_power_blink_time = timer_read32();
 
-            if (timer_elapsed32(Low_power_blink_time) < 5000) {
+            if (Low_power_blink_time && (timer_elapsed32(Low_power_blink_time) < 5000)) {
                 if (timer_elapsed32(Low_power_time) >= 500) {
                     Low_power_blink = !Low_power_blink;
                     Low_power_time  = timer_read32();

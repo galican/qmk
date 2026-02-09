@@ -1,7 +1,7 @@
 {
     "name": "FK52A0",
     "vendorId": "0xFFFE",
-    "productId": "0x0030",
+    "productId": "0x0032",
     "keycodes": ["qmk_lighting"],
     "menus": [
       {
@@ -23,22 +23,23 @@
                 "options": [
                   ["All Off", 0],
                   ["SOLID_COLOR", 1],
-                  ["BREATHING", 2],
-                  ["CYCLE_ALL", 3],
-                  ["CYCLE_LEFT_RIGHT", 4],
-                  ["CYCLE_UP_DOWN", 5],
-                  ["RAINBOW_MOVING_CHEVRON", 6],
-                  ["CYCLE_OUT_IN", 7],
-                  ["CYCLE_OUT_IN_DUAL", 8],
-                  ["CYCLE_PINWHEEL", 9],
-                  ["CYCKE_SPIRAL", 10],
-                  ["DUAL_BEACON", 11],
-                  ["RAINBOW_BEACON", 12],
-                  ["RAINDROPS", 13],
-                  ["TYPING_HEATMAP", 14],
-                  ["SOLID_REACTIVE_SIMPLE", 15],
-                  ["SOLID_REACTIVE", 16],
-                  ["MATRIX_MULTISPLASH", 17]
+                  ["GRADIENT_UP_DOWN", 2],
+                  ["GRADIENT_LEFT_RIGHT", 3],
+                  ["BREATHING", 4],
+                  ["CYCLE_ALL", 5],
+                  ["CYCLE_LEFT_RIGHT", 6],
+                  ["CYCLE_UP_DOWN", 7],
+                  ["CYCLE_OUT_IN", 8],
+                  ["CYCLE_OUT_IN_DUAL", 9],
+                  ["CYCLE_PINWHEEL", 10],
+                  ["CYCKE_SPIRAL", 11],
+                  ["DUAL_BEACON", 12],
+                  ["RAINBOW_BEACON", 13],
+                  ["RAINDROPS", 14],
+                  ["TYPING_HEATMAP", 15],
+                  ["SOLID_REACTIVE_SIMPLE", 16],
+                  ["SOLID_REACTIVE", 17],
+                  ["SPLASH", 18]
                 ]
               },
               {
@@ -61,9 +62,12 @@
     ],
     "matrix": { "rows": 6, "cols": 19 },
     "customKeycodes":[
+        {"name":"BT_1","title":"BT_1","shortName":"BT_1"},
+        {"name":"BT_2","title":"BT_2","shortName":"BT_2"},
+        {"name":"BT_3","title":"BT_3","shortName":"BT_3"},
         {"name":"2_4G","title":"2_4G","shortName":"2_4G"},
-        {"name":"Vol_ Check","title":"Check the voltage of battery","shortName":"Vol_Check"},
-        {"name":"KC_W2UP","title":"Switch W/A/S/D to arrow keys","shortName":"KC_W2UP"}
+        {"name":"KC_ W2UP","title":"Switch W/A/S/D to arrow keys","shortName":"W2UP"},
+        {"name":"Sport Light","title":"Spotlight in Mac OS","shortName":"SPOT"}
     ],
     "layouts": {
       "keymap":[
@@ -162,13 +166,7 @@
           "2,11",
           "2,12",
           {
-            "x": 0.25,
-            "c": "#777777",
-            "w": 1.25,
-            "h": 2,
-            "w2": 1.5,
-            "h2": 1,
-            "x2": -0.25
+            "w": 1.5
           },
           "2,13",
           {
@@ -207,9 +205,13 @@
           "3,9",
           "3,10",
           "3,11",
+          {
+            "w": 2.25,
+            "c": "#777777"
+          },
           "3,13",
           {
-            "x": 1.5,
+            "x": 0.25,
             "c": "#cccccc"
           },
           "3,14",
@@ -223,10 +225,9 @@
         [
           {
             "c": "#aaaaaa",
-            "w": 1.25
+            "w": 2.25
           },
           "4,0",
-          "4,1",
           {
             "c": "#cccccc"
           },

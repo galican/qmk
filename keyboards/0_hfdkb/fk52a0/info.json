@@ -54,7 +54,6 @@
         "animations": {
             "none": true,
             "solid_color": true,
-            "alphas_mods": true,
             "gradient_up_down": true,
             "gradient_left_right": true,
             "breathing": true,
@@ -65,6 +64,7 @@
             "cycle_all": true,
             "cycle_left_right": true,
             "cycle_up_down": true,
+            "rainbow_moving_chevron": true,
             "cycle_out_in": true,
             "cycle_out_in_dual": true,
             "cycle_pinwheel": true,
