@@ -291,11 +291,11 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
 
     // caps lock red
     if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !get_kb_sleep_flag()) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state != USB_SUSPENDED)))) {
-        rgb_matrix_set_color(LED_CAPS_IND_INDEX, 100, 100, 100);
+        rgb_matrix_set_color(LED_CAPS_LOCK_IND_INDEX, 100, 100, 100);
     }
     // gui lock red
     if (keymap_config.no_gui && (((dev_info.devs != DEVS_USB) && !get_kb_sleep_flag()) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state != USB_SUSPENDED)))) {
-        rgb_matrix_set_color(LED_WIN_IND_INDEX, 100, 100, 100);
+        rgb_matrix_set_color(LED_WIN_LOCK_IND_INDEX, 100, 100, 100);
     }
     // num lock red
     if (host_keyboard_led_state().num_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !get_kb_sleep_flag()) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state != USB_SUSPENDED)))) {

@@ -797,7 +797,7 @@ static void bt_used_pin_init(void) {
 #endif
 
 #ifdef RGB_DRIVER_SDB_PIN
-    setPinOutputPushPull(RGB_DRIVER_SDB_PIN);
+    setPinOutput(RGB_DRIVER_SDB_PIN);
     writePinHigh(RGB_DRIVER_SDB_PIN);
 #endif
 }
@@ -889,11 +889,6 @@ static void close_rgb(void) {
 #ifdef RGB_DRIVER_SDB_PIN
             writePinLow(RGB_DRIVER_SDB_PIN);
 #endif
-
-            // snled27351_sw_shutdown(0);
-            // wait_ms(100);
-            // snled27351_sw_shutdown(1);
-            // wait_ms(100);
         }
     } else {
         if (!rgb_matrix_config.enable) {
@@ -902,6 +897,11 @@ static void close_rgb(void) {
                 if (led_inited) {
                     led_deconfig_all();
                 }
+
+                // snled27351_sw_shutdown(0);
+                // wait_ms(100);
+                // snled27351_sw_shutdown(1);
+                // wait_ms(100);
 
 #ifdef ENTRY_STOP_MODE
                 lp_system_sleep();
@@ -920,13 +920,9 @@ void open_rgb(void) {
 
     if (!sober) {
 #ifdef RGB_DRIVER_SDB_PIN
+        setPinOutput(RGB_DRIVER_SDB_PIN);
         writePinHigh(RGB_DRIVER_SDB_PIN);
 #endif
-
-        // snled27351_sw_return_normal(0);
-        // wait_ms(100);
-        // snled27351_sw_return_normal(1);
-        // wait_ms(100);
 
         if (bak_rgb_toggle) {
             kb_sleep_flag = false;
@@ -1109,9 +1105,9 @@ static void bat_level_query(void) {
             led_count = (pvol < 10) ? 1 : ((pvol / 10) > 10 ? 10 : (pvol / 10));
 
             RGB color;
-            if (pvol < 30) {
+            if (pvol < 40) {
                 color = (RGB){100, 0, 0}; // 红色
-            } else if (pvol < 80) {
+            } else if (pvol < 90) {
                 color = (RGB){0, 100, 0}; // green
             } else {
                 color = (RGB){100, 100, 100}; // white

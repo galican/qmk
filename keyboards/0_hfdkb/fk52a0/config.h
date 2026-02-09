@@ -11,7 +11,7 @@
 #ifdef BT_MODE_ENABLE
 #    define BT_CABLE_PIN B9  // 充电接入时为高
 #    define BT_CHARGE_PIN B8 // 充电时为低，充满时为高
-#    define RGB_DRIVER_SDB_PIN A15
+#    define RGB_DRIVER_SDB_PIN D2
 #    define BT_MODE_SW_PIN C0  // 低电平时
 #    define RF_MODE_SW_PIN B11 // 低电平时
 #    define USB_SUSPEND_STATE_CHECK
@@ -36,11 +36,6 @@
 
 /* Encoder Config */
 #define ENCODER_DEFAULT_POS 0x0
-
-/* Indicator Config */
-#define LED_CAPS_IND_INDEX 54
-#define LED_WIN_IND_INDEX 91
-#define LED_NUM_LOCK_IND_INDEX 33
 
 #define llv_rgb_matrix_set_color_all(r, g, b) \
     do {                                      \

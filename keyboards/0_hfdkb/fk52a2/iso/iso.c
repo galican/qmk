@@ -68,6 +68,7 @@ const snled27351_led_t PROGMEM g_snled27351_leds[SNLED27351_LED_COUNT] = {
     {1, CB5_CA9,   CB4_CA9,   CB6_CA9},
     {1, CB5_CA10,  CB4_CA10,  CB6_CA10},
     {1, CB5_CA15,  CB4_CA15,  CB6_CA15},
+    {1, CB5_CA16,  CB4_CA16,  CB6_CA16},
 
     {0, CB8_CA1,   CB7_CA1,   CB9_CA1},
     {0, CB8_CA2,   CB7_CA2,   CB9_CA2},
@@ -87,7 +88,6 @@ const snled27351_led_t PROGMEM g_snled27351_leds[SNLED27351_LED_COUNT] = {
     {1, CB8_CA4,   CB7_CA4,   CB9_CA4},
     {1, CB8_CA5,   CB7_CA5,   CB9_CA5},
     {1, CB8_CA6,   CB7_CA6,   CB9_CA6},
-    {1, CB5_CA16,  CB4_CA16,  CB6_CA16},
 
     {0, CB11_CA1,  CB10_CA1,  CB12_CA1},
     {0, CB11_CA2,  CB10_CA2,  CB12_CA2},
@@ -106,6 +106,7 @@ const snled27351_led_t PROGMEM g_snled27351_leds[SNLED27351_LED_COUNT] = {
     {1, CB11_CA6,  CB10_CA6,  CB12_CA6},
     {1, CB11_CA8,  CB10_CA8,  CB12_CA8},
     {1, CB11_CA9,  CB10_CA9,  CB12_CA9},
+    {1, CB11_CA10, CB10_CA10, CB12_CA10},
 
     {0, CB5_CA15,  CB4_CA15,  CB6_CA15},
     {0, CB11_CA14, CB10_CA14, CB12_CA14},
@@ -118,7 +119,6 @@ const snled27351_led_t PROGMEM g_snled27351_leds[SNLED27351_LED_COUNT] = {
     {1, CB11_CA2,  CB10_CA2,  CB12_CA2},
     {1, CB11_CA3,  CB10_CA3,  CB12_CA3},
     {1, CB11_CA5,  CB10_CA5,  CB12_CA5},
-    {1, CB11_CA10, CB10_CA10, CB12_CA10},
 
     {1, CB8_CA7,   CB7_CA7,   CB9_CA7}, // logo1
     {1, CB8_CA8,   CB7_CA8,   CB9_CA8}, // logo2

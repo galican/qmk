@@ -13,7 +13,7 @@ UART_DRIVER_REQUIRED = yes
 SRC += common/bt_task.c
 SRC += common/lp_sleep.c
 SRC += common/retarget_suspend.c
+SRC += lcd_drv/lcd.c
+SRC += lcd_drv/uart3.c
 
 LDFLAGS += -L $(RULES_MK_DIR)/common -l_bts
-
-VPATH += $(RULES_MK_DIR)/common
