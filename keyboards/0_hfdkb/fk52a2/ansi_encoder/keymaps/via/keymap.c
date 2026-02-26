@@ -73,7 +73,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 #endif // ENCODER_MAP_ENABLE
 // clang-format on
 
-static bool W2UP_flag = false;
+bool W2UP_flag = false;
 
 uint32_t GUI_release_time = 0;
 

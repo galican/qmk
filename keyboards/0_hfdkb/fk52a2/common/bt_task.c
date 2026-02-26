@@ -1094,6 +1094,14 @@ static void factory_reset_ind(void) {
             dip_switch_read(true);
         }
 
+        if (keymap_config.no_gui) {
+            keymap_config.no_gui = 0;
+            eeconfig_update_keymap(&keymap_config);
+        }
+
+        extern bool W2UP_flag;
+        W2UP_flag = false;
+
         if (EE_CLR_press_cnt % 2) {
             llv_rgb_matrix_set_color_all(100, 0, 0);
         } else {

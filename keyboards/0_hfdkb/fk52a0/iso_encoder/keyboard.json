@@ -1,7 +1,20 @@
 {
     "usb": {
         "pid": "0x0030",
-        "device_version": "1.0.6"
+        "device_version": "1.0.5"
+    },
+    "features": {
+        "encoder": true
+    },
+    "encoder": {
+        "enabled": true,
+        "rotary": [
+            {
+                "pin_a": "C14",
+                "pin_b": "C13",
+                "resolution": 2
+            }
+        ]
     },
     "rgb_matrix": {
         "layout": [
@@ -22,7 +35,7 @@
             {"flags": 4, "matrix": [0, 15], "x": 189, "y": 0},
             {"flags": 4, "matrix": [0, 16], "x": 201, "y": 0},
             {"flags": 4, "matrix": [0, 17], "x": 212, "y": 0},
-            {"flags": 4, "matrix": [0, 18], "x": 224, "y": 0},
+            {"flags": 4, "matrix": [3, 18], "x": 224, "y": 0},
 
             {"flags": 4, "matrix": [1, 0], "x": 0, "y": 15},
             {"flags": 4, "matrix": [1, 1], "x": 12, "y": 15},
@@ -139,7 +152,7 @@
                 {"label": "VolDn", "matrix": [0, 15], "x": 16.5, "y": 0},
                 {"label": "VolUp", "matrix": [0, 16], "x": 17.5, "y": 0},
                 {"label": "Mute", "matrix": [0, 17], "x": 18.5, "y": 0},
-                {"label": "Cal", "matrix": [0, 18], "x": 19.5, "y": 0},
+                {"label": "Mute", "matrix": [3, 18], "x": 19.5, "y": 0},
 
                 {"label": "~", "matrix": [1, 0], "x": 0, "y": 1.5},
                 {"label": "!", "matrix": [1, 1], "x": 1, "y": 1.5},

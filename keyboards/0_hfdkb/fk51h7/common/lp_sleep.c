@@ -179,10 +179,6 @@ static void exti_init(void) {
         setPinInputHigh(RF_MODE_SW_PIN);
         _pal_lld_enablepadevent(PAL_PORT(RF_MODE_SW_PIN), PAL_PAD(RF_MODE_SW_PIN), PAL_EVENT_MODE_BOTH_EDGES);
         pad_enable_interrupt(PAL_PAD(RF_MODE_SW_PIN));
-
-        // setPinInputHigh(BT_MODE_SW_PIN);
-        // _pal_lld_enablepadevent(PAL_PORT(BT_MODE_SW_PIN), PAL_PAD(BT_MODE_SW_PIN), PAL_EVENT_MODE_BOTH_EDGES);
-        // pad_enable_interrupt(PAL_PAD(BT_MODE_SW_PIN));
 #    endif
     } else {
 #    ifdef BT_CABLE_PIN
