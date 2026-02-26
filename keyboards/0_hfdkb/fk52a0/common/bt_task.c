@@ -786,7 +786,7 @@ static void long_pressed_keys_hook(void) {
 }
 
 static void bt_used_pin_init(void) {
-#ifdef BT_MODE_SW_PIN
+#ifdef RF_MODE_SW_PIN
     // setPinInputHigh(BT_MODE_SW_PIN);
     setPinInputHigh(RF_MODE_SW_PIN);
 #endif

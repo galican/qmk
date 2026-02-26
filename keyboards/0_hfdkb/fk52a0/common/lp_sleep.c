@@ -175,7 +175,7 @@ static void exti_init(void) {
             pad_enable_interrupt(PAL_PAD(row_pins[row]));
         }
 
-#    if defined(RF_MODE_SW_PIN) && defined(BT_MODE_SW_PIN)
+#    ifdef RF_MODE_SW_PIN
         setPinInputHigh(RF_MODE_SW_PIN);
         _pal_lld_enablepadevent(PAL_PORT(RF_MODE_SW_PIN), PAL_PAD(RF_MODE_SW_PIN), PAL_EVENT_MODE_BOTH_EDGES);
         pad_enable_interrupt(PAL_PAD(RF_MODE_SW_PIN));

@@ -181,7 +181,6 @@ void housekeeping_task_kb(void) {
 #ifdef USB_SUSPEND_STATE_CHECK
     static uint32_t usb_suspend_timer = 0;
     static uint32_t usb_suspend       = false;
-    // static bool     bak_rgb_toggle    = false;
 
     if (dev_info.devs == DEVS_USB) {
         if (usb_suspend) {
@@ -200,9 +199,6 @@ void housekeeping_task_kb(void) {
 #    ifdef RGB_DRIVER_SDB_PIN
                 writePinHigh(RGB_DRIVER_SDB_PIN);
 #    endif
-                // if (bak_rgb_toggle) {
-                //     rgb_matrix_enable_noeeprom();
-                // }
             }
         }
 
@@ -215,8 +211,6 @@ void housekeeping_task_kb(void) {
 #    ifdef RGB_DRIVER_SDB_PIN
                     writePinLow(RGB_DRIVER_SDB_PIN);
 #    endif
-                    // bak_rgb_toggle = rgb_matrix_config.enable;
-                    // rgb_matrix_disable_noeeprom();
                 }
                 usb_suspend_timer = 0;
             }
@@ -228,9 +222,6 @@ void housekeeping_task_kb(void) {
 #    ifdef RGB_DRIVER_SDB_PIN
                 writePinHigh(RGB_DRIVER_SDB_PIN);
 #    endif
-                // if (bak_rgb_toggle) {
-                //     rgb_matrix_enable_noeeprom();
-                // }
             }
         }
     } else {
@@ -240,9 +231,6 @@ void housekeeping_task_kb(void) {
 #    ifdef RGB_DRIVER_SDB_PIN
             writePinHigh(RGB_DRIVER_SDB_PIN);
 #    endif
-            // if (bak_rgb_toggle) {
-            //     rgb_matrix_enable_noeeprom();
-            // }
         }
     }
 #endif
