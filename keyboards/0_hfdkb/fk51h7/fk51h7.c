@@ -6,6 +6,7 @@
 #ifdef USB_SUSPEND_CHECK_ENABLE
 #    include "usb_main.h"
 #endif
+#include "lib/lib8tion/lib8tion.h"
 
 bool led_inited = false;
 
@@ -21,7 +22,6 @@ void led_deconfig_all(void) {
     }
 }
 
-// 拨动开关选择系统模式
 bool dip_switch_update_kb(uint8_t index, bool active) {
     if (!dip_switch_update_user(index, active)) {
         return false;
@@ -102,6 +102,12 @@ void keyboard_post_init_kb(void) {
     }
 }
 
+void suspend_power_down_kb(void) {
+#ifdef RGB_DRIVER_SDB_PIN
+    writePinLow(RGB_DRIVER_SDB_PIN);
+#endif
+}
+
 void housekeeping_task_kb(void) {
 #ifdef BT_MODE_ENABLE
     extern void housekeeping_task_bt(void);
@@ -132,7 +138,8 @@ void housekeeping_task_kb(void) {
             }
         }
 
-        if ((USB_DRIVER.state != USB_ACTIVE) || (USB_DRIVER.state == USB_SUSPENDED)) {
+        // if ((USB_DRIVER.state != USB_ACTIVE) || (USB_DRIVER.state == USB_SUSPENDED)) {
+        if (USB_DRIVER.state != USB_ACTIVE) {
             if (!usb_suspend_timer) {
                 usb_suspend_timer = timer_read32();
             } else if (timer_elapsed32(usb_suspend_timer) > 10000) {
@@ -170,15 +177,32 @@ void housekeeping_task_kb(void) {
 #endif
 }
 
+static const uint8_t rgb_logo_color_table[][3] = {
+    {100, 0, 0}, {0, 100, 0}, {0, 0, 100}, {100, 100, 0}, {100, 100, 100}, {100, 0, 100}, {0, 100, 100},
+};
+
 #ifdef RGB_MATRIX_ENABLE
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
-    // for (uint8_t i = 83; i < 87; i++) {
-    //     rgb_matrix_set_color(i, 0, 0, 0);
-    // }
-
-    extern bool Low_power;
-    if ((rgb_matrix_get_flags() == LED_FLAG_NONE) && Low_power) {
+    // if ((rgb_matrix_get_flags() == LED_FLAG_NONE) || Low_power) {
+    if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
         rgb_matrix_set_color_all(0, 0, 0);
+    }
+
+    extern bool EE_CLR_flag;
+    extern bool Low_power;
+    if ((rgb_matrix_get_flags() != LED_FLAG_NONE) && !EE_CLR_flag && !Low_power) {
+        if (dev_info.logo_effect == LOGO_EFFECT_DEFAULT) {
+            uint8_t time = scale16by8(g_rgb_timer, qadd8(rgb_matrix_get_speed() / 4, 1));
+            for (uint8_t i = 83; i < 87; i++) {
+                HSV hsv = {g_led_config.point[i].y - time, 255, rgb_matrix_get_val()};
+                RGB rgb = hsv_to_rgb(hsv);
+                rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+            }
+        } else {
+            for (uint8_t i = 83; i < 87; i++) {
+                rgb_matrix_set_color(i, rgb_logo_color_table[dev_info.logo_effect - 1][0], rgb_logo_color_table[dev_info.logo_effect - 1][1], rgb_logo_color_table[dev_info.logo_effect - 1][2]);
+            }
+        }
     }
 
 #    ifdef BT_MODE_ENABLE

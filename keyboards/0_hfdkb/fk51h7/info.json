@@ -23,16 +23,11 @@
         "mousekey": true,
         "nkro": true,
         "rgb_matrix": true,
-        "dip_switch":true,
-        "encoder": true
+        "dip_switch":true
     },
     "matrix_pins": {
         "cols": ["C1","C2","C3","A0","A1","A2","A3","A4","A5","A6","A7","C4","C5","B0","B1"],
         "rows": ["B15", "C6", "C7", "C8", "C9", "B14"]
-    },
-    "encoder": {
-        "enabled": true,
-        "rotary": [ {"pin_a": "C14", "pin_b": "C13", "resolution": 2} ]
     },
     "dip_switch": {
         "pins": [ "C11" ]

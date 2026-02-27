@@ -20,6 +20,7 @@ typedef union {
     struct {
         uint8_t devs;
         uint8_t last_devs;
+        uint8_t logo_effect;
     };
 } dev_info_t;
 
