@@ -803,6 +803,7 @@ static void close_rgb(void) {
 #ifdef RGB_DRIVER_SDB_PIN
             writePinLow(RGB_DRIVER_SDB_PIN);
 #endif
+            gpio_write_pin_low(SNLED27351_SDB_PIN);
         }
     } else {
         if (!rgb_matrix_config.enable) {
@@ -830,6 +831,7 @@ void open_rgb(void) {
 #ifdef RGB_DRIVER_SDB_PIN
     writePinHigh(RGB_DRIVER_SDB_PIN);
 #endif
+    gpio_write_pin_high(SNLED27351_SDB_PIN);
 
     if (!sober) {
         kb_sleep_flag = false;

@@ -102,10 +102,16 @@ void keyboard_post_init_kb(void) {
     }
 }
 
-void suspend_power_down_kb(void) {
-#ifdef RGB_DRIVER_SDB_PIN
-    writePinLow(RGB_DRIVER_SDB_PIN);
-#endif
+void suspend_power_down_kb() {
+    gpio_write_pin_low(SNLED27351_SDB_PIN);
+
+    suspend_power_down_user();
+}
+
+void suspend_wakeup_init_kb() {
+    gpio_write_pin_high(SNLED27351_SDB_PIN);
+
+    suspend_wakeup_init_user();
 }
 
 void housekeeping_task_kb(void) {
@@ -135,6 +141,7 @@ void housekeeping_task_kb(void) {
 #    ifdef RGB_DRIVER_SDB_PIN
                 writePinHigh(RGB_DRIVER_SDB_PIN);
 #    endif
+                gpio_write_pin_high(SNLED27351_SDB_PIN);
             }
         }
 
@@ -149,6 +156,7 @@ void housekeeping_task_kb(void) {
                     writePinLow(RGB_DRIVER_SDB_PIN);
 #    endif
                 }
+                gpio_write_pin_low(SNLED27351_SDB_PIN);
                 usb_suspend_timer = 0;
             }
         } else {
@@ -159,6 +167,7 @@ void housekeeping_task_kb(void) {
 #    ifdef RGB_DRIVER_SDB_PIN
                 writePinHigh(RGB_DRIVER_SDB_PIN);
 #    endif
+                gpio_write_pin_high(SNLED27351_SDB_PIN);
             }
         }
     } else {
@@ -168,6 +177,7 @@ void housekeeping_task_kb(void) {
 #    ifdef RGB_DRIVER_SDB_PIN
             writePinHigh(RGB_DRIVER_SDB_PIN);
 #    endif
+            gpio_write_pin_high(SNLED27351_SDB_PIN);
         }
     }
 #endif
@@ -183,13 +193,14 @@ static const uint8_t rgb_logo_color_table[][3] = {
 
 #ifdef RGB_MATRIX_ENABLE
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
-    // if ((rgb_matrix_get_flags() == LED_FLAG_NONE) || Low_power) {
-    if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
+    extern bool EE_CLR_flag;
+    extern bool Low_power;
+
+    if ((rgb_matrix_get_flags() == LED_FLAG_NONE) || Low_power) {
+        // if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
         rgb_matrix_set_color_all(0, 0, 0);
     }
 
-    extern bool EE_CLR_flag;
-    extern bool Low_power;
     if ((rgb_matrix_get_flags() != LED_FLAG_NONE) && !EE_CLR_flag && !Low_power) {
         if (dev_info.logo_effect == LOGO_EFFECT_DEFAULT) {
             uint8_t time = scale16by8(g_rgb_timer, qadd8(rgb_matrix_get_speed() / 4, 1));
