@@ -23,7 +23,7 @@
 #    define RECONNECT_TIMER_INTERVAL 500               // ms
 #    define PAIRING_TIMER_TIMEOUT 60000                // ms
 #    define RECONNECT_TIMER_TIMEOUT 30000              // ms
-#    define ENTRY_SLEEP_TIMEOUT ((5 * 60 - 40) * 1000) // ms
+#    define ENTRY_SLEEP_TIMEOUT ((5 * 60 - 37) * 1000) // ms
 
 #    define WL_PROCESS_KEYS(keycode, pressed) bts_process_keys(keycode, pressed, dev_info.devs, keymap_config.no_gui, WLS_KEYBOARD_REPORT_KEYS)
 
