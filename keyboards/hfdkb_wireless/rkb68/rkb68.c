@@ -14,23 +14,6 @@ void keyboard_post_init_kb(void) {
     debug_enable = true;
 #endif
 
-#ifdef LED_POWER_EN_PIN
-    setPinOutput(LED_POWER_EN_PIN);
-    writePinLow(LED_POWER_EN_PIN);
-#endif
-
-#ifdef WL_PWR_SW_PIN
-    setPinInputHigh(WL_PWR_SW_PIN);
-#endif
-
-#ifdef BT_CABLE_PIN
-    setPinInputHigh(BT_CABLE_PIN);
-#endif
-
-#ifdef BT_CHARGE_PIN
-    setPinInput(BT_CHARGE_PIN);
-#endif
-
     if (keymap_config.no_gui) {
         keymap_config.no_gui = false;
         eeconfig_update_keymap(&keymap_config);
@@ -40,14 +23,14 @@ void keyboard_post_init_kb(void) {
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-    // if ((dev_info.devs != DEVS_USB) && bts_info.bt_info.low_vol_offed) {
-    //     WL_PROCESS_KEYS(keycode, 0);
-    //     bts_task(dev_info.devs);
-    //     while (bts_is_busy()) {
-    //         wait_ms(1);
-    //     }
-    //     return false;
-    // }
+    if ((dev_info.devs != DEVS_USB) && bts_info.bt_info.low_vol_offed) {
+        WL_PROCESS_KEYS(keycode, 0);
+        bts_task(dev_info.devs);
+        while (bts_is_busy()) {
+            wait_ms(1);
+        }
+        return false;
+    }
 
     if (process_record_user(keycode, record) != true) {
         return false;
@@ -85,7 +68,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     return false;
 }
 
-void matrix_scan_init(void) {
+void matrix_init_kb(void) {
 #ifdef BT_MODE_ENABLE
     bt_init();
 #endif
@@ -140,7 +123,14 @@ void housekeeping_task_kb(void) {
 
     if (dev_info.devs == DEVS_USB) {
         if (usb_suspend) {
-            if (suspend_wakeup_condition()) {
+            bool wakeup = false;
+            for (uint8_t r = 0; r < MATRIX_ROWS; r++) {
+                if (matrix_get_row(r)) {
+                    wakeup = true;
+                    break;
+                }
+            }
+            if (wakeup) {
                 // usbWakeupHost(&USB_DRIVER);
                 // restart_usb_driver(&USB_DRIVER);
                 usb_suspend       = false;

@@ -86,6 +86,7 @@ static void long_pressed_keys_hook(void);
 static void long_pressed_keys_cb(uint16_t keycode);
 static bool process_record_other(uint16_t keycode, keyrecord_t *record);
 static void bt_scan_mode(void);
+static void bt_used_pin_init(void);
 
 #ifdef RGB_MATRIX_ENABLE
 static void open_rgb(void);
@@ -341,6 +342,7 @@ static THD_FUNCTION(Thread1, arg) {
  */
 void bt_init(void) {
     bts_init(&bts_info);
+    bt_used_pin_init();
 
     // Read the user config from EEPROM
     dev_info.raw = eeconfig_read_user();
@@ -735,6 +737,25 @@ static void long_pressed_keys_hook(void) {
     }
 }
 
+static void bt_used_pin_init(void) {
+#ifdef LED_POWER_EN_PIN
+    setPinOutput(LED_POWER_EN_PIN);
+    writePinLow(LED_POWER_EN_PIN);
+#endif
+
+#ifdef WL_PWR_SW_PIN
+    setPinInputHigh(WL_PWR_SW_PIN);
+#endif
+
+#ifdef BT_CABLE_PIN
+    setPinInputHigh(BT_CABLE_PIN);
+#endif
+
+#ifdef BT_CHARGE_PIN
+    setPinInput(BT_CHARGE_PIN);
+#endif
+}
+
 /**
  * @brief 根据波动开关判断工作模式
  * @param None
@@ -776,7 +797,7 @@ static void close_rgb(void) {
     }
 
     if (sober) {
-        if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= (5 * 60 * 1000))) {
+        if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= ENTRY_SLEEP_TIMEOUT)) {
             bak_rgb_toggle = rgb_matrix_config.enable;
             sober          = false;
             close_rgb_time = timer_read32();
@@ -861,8 +882,8 @@ static void bt_indicator_led(void) {
                     break;
                 }
 
-                if (timer_elapsed32(last_total_time) >= (60 * 1000)) {
-                    indicator_status = INDICATOR_OFF;
+                if (timer_elapsed32(last_total_time) >= PAIRING_TIMER_TIMEOUT) {
+                    indicator_status = INDICATOR_NONE;
                     kb_sleep_flag    = true;
                 }
             } break;
@@ -884,8 +905,8 @@ static void bt_indicator_led(void) {
                     break;
                 }
 
-                if (timer_elapsed32(last_total_time) >= (20 * 1000)) {
-                    indicator_status = INDICATOR_OFF;
+                if (timer_elapsed32(last_total_time) >= RECONNECT_TIMER_TIMEOUT) {
+                    indicator_status = INDICATOR_NONE;
                     kb_sleep_flag    = true;
                 }
             } break;
@@ -895,7 +916,7 @@ static void bt_indicator_led(void) {
                     rgb.g = rgb_index_color_table[dev_info.devs][1];
                     rgb.b = rgb_index_color_table[dev_info.devs][2];
                 } else {
-                    indicator_status = INDICATOR_OFF;
+                    indicator_status = INDICATOR_NONE;
                 }
             } break;
             case INDICATOR_OFF: {
@@ -906,13 +927,14 @@ static void bt_indicator_led(void) {
                 if (!kb_sleep_flag) {
                     if (!bts_info.bt_info.paired) {
                         if (!bts_info.bt_info.pairing) {
-                            indicator_status = 2;
+                            indicator_status = INDICATOR_RECONNECT;
                             break;
                         }
-                        indicator_status = 2;
-                        if (dev_info.devs == DEVS_2_4G) {
-                            if (!wl_init_time) bt_switch_mode(DEVS_USB, DEVS_2_4G, false);
-                        }
+                        indicator_status = INDICATOR_RECONNECT;
+                        if (dev_info.devs == DEVS_2_4G)
+                            bt_switch_mode(DEVS_USB, DEVS_2_4G, false);
+                        else
+                            bt_switch_mode(DEVS_USB, dev_info.last_devs, false);
                         break;
                     }
                 }

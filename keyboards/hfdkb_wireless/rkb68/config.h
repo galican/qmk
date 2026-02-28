@@ -19,10 +19,15 @@
 
 #    define MD_BT_NAME "DOS 68 BT$"
 
-#    define PAIRING_TIMER_INTERVAL 200   // ms
-#    define RECONNECT_TIMER_INTERVAL 500 // ms
+#    define PAIRING_TIMER_INTERVAL 200                 // ms
+#    define RECONNECT_TIMER_INTERVAL 500               // ms
+#    define PAIRING_TIMER_TIMEOUT 60000                // ms
+#    define RECONNECT_TIMER_TIMEOUT 30000              // ms
+#    define ENTRY_SLEEP_TIMEOUT ((5 * 60 - 40) * 1000) // ms
 
 #    define WL_PROCESS_KEYS(keycode, pressed) bts_process_keys(keycode, pressed, dev_info.devs, keymap_config.no_gui, WLS_KEYBOARD_REPORT_KEYS)
+
+#    define USB_SUSPEND_CHECK_ENABLE
 
 #    define LED_HOST_BT1_INDEX 1
 #    define LED_HOST_BT2_INDEX 2
