@@ -74,9 +74,9 @@ extern bool led_inited;
 extern void led_config_all(void);
 extern void led_deconfig_all(void);
 
-static const uint8_t rgb_index_table[]          = {13, 19, 20, 21, 0xFF, 0xFF, 22};
+static const uint8_t rgb_index_table[]          = {255, 19, 20, 21, 255, 255, 22};
 static const uint8_t rgb_index_color_table[][3] = {
-    {100, 100, 100}, {0, 0, 100}, {0, 0, 100}, {0, 0, 100}, {RGB_BLACK}, {RGB_BLACK}, {0, 100, 0},
+    {RGB_BLACK}, {0, 0, 100}, {0, 0, 100}, {0, 0, 100}, {RGB_BLACK}, {RGB_BLACK}, {0, 100, 0},
 };
 
 static uint8_t indicator_status          = 2;
@@ -994,7 +994,6 @@ static void bt_indicator_led(void) {
                 }
 
                 if (timer_elapsed32(last_total_time) >= (1 * 60 * 1000)) {
-                    // if (timer_elapsed32(last_total_time) >= (30 * 1000)) {
                     indicator_status = 0;
                     kb_sleep_flag    = true;
                 }
@@ -1044,7 +1043,7 @@ static void bt_indicator_led(void) {
                         }
                         indicator_status = 2;
                         if (dev_info.devs == DEVS_2_4G) {
-                            bt_switch_mode(DEVS_USB, DEVS_2_4G, false);
+                            if (!wl_init_time) bt_switch_mode(DEVS_USB, DEVS_2_4G, false);
                         }
                         break;
                     }
@@ -1188,18 +1187,14 @@ static void bat_low_level_ind(void) {
 static void show_devices_state(void) {}
 
 uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
-    // 低电量指示
     bat_low_level_ind();
 
-    // 显示当前设备状态
     show_devices_state();
 
-    if (!wl_init_time) bt_indicator_led();
+    bt_indicator_led();
 
-    // 电量显示
     bat_level_query();
 
-    // 复位闪灯
     factory_reset_ind();
 
     return true;
