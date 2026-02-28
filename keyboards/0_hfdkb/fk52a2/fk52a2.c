@@ -150,13 +150,13 @@ static uint8_t get_pvol_from_uart(void) {
         uart_data_send[1] = uart_data_read[1];
         uart_data_send[2] = (uart_data_send[0] + uart_data_send[1]) & 0xFF;
 
-        if (dev_info.devs == DEVS_USB || ((dev_info.devs != DEVS_USB) && !kb_sleep_flag && bts_info.bt_info.paired)) {
+        if (dev_info.devs == DEVS_USB || ((dev_info.devs != DEVS_USB) && !kb_sleep_flag)) {
             uart_transmit(uart_data_send, 3);
         }
+        return uart_data_read[1];
     }
 
-    return uart_data_read[1];
-    // return 94;
+    return 94;
 }
 
 static void set_led_state(void) {
@@ -220,24 +220,20 @@ static void set_led_state(void) {
         static bool charging_now_satus = false;
 
         if (!readPin(BT_CABLE_PIN)) {
-            charging_now_satus = 1;
+            charging_now_satus = true;
 
             low_bat_vol     = false;
             low_bat_vol_off = false;
         } else {
             if (pvol <= 10) {
                 low_bat_vol = true;
-            } else {
-                low_bat_vol = false;
             }
 
             if (pvol < 1) {
                 low_bat_vol_off = true;
-            } else {
-                low_bat_vol_off = false;
             }
 
-            charging_now_satus = 0;
+            charging_now_satus = false;
         }
         if (charging_old_satus != charging_now_satus) {
             charging_old_satus = charging_now_satus;

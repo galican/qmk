@@ -175,6 +175,11 @@ static void exti_init(void) {
             pad_enable_interrupt(PAL_PAD(row_pins[row]));
         }
 
+#    ifdef ENCODER_ENABLE
+        _pal_lld_enablepadevent(PAL_PORT(C13), PAL_PAD(C13), PAL_EVENT_MODE_BOTH_EDGES);
+        pad_enable_interrupt(PAL_PAD(C13));
+#    endif
+
 #    if defined(RF_MODE_SW_PIN) && defined(BT_MODE_SW_PIN)
         setPinInputHigh(RF_MODE_SW_PIN);
         _pal_lld_enablepadevent(PAL_PORT(RF_MODE_SW_PIN), PAL_PAD(RF_MODE_SW_PIN), PAL_EVENT_MODE_BOTH_EDGES);
@@ -194,10 +199,19 @@ static void exti_init(void) {
 }
 
 static void stop_mode_entry(void) {
-    int state;
+    SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
 
-    state = __get_PRIMASK();
-    __disable_irq();
+#    if 1
+    EXTI->PR = 0x7FFFF;
+    for (uint8_t i = 0; i < 8; i++) {
+        for (uint8_t j = 0; j < 32; j++) {
+            if (NVIC->ISPR[i] & (0x01UL < j)) {
+                NVIC->ICPR[i] = (0x01UL < j);
+            }
+        }
+    }
+    SCB->ICSR |= SCB_ICSR_PENDSTCLR_Msk; // Clear Systick IRQ Pending
+#    endif
 
     /* Clear all bits except DBP and FCLKSD bit */
     PWR->CR0 &= 0x09U;
@@ -219,9 +233,7 @@ static void stop_mode_entry(void) {
     /* Clear SLEEPDEEP bit of Cortex System Control Register */
     SCB->SCR &= (~SCB_SCR_SLEEPDEEP_Msk);
 
-    if (!state) {
-        __enable_irq();
-    }
+    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 }
 
 OSAL_IRQ_HANDLER(WB32_EXTI0_IRQ_VECTOR) {

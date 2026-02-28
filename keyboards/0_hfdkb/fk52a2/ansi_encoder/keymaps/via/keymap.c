@@ -41,23 +41,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [WIN_FN] = LAYOUT_ansi_101( /* FN */
         EE_CLR,           KC_BRID, KC_BRIU, KC_TASK, KC_DESK, KC_WBAK, KC_WSCH, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, _______, _______, _______, _______, _______,
         _______, BT_HOST1,BT_HOST2,BT_HOST3,BT_2_4G, _______, _______, _______, _______, _______, _______, _______, _______, _______, RM_TOGG, _______, _______, _______, _______,
-        _______, _______, KC_W2UP, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RM_NEXT, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RM_NEXT, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          RM_HUEU, _______, _______, _______, _______,
         _______,          _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RM_VALU,          _______, _______, _______, _______,
         _______, GU_TOGG, _______,                            _______,                            _______, _______, RM_SPDD, RM_VALD, RM_SPDU, _______,          _______),
 
     [MAC_B] = LAYOUT_ansi_101( /* Base */
-        KC_ESC,           KC_BRID, KC_BRIU, KC_LPAD, KC_F11,  KC_BACK, KC_SPOT, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, KC_INS,  KC_VOLD, KC_VOLU, KC_MUTE, KC_MUTE,
+        KC_ESC,           KC_BRID, KC_BRIU, KC_MCTL, KC_F11,  KC_BACK, KC_SPOT, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, KC_INS,  KC_VOLD, KC_VOLU, KC_MUTE, KC_MUTE,
         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_BSPC, KC_DEL,  KC_NUM,  KC_PSLS, KC_PAST, KC_PMNS,
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC, KC_BSLS, KC_PGUP, KC_P7,   KC_P8,   KC_P9,   KC_PPLS,
         KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,          KC_ENT,  KC_PGDN, KC_P4,   KC_P5,   KC_P6,
         KC_LSFT,          KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT, KC_UP,            KC_P1,   KC_P2,   KC_P3,   KC_PENT,
-        KC_LCTL, KC_LOPT, KC_LCMD,                            KC_SPC,                             KC_ROPT, MO(MAC_FN), KC_LEFT, KC_DOWN, KC_RGHT, KC_P0,         KC_PDOT),
+        KC_LCTL, KC_LOPT, KC_LCMD,                            KC_SPC,                             KC_RCMD, MO(MAC_FN), KC_LEFT, KC_DOWN, KC_RGHT, KC_P0,         KC_PDOT),
 
     [MAC_FN] = LAYOUT_ansi_101( /* FN */
         EE_CLR,           KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  _______, _______, _______, _______, _______,
         _______, BT_HOST1,BT_HOST2,BT_HOST3,BT_2_4G, _______, _______, _______, _______, _______, _______, _______, _______, _______, RM_TOGG, _______, _______, _______, _______,
-        _______, _______, KC_W2UP, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RM_NEXT, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RM_NEXT, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          RM_HUEU, _______, _______, _______, _______,
         _______,          _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RM_VALU,          _______, _______, _______, _______,
         _______, _______, _______,                            _______,                            _______, _______, RM_SPDD, RM_VALD, RM_SPDU, _______,          _______),
@@ -74,8 +74,6 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 // clang-format on
 
 bool W2UP_flag = false;
-
-uint32_t GUI_release_time = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -198,17 +196,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             break;
 
-        case KC_TASK:
-            if (record->event.pressed) {
-                register_code(KC_LGUI);
-                register_code(KC_TAB);
-            } else {
-                unregister_code(KC_TAB);
-                // unregister_code(KC_LGUI);
-                GUI_release_time = timer_read32();
-            }
-            return false;
-
         case KC_SPOTLIGHT:
             if (dev_info.devs == DEVS_USB) {
                 if (record->event.pressed) {
@@ -229,11 +216,4 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
     }
     return true;
-}
-
-void housekeeping_task_user(void) {
-    if (GUI_release_time && timer_elapsed32(GUI_release_time) > 500) {
-        unregister_code(KC_LGUI);
-        GUI_release_time = 0;
-    }
 }
