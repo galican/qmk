@@ -32,7 +32,6 @@ enum layers {
 #define BT_2 BT_HOST2
 #define BT_3 BT_HOST3
 #define WL_2_4 BT_2_4G
-#define WL_TEST WL_2_4G
 
 typedef struct PACKED {
     uint8_t len;
@@ -60,7 +59,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         EE_CLR,  KC_BRID, KC_BRIU, KC_CALC, KC_MYCM, KC_TASK, KC_PRJT, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU,          _______, _______,
         _______, BT_1,    BT_2,    BT_3,    WL_2_4,  _______, _______, _______, _______, _______, _______, _______, _______, KC_DEL,           RM_HUEU,
         RM_TOGG, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PSCR, KC_SCRL, KC_PAUS, RM_NEXT,          _______,
-        _______, _______, _______, _______, _______, _______, _______, _______, WL_TEST, _______, _______, KC_INS,           LCD_ENTER,        _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_INS,           _______,          _______,
         _______,          _______, _______, _______, _______, _______, _______, SW_OS1, LCD_LEFT,LCD_RIGHT,_______, _______,          RM_VALU, _______,
         _______, GU_TOGG, _______,                            _______,                            MO(2),   _______, _______, RM_SPDD, RM_VALD, RM_SPDU),
 
@@ -84,7 +83,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         EE_CLR,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,           _______, _______,
         _______, BT_1,    BT_2,    BT_3,    WL_2_4,  _______, _______, _______, _______, _______, _______, _______, _______, KC_DEL,           RM_HUEU,
         RM_TOGG, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RM_NEXT,          _______,
-        _______, _______, _______, _______, _______, _______, _______, _______, WL_TEST, _______, _______, _______,          LCD_ENTER,        _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,          _______,
         _______,          _______, _______, _______, _______, _______, _______, SW_OS1, LCD_LEFT,LCD_RIGHT,_______, _______,          RM_VALU, _______,
         _______, _______, _______,                            _______,                            MO(5),   _______, _______, RM_SPDD, RM_VALD, RM_SPDU),
 
@@ -176,7 +175,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                     if (keycode > KC_TRNS) {
                         rgb_matrix_set_color(index, RGB_WHITE);
                     } else {
-                        // Also highlight the FN key itself (MO key on base layer)
                         uint16_t base_keycode = keymap_key_to_keycode(base_layer, (keypos_t){col, row});
                         if (base_keycode == MO(layer)) {
                             rgb_matrix_set_color(index, RGB_WHITE);
@@ -187,5 +185,5 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         }
     }
 
-    return false;
+    return true;
 }
