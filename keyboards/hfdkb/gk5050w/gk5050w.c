@@ -112,13 +112,13 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
         case SLED_VAI:
             if (record->event.pressed) {
-                if (dev_info.brightness >= (RGB_MATRIX_MAXIMUM_BRIGHTNESS - RGB_MATRIX_VAL_STEP)) {
-                    dev_info.brightness = RGB_MATRIX_MAXIMUM_BRIGHTNESS;
+                if (dev_info.brightness >= (SLED_BRIGHTNESS_MAX - SLED_BRIGHTNESS_STEP)) {
+                    dev_info.brightness = SLED_BRIGHTNESS_MAX;
                     all_blink_cnt       = 6;
                     all_blink_color     = (RGB){ALARM_COLOR_WHITE};
                     all_blink_time      = timer_read32();
                 } else {
-                    dev_info.brightness += RGB_MATRIX_VAL_STEP;
+                    dev_info.brightness += SLED_BRIGHTNESS_STEP;
                 }
                 // dev_info.brightness = qadd8(dev_info.brightness, RGB_MATRIX_VAL_STEP);
                 eeconfig_update_user(dev_info.raw);
@@ -127,13 +127,13 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
         case SLED_VAD:
             if (record->event.pressed) {
-                if (dev_info.brightness <= RGB_MATRIX_VAL_STEP) {
+                if (dev_info.brightness <= SLED_BRIGHTNESS_STEP) {
                     dev_info.brightness = 0;
                     all_blink_cnt       = 6;
                     all_blink_color     = (RGB){ALARM_COLOR_WHITE};
                     all_blink_time      = timer_read32();
                 } else {
-                    dev_info.brightness -= RGB_MATRIX_VAL_STEP;
+                    dev_info.brightness -= SLED_BRIGHTNESS_STEP;
                 }
                 // dev_info.brightness = qsub8(dev_info.brightness, RGB_MATRIX_VAL_STEP);
                 eeconfig_update_user(dev_info.raw);
@@ -497,7 +497,7 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     if (dev_info.enable && !low_battery_vol) {
         SLed_task();
     } else {
-        for (uint8_t i = 83; i <= 129; i++) {
+        for (uint8_t i = 83; i <= 130; i++) {
             rgb_matrix_set_color(i, 0, 0, 0);
         }
     }

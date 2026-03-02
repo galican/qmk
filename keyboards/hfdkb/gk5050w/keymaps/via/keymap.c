@@ -170,14 +170,14 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
             for (uint8_t col = 0; col < MATRIX_COLS; col++) {
                 uint8_t index = g_led_config.matrix_co[row][col];
-                if (index >= led_min && index < led_max && index != NO_LED) {
+                if (index >= led_min && index < 83 && index != NO_LED) {
                     uint16_t keycode = keymap_key_to_keycode(layer, (keypos_t){col, row});
                     if (keycode > KC_TRNS) {
-                        rgb_matrix_set_color(index, RGB_WHITE);
+                        rgb_matrix_set_color(index, 80,80,80);
                     } else {
                         uint16_t base_keycode = keymap_key_to_keycode(base_layer, (keypos_t){col, row});
                         if (base_keycode == MO(layer)) {
-                            rgb_matrix_set_color(index, RGB_WHITE);
+                            rgb_matrix_set_color(index, 80,80,80);
                         }
                     }
                 }

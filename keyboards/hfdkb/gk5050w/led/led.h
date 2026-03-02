@@ -19,6 +19,9 @@
 
 #include "quantum.h"
 
+#define SLED_BRIGHTNESS_STEP 20
+#define SLED_BRIGHTNESS_MAX 80
+
 typedef enum {
     SLED_MODE_SOLID_RED,
     // SLED_MODE_FLOW,

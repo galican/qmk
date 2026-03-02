@@ -1181,7 +1181,7 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
 
     static uint32_t query_vol_time  = 0;
     static uint32_t charg_full_time = 0;
-    static uint32_t charging_time   = 0;
+    // static uint32_t charging_time   = 0;
     /*************************************************************************************/
     if (EE_CLR_flag) {
         if (timer_elapsed32(EE_CLR_press_time) >= EE_CLR_press_cnt * 300) {
@@ -1242,31 +1242,40 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
     /*************************************************************************************/
     if (!readPin(BT_CABLE_PIN)) {
         if (!readPin(BT_CHARGE_PIN)) {
-            if (timer_elapsed32(charging_time) > 1200) {
-                writePinLow(LED_CHRG_PIN);
-                writePinHigh(LED_DOWN_PIN);
-                // if (!bat_vol_full) {
-                // } else {
-                //     writePinHigh(LED_CHRG_PIN);
-                //     writePinHigh(LED_DOWN_PIN);
-                // }
-                charg_full_time = timer_read32();
+            // if (timer_elapsed32(charging_time) > 500) {
+            // writePinLow(LED_CHRG_PIN);
+            // writePinHigh(LED_DOWN_PIN);
+            // if (!bat_vol_full) {
+            // } else {
+            //     writePinHigh(LED_CHRG_PIN);
+            //     writePinHigh(LED_DOWN_PIN);
+            // }
+            for (uint8_t i = 83; i <= 130; i++) {
+                rgb_matrix_set_color(i, 100, 0, 0);
             }
+            charg_full_time = timer_read32();
+            // }
         } else {
-            if (timer_elapsed32(charg_full_time) > 1200) {
-                if (timer_elapsed32(charg_full_time) < 3000) {
-                    writePinHigh(LED_CHRG_PIN);
-                    writePinLow(LED_DOWN_PIN);
-                } else {
-                    writePinHigh(LED_CHRG_PIN);
-                    writePinHigh(LED_DOWN_PIN);
+            if (timer_elapsed32(charg_full_time) > 500) {
+                if (timer_elapsed32(charg_full_time) < 3500) {
+                    //     writePinHigh(LED_CHRG_PIN);
+                    //     writePinLow(LED_DOWN_PIN);
+                    // } else {
+                    //     writePinHigh(LED_CHRG_PIN);
+                    //     writePinHigh(LED_DOWN_PIN);
+                    for (uint8_t i = 83; i <= 130; i++) {
+                        rgb_matrix_set_color(i, 0, 100, 0);
+                    }
                 }
-                charging_time = timer_read32();
+                // charging_time = timer_read32();
             }
         }
         low_battery_vol     = false;
         low_battery_vol_off = false;
     } else {
+        charg_full_time = timer_read32();
+        // charging_time   = timer_read32();
+
         if (low_battery_vol && !low_battery_vol_off) {
             static bool     Low_power_bink;
             static uint16_t Low_power_time;
@@ -1275,21 +1284,28 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
                 Low_power_time = timer_read32();
             }
             if (Low_power_bink) {
-                writePinLow(LED_CHRG_PIN);
+                // writePinLow(LED_CHRG_PIN);
+                for (uint8_t i = 83; i <= 130; i++) {
+                    rgb_matrix_set_color(i, 100, 0, 0);
+                }
             } else {
-                writePinHigh(LED_CHRG_PIN);
+                // writePinHigh(LED_CHRG_PIN);
+                for (uint8_t i = 83; i <= 130; i++) {
+                    rgb_matrix_set_color(i, 0, 0, 0);
+                }
             }
         } else if (low_battery_vol_off) {
-            writePinHigh(LED_CHRG_PIN);
+            // writePinHigh(LED_CHRG_PIN);
             extern bool low_vol_offed_sleep;
             if (timer_elapsed32(pressed_time) > 2000) {
                 kb_sleep_flag = true;
             }
             low_vol_offed_sleep = true;
-        } else {
-            writePinHigh(LED_CHRG_PIN);
-            writePinHigh(LED_DOWN_PIN);
         }
+        // else {
+        //     writePinHigh(LED_CHRG_PIN);
+        //     writePinHigh(LED_DOWN_PIN);
+        // }
     }
     /*************************************************************************************/
     if (dev_info.devs != DEVS_USB) {
