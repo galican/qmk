@@ -22,6 +22,58 @@ void led_deconfig_all(void) {
     }
 }
 
+#if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
+static uint8_t  rChr_ChkBuf  = 0;
+static uint8_t  rChr_OldBuf  = 0;
+static uint16_t rChr_Cnt     = 0;
+static uint8_t  f_ChargeOn   = 0;
+static uint8_t  f_ChargeFull = 0;
+
+bool charging = false;
+bool charged  = false;
+
+#    define CHR_DEBOUNCE 100
+
+static void Charge_Chat(void) {
+    uint8_t i = 0;
+
+    if (readPin(BT_CABLE_PIN) == 0) i |= 0x01;
+    if (readPin(BT_CHARGE_PIN) == 0) i |= 0x02;
+
+    if (rChr_ChkBuf != i) {
+        rChr_Cnt    = CHR_DEBOUNCE;
+        rChr_ChkBuf = i;
+    } else {
+        if (rChr_Cnt != 0) {
+            rChr_Cnt--;
+            if (rChr_Cnt == 0) {
+                i = rChr_ChkBuf ^ rChr_OldBuf;
+
+                if (i != 0) {
+                    rChr_OldBuf = rChr_ChkBuf;
+
+                    if (i & 0x3) {
+                        f_ChargeOn   = (rChr_ChkBuf & 0x01) ? 1 : 0;
+                        f_ChargeFull = (rChr_ChkBuf & 0x02) ? 1 : 0;
+
+                        if (f_ChargeOn && f_ChargeFull) {
+                            charging = true;
+                            charged  = false;
+                        } else if (f_ChargeOn && !f_ChargeFull) {
+                            charging = false;
+                            charged  = true;
+                        } else {
+                            charging = false;
+                            charged  = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+#endif
+
 bool dip_switch_update_kb(uint8_t index, bool active) {
     if (!dip_switch_update_user(index, active)) {
         return false;
@@ -88,10 +140,20 @@ void matrix_init_kb(void) {
     matrix_init_user();
 }
 
+static uint32_t chrg_check_time = 0;
+
 void matrix_scan_kb(void) {
 #ifdef BT_MODE_ENABLE
     bt_task();
 #endif
+
+#if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
+    if (timer_elapsed32(chrg_check_time) >= 2) {
+        chrg_check_time = timer_read32();
+        Charge_Chat();
+    }
+#endif
+
     matrix_scan_user();
 }
 
