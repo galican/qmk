@@ -1037,7 +1037,7 @@ static void bat_voltage_query(void) {
         }
 
         if (readPin(BT_CABLE_PIN)) {
-            if (bts_info.bt_info.pvol < 10) {
+            if (bts_info.bt_info.pvol < 20) {
                 if (!Low_power) Low_power = true;
             }
 
@@ -1055,7 +1055,8 @@ static void bat_voltage_query(void) {
                 Low_power_bink = false;
             }
 
-            if (bts_info.bt_info.low_vol_offed) {
+            // if (bts_info.bt_info.low_vol_offed) {
+            if (bts_info.bt_info.pvol < 6) {
                 extern bool low_vol_offed_sleep;
                 low_vol_offed_sleep = true;
                 if (timer_elapsed32(pressed_time) > 2000) {
