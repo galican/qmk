@@ -59,6 +59,9 @@ uint8_t uart3_read(void) {
 }
 
 void uart3_transmit(const uint8_t *data, uint16_t length) {
+    // extern bool LCD_DONT_SEND;
+    // if (LCD_DONT_SEND) return;
+
     sdWrite(&SERIAL3_DRIVER, data, length);
 }
 

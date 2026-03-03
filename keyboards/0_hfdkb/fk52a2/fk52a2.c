@@ -281,18 +281,21 @@ void keyboard_post_init_kb(void) {
 //     eeconfig_update_user(dev_info.raw);
 // }
 
-static bool LCD_Sleep_Flag = false;
+bool LCD_Sleep_Flag = false;
+// bool LCD_DONT_SEND  = false;
 
 void suspend_power_down_user(void) {
     if (!LCD_Sleep_Flag) {
         LCD_Sleep_Flag = true;
         LCD_command_update(LCD_LIGHT_SLEEP);
+        // LCD_DONT_SEND = true;
     }
 }
 
 void suspend_wakeup_init_user(void) {
     if (LCD_Sleep_Flag) {
         LCD_Sleep_Flag = false;
+        // LCD_DONT_SEND  = false;
         LCD_command_update(LCD_LIGHT_WAKEUP);
     }
 }

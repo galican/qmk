@@ -804,6 +804,8 @@ static void close_rgb(void) {
             writePinLow(RGB_DRIVER_SDB_PIN);
 #endif
             gpio_write_pin_low(SNLED27351_SDB_PIN);
+            rgb_matrix_set_color_all(0, 0, 0);
+            rgb_matrix_driver.flush();
         }
     } else {
         if (!rgb_matrix_config.enable) {
@@ -1072,52 +1074,50 @@ bool bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
     // static bool     chrg_blink      = false;
     // static uint32_t chrg_blink_time = 0;
     // static uint32_t charging_time = 0;
-    // static uint32_t charged_time = 0;
+    // static uint32_t charged_time  = 0;
 
     bat_voltage_query();
 
     bt_indicator_led();
 
-    extern bool charging;
-    extern bool charged;
+    // extern bool charging;
+    // extern bool charged;
 
-    // if (!readPin(BT_CABLE_PIN)) {
-    //     if (!readPin(BT_CHARGE_PIN)) {
-    if (charging) {
-        // if (timer_elapsed32(charging_time) > 500) {
-        for (uint8_t i = 83; i < 87; i++) {
-            rgb_matrix_set_color(i, 100, 100, 100);
+    if (!readPin(BT_CABLE_PIN)) {
+        if (!readPin(BT_CHARGE_PIN)) {
+            // if (charging) {
+            // if (timer_elapsed32(charging_time) > 500) {
+            for (uint8_t i = 83; i < 87; i++) {
+                rgb_matrix_set_color(i, 100, 100, 100);
+            }
+            // }
+
+            // if (timer_elapsed32(chrg_blink_time) >= 1000) {
+            //     chrg_blink      = !chrg_blink;
+            //     chrg_blink_time = timer_read32();
+            // }
+            // if (chrg_blink) {
+            //     rgb_matrix_set_color(LED_PWR_LOW_IND_INDEX, 0, 100, 0);
+            // } else {
+            //     rgb_matrix_set_color(LED_PWR_LOW_IND_INDEX, 0, 0, 0);
+            // }
+
+            // charged_time = timer_read32();
+        } else {
+            // if (charged) {
+            // if (timer_elapsed32(charged_time) > 500) {
+            // rgb_matrix_set_color(LED_PWR_LOW_IND_INDEX, 0, 100, 0);
+            for (uint8_t i = 83; i < 87; i++) {
+                rgb_matrix_set_color(i, 0, 100, 0);
+            }
+            // }
+            // charging_time = timer_read32();
         }
-        // }
-
-        // if (timer_elapsed32(chrg_blink_time) >= 1000) {
-        //     chrg_blink      = !chrg_blink;
-        //     chrg_blink_time = timer_read32();
-        // }
-        // if (chrg_blink) {
-        //     rgb_matrix_set_color(LED_PWR_LOW_IND_INDEX, 0, 100, 0);
-        // } else {
-        //     rgb_matrix_set_color(LED_PWR_LOW_IND_INDEX, 0, 0, 0);
-        // }
-
-        // charged_time = timer_read32();
-    }
-
-    if (charged) {
-        // if (timer_elapsed32(charged_time) > 2000) {
-        // rgb_matrix_set_color(LED_PWR_LOW_IND_INDEX, 0, 100, 0);
-        for (uint8_t i = 83; i < 87; i++) {
-            rgb_matrix_set_color(i, 0, 100, 0);
-        }
-        // }
+    } else {
+        // chrg_blink_time = timer_read32();
+        // charged_time  = timer_read32();
         // charging_time = timer_read32();
     }
-    // }
-    // else {
-    // chrg_blink_time = timer_read32();
-    // charged_time = timer_read32();
-    // charging_time = timer_read32();
-    // }
 
     if (query_vol_flag) {
         for (uint8_t i = led_min; i < 83; i++) {

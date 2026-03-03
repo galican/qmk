@@ -23,55 +23,55 @@ void led_deconfig_all(void) {
 }
 
 #if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
-static uint8_t  rChr_ChkBuf  = 0;
-static uint8_t  rChr_OldBuf  = 0;
-static uint16_t rChr_Cnt     = 0;
-static uint8_t  f_ChargeOn   = 0;
-static uint8_t  f_ChargeFull = 0;
+// static uint8_t  rChr_ChkBuf  = 0;
+// static uint8_t  rChr_OldBuf  = 0;
+// static uint16_t rChr_Cnt     = 0;
+// static uint8_t  f_ChargeOn   = 0;
+// static uint8_t  f_ChargeFull = 0;
 
-bool charging = false;
-bool charged  = false;
+// bool charging = false;
+// bool charged  = false;
 
-#    define CHR_DEBOUNCE 100
+// #    define CHR_DEBOUNCE 100
 
-static void Charge_Chat(void) {
-    uint8_t i = 0;
+// static void Charge_Chat(void) {
+//     uint8_t i = 0;
 
-    if (readPin(BT_CABLE_PIN) == 0) i |= 0x01;
-    if (readPin(BT_CHARGE_PIN) == 0) i |= 0x02;
+//     if (readPin(BT_CABLE_PIN) == 0) i |= 0x01;
+//     if (readPin(BT_CHARGE_PIN) == 0) i |= 0x02;
 
-    if (rChr_ChkBuf != i) {
-        rChr_Cnt    = CHR_DEBOUNCE;
-        rChr_ChkBuf = i;
-    } else {
-        if (rChr_Cnt != 0) {
-            rChr_Cnt--;
-            if (rChr_Cnt == 0) {
-                i = rChr_ChkBuf ^ rChr_OldBuf;
+//     if (rChr_ChkBuf != i) {
+//         rChr_Cnt    = CHR_DEBOUNCE;
+//         rChr_ChkBuf = i;
+//     } else {
+//         if (rChr_Cnt != 0) {
+//             rChr_Cnt--;
+//             if (rChr_Cnt == 0) {
+//                 i = rChr_ChkBuf ^ rChr_OldBuf;
 
-                if (i != 0) {
-                    rChr_OldBuf = rChr_ChkBuf;
+//                 if (i != 0) {
+//                     rChr_OldBuf = rChr_ChkBuf;
 
-                    if (i & 0x3) {
-                        f_ChargeOn   = (rChr_ChkBuf & 0x01) ? 1 : 0;
-                        f_ChargeFull = (rChr_ChkBuf & 0x02) ? 1 : 0;
+//                     if (i & 0x3) {
+//                         f_ChargeOn   = (rChr_ChkBuf & 0x01) ? 1 : 0;
+//                         f_ChargeFull = (rChr_ChkBuf & 0x02) ? 1 : 0;
 
-                        if (f_ChargeOn && f_ChargeFull) {
-                            charging = true;
-                            charged  = false;
-                        } else if (f_ChargeOn && !f_ChargeFull) {
-                            charging = false;
-                            charged  = true;
-                        } else {
-                            charging = false;
-                            charged  = false;
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+//                         if (f_ChargeOn && f_ChargeFull) {
+//                             charging = true;
+//                             charged  = false;
+//                         } else if (f_ChargeOn && !f_ChargeFull) {
+//                             charging = false;
+//                             charged  = true;
+//                         } else {
+//                             charging = false;
+//                             charged  = false;
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
 #endif
 
 bool dip_switch_update_kb(uint8_t index, bool active) {
@@ -140,7 +140,7 @@ void matrix_init_kb(void) {
     matrix_init_user();
 }
 
-static uint32_t chrg_check_time = 0;
+// static uint32_t chrg_check_time = 0;
 
 void matrix_scan_kb(void) {
 #ifdef BT_MODE_ENABLE
@@ -148,10 +148,10 @@ void matrix_scan_kb(void) {
 #endif
 
 #if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
-    if (timer_elapsed32(chrg_check_time) >= 2) {
-        chrg_check_time = timer_read32();
-        Charge_Chat();
-    }
+    // if (timer_elapsed32(chrg_check_time) >= 2) {
+    //     chrg_check_time = timer_read32();
+    //     Charge_Chat();
+    // }
 #endif
 
     matrix_scan_user();
@@ -253,14 +253,21 @@ static const uint8_t rgb_logo_color_table[][3] = {
     {100, 0, 0}, {0, 100, 0}, {0, 0, 100}, {100, 100, 0}, {100, 100, 100}, {100, 0, 100}, {0, 100, 100},
 };
 
+extern bool Low_power;
+
 #ifdef RGB_MATRIX_ENABLE
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     extern bool EE_CLR_flag;
-    extern bool Low_power;
+    // extern bool Low_power;
 
-    if ((rgb_matrix_get_flags() == LED_FLAG_NONE) || Low_power) {
-        // if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
+    // if ((rgb_matrix_get_flags() == LED_FLAG_NONE) || Low_power) {
+    if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
         rgb_matrix_set_color_all(0, 0, 0);
+    }
+
+    if (Low_power) {
+        rgb_matrix_set_color_all(0, 0, 0);
+        // rgb_matrix_driver.flush();
     }
 
     if ((rgb_matrix_get_flags() != LED_FLAG_NONE) && !EE_CLR_flag && !Low_power) {
@@ -288,10 +295,20 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     if (host_keyboard_led_state().caps_lock && (dev_info.devs == DEVS_USB || bts_info.bt_info.paired)) {
         rgb_matrix_set_color(LED_CAPS_LOCK_IND_INDEX, 100, 100, 100);
     }
+    // else {
+    //     if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
+    //         rgb_matrix_set_color(LED_CAPS_LOCK_IND_INDEX, 0, 0, 0);
+    //     }
+    // }
     // gui lock red
     if (keymap_config.no_gui && (dev_info.devs == DEVS_USB || bts_info.bt_info.paired) && (get_highest_layer(default_layer_state) == 0)) {
         rgb_matrix_set_color(LED_GUI_LOCK_IND_INDEX, 100, 100, 100);
     }
+    // else {
+    //     if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
+    //         rgb_matrix_set_color(LED_GUI_LOCK_IND_INDEX, 0, 0, 0);
+    //     }
+    // }
 
     if (rgb_matrix_indicators_advanced_user(led_min, led_max) != true) {
         return false;
@@ -300,3 +317,20 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     return true;
 }
 #endif
+
+// bool led_update_kb(led_t led_state) {
+//     bool res = led_update_user(led_state);
+//     if (res) {
+//         led_update_ports(led_state);
+
+//         if (Low_power) {
+// #ifdef SNLED27351_SDB_PIN
+//             gpio_write_pin_low(SNLED27351_SDB_PIN);
+// #endif
+//             rgb_matrix_set_color_all(0, 0, 0);
+//             rgb_matrix_driver.flush();
+//         }
+//     }
+
+//     return res;
+// }
