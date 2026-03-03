@@ -910,7 +910,7 @@ static void close_rgb(void) {
     }
 
     if (sober) {
-        if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= (10 * 60000))) { // 3 minutes
+        if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= (10 * 60000))) {
             bak_rgb_toggle = rgb_matrix_config.enable;
             sober          = false;
             close_rgb_time = timer_read32();
@@ -960,6 +960,7 @@ static void close_rgb(void) {
                 open_rgb();
 
                 LCD_IND_update();
+                LCD_charge_update();
             }
         }
     }
