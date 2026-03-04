@@ -845,14 +845,14 @@ static void bt_used_pin_init(void) {
     setPinInput(BT_CHARGE_PIN);
 #endif
 
-#if defined(LED_CHRG_PIN) && defined(LED_DOWN_PIN)
-    setPinOutputPushPull(LED_CHRG_PIN);
-    setPinOutputPushPull(LED_DOWN_PIN);
-    setPinOutputPushPull(LED_UNUSED_PIN);
+#if defined(LED_RED_PIN) && defined(LED_GREEN_PIN) && defined(LED_BLUE_PIN)
+    setPinOutputPushPull(LED_RED_PIN);
+    setPinOutputPushPull(LED_GREEN_PIN);
+    setPinOutputPushPull(LED_BLUE_PIN);
 
-    writePinHigh(LED_CHRG_PIN);
-    writePinHigh(LED_DOWN_PIN);
-    writePinHigh(LED_UNUSED_PIN);
+    writePinHigh(LED_RED_PIN);
+    writePinHigh(LED_GREEN_PIN);
+    writePinHigh(LED_BLUE_PIN);
 #endif
 }
 
@@ -957,6 +957,10 @@ void led_config_all(void) {
         setPinOutputPushPull(RGB_MATRIX_SDB_PIN);
         writePinHigh(RGB_MATRIX_SDB_PIN);
 #endif
+
+        writePin(LED_RED_PIN, !host_keyboard_led_state().caps_lock);
+        writePin(LED_GREEN_PIN, !host_keyboard_led_state().caps_lock);
+        writePin(LED_BLUE_PIN, !host_keyboard_led_state().caps_lock);
         // if (dev_info.devs == DEVS_USB) LCD_command_update(LCD_WAKEUP);
     }
 }
@@ -968,6 +972,10 @@ void led_deconfig_all(void) {
         setPinOutputPushPull(RGB_MATRIX_SDB_PIN);
         writePinLow(RGB_MATRIX_SDB_PIN);
 #endif
+
+        writePinHigh(LED_RED_PIN);
+        writePinHigh(LED_GREEN_PIN);
+        writePinHigh(LED_BLUE_PIN);
         // if (dev_info.devs == DEVS_USB) LCD_command_update(LCD_SLEEP);
     }
 }

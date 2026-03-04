@@ -468,14 +468,26 @@ void housekeeping_task_kb(void) {
 
 extern bool low_battery_vol;
 
+bool led_update_kb(led_t led_state) {
+    bool res = led_update_user(led_state);
+
+    if (res) {
+        writePin(LED_RED_PIN, !led_state.caps_lock);
+        writePin(LED_GREEN_PIN, !led_state.caps_lock);
+        writePin(LED_BLUE_PIN, !led_state.caps_lock);
+    }
+
+    return res;
+}
+
 bool rgb_matrix_indicators_kb(void) {
     if (!rgb_matrix_get_flags() || low_battery_vol) {
         rgb_matrix_set_color_all(RGB_OFF);
     }
 
-    if (host_keyboard_led_state().caps_lock) {
-        rgb_matrix_set_color(LED_CAPS_LOCK, RGB_WHITE);
-    }
+    // if (host_keyboard_led_state().caps_lock) {
+    // rgb_matrix_set_color(LED_CAPS_LOCK, RGB_WHITE);
+    // }
 
     if (keymap_config.no_gui) {
         rgb_matrix_set_color(LED_WIN_LOCK, RGB_CYAN);
