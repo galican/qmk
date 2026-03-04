@@ -991,6 +991,9 @@ static void close_rgb(void) {
         if (!backlight_sleep_flag) {
             backlight_sleep_flag = true;
             LCD_command_update(LCD_LIGHT_SLEEP);
+            writePinHigh(LED_RED_PIN);
+            writePinHigh(LED_GREEN_PIN);
+            writePinHigh(LED_BLUE_PIN);
         }
         // writePinHigh(LED_CHRG_PIN);
     } else {
@@ -1050,6 +1053,9 @@ void open_rgb(void) {
     if (backlight_sleep_flag) {
         backlight_sleep_flag = false;
         LCD_command_update(LCD_LIGHT_WAKEUP);
+        writePin(LED_RED_PIN, !host_keyboard_led_state().caps_lock);
+        writePin(LED_GREEN_PIN, !host_keyboard_led_state().caps_lock);
+        writePin(LED_BLUE_PIN, !host_keyboard_led_state().caps_lock);
     }
 
     if (!sober) {
