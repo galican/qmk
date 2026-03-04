@@ -125,7 +125,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             return false;
-        } break;
+        }
+        case SW_OS1: { // OS switch key
+            if (record->event.pressed) {
+                if (get_highest_layer(default_layer_state) == 0) { // WIN_BASE
+                    set_single_persistent_default_layer(3);
+                    if (keymap_config.no_gui) {
+                        keymap_config.no_gui = false;
+                    }
+                    single_blink_index = 32;
+                } else if (get_highest_layer(default_layer_state) == 3) { // MAC_BASE
+                    set_single_persistent_default_layer(0);
+                    single_blink_index = 31;
+                }
+                single_blink_cnt   = 6;
+                single_blink_color = (RGB){RGB_WHITE};
+                single_blink_time  = timer_read32();
+            }
+        }
+            return false;
     }
 
     return true;
