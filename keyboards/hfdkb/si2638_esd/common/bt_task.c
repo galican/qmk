@@ -1145,7 +1145,8 @@ static void bt_used_pin_init(void) {
 #endif
 
 #if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
-    setPinInputHigh(BT_CABLE_PIN);
+    // setPinInputHigh(BT_CABLE_PIN);
+    setPinInput(BT_CABLE_PIN);
     setPinInput(BT_CHARGE_PIN);
 #endif
 }
@@ -1294,6 +1295,9 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
             dev_info.enc_led_effect  = 0;
             eeconfig_update_user(dev_info.raw);
             keymap_config.no_gui = 0;
+            eeconfig_update_keymap(&keymap_config);
+
+            keymap_config.nkro = true;
             eeconfig_update_keymap(&keymap_config);
 
             if (dev_info.devs != DEVS_USB && !bts_info.bt_info.paired) {

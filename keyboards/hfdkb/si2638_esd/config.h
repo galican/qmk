@@ -62,3 +62,5 @@
     } while (0)
 
 #define MATRIX_UNSELECT_DRIVE_HIGH
+
+#define NKRO_DEFAULT_ON true
