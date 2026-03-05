@@ -22,8 +22,10 @@ void keyboard_post_init_kb(void) {
     keyboard_post_init_user();
 }
 
+extern bool low_vol_offed_sleep;
+
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-    if ((dev_info.devs != DEVS_USB) && bts_info.bt_info.low_vol_offed) {
+    if ((dev_info.devs != DEVS_USB) && low_vol_offed_sleep) {
         WL_PROCESS_KEYS(keycode, 0);
         bts_task(dev_info.devs);
         while (bts_is_busy()) {

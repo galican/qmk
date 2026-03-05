@@ -51,7 +51,7 @@ enum indicator_states {
 };
 
 static uint32_t bt_init_time = 0;
-static uint16_t wl_init_time = 0;
+// static uint16_t wl_init_time = 0;
 
 static uint32_t USB_switch_time = 0;
 static uint8_t  USB_blink_cnt   = 0;
@@ -368,7 +368,7 @@ void bt_init(void) {
     }
 
     bt_init_time = timer_read32();
-    wl_init_time = timer_read();
+    // wl_init_time = timer_read();
 }
 
 /**
@@ -408,9 +408,9 @@ void bt_task(void) {
         }
     }
 
-    if ((wl_init_time != 0) && (timer_elapsed(wl_init_time) >= 500)) {
-        wl_init_time = 0;
-    }
+    // if ((wl_init_time != 0) && (timer_elapsed(wl_init_time) >= 500)) {
+    //     wl_init_time = 0;
+    // }
 
     /* Execute every 1ms */
     if (timer_elapsed32(last_time) >= 1) {
@@ -429,7 +429,8 @@ void bt_task(void) {
     }
 
     long_pressed_keys_hook();
-    if (!wl_init_time) bt_scan_mode();
+    // if (!wl_init_time)
+    bt_scan_mode();
 }
 
 static uint32_t pressed_time = 0;
@@ -978,6 +979,9 @@ static void factory_reset_ind(void) {
             EE_CLR_flag       = false;
             eeconfig_init();
             eeconfig_update_rgb_matrix_default();
+
+            keymap_config.no_gui = false;
+            eeconfig_update_keymap(&keymap_config);
 
             if ((dev_info.devs != DEVS_USB) && !bts_info.bt_info.paired) {
                 if (dev_info.devs == DEVS_2_4G) {
