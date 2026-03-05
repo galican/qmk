@@ -75,9 +75,10 @@ static uint32_t close_rgb_time;
 
 static bool bak_rgb_toggle;
 static bool led_inited;
-static bool sober                = true;
-static bool kb_sleep_flag        = false;
-static bool backlight_sleep_flag = false;
+static bool sober         = true;
+static bool kb_sleep_flag = false;
+
+bool backlight_sleep_flag = false;
 
 bool low_battery_vol     = false;
 bool low_battery_vol_off = false;

@@ -467,14 +467,17 @@ void housekeeping_task_kb(void) {
 }
 
 extern bool low_battery_vol;
+extern bool backlight_sleep_flag;
 
 bool led_update_kb(led_t led_state) {
     bool res = led_update_user(led_state);
 
     if (res) {
-        writePin(LED_RED_PIN, !led_state.caps_lock);
-        writePin(LED_GREEN_PIN, !led_state.caps_lock);
-        writePin(LED_BLUE_PIN, !led_state.caps_lock);
+        if (!backlight_sleep_flag) {
+            writePin(LED_RED_PIN, !led_state.caps_lock);
+            writePin(LED_GREEN_PIN, !led_state.caps_lock);
+            writePin(LED_BLUE_PIN, !led_state.caps_lock);
+        }
     }
 
     return res;
