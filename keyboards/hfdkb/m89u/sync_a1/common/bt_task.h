@@ -31,20 +31,22 @@ enum bt_keycodes {
     FACTORY_RESET,
     KEYBOARD_RESET,
     BLE_RESET,
-    KEY_EQL,
+    // KEY_EQL,
 
     RGB_TOG,
     RGB_MOD,
-    RGB_HUD,
     RGB_HUI,
-    RGB_SAD,
     RGB_SAI,
-    RGB_VAD,
     RGB_VAI,
-    RGB_SPD,
     RGB_SPI,
+};
 
-    RGB_TEST,
+enum custom_keycodes {
+    RGB_TEST = SAFE_RANGE,
+    RGB_HUD,
+    RGB_SAD,
+    RGB_VAD,
+    RGB_SPD,
 };
 
 typedef union {

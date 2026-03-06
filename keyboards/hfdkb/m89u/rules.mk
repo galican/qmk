@@ -14,7 +14,7 @@ else ifeq ($(strip $(MULTIMODE_VARIANT)), sync_a1)
 else ifeq ($(strip $(MULTIMODE_VARIANT)), sync_a2)
     MODULE_DIR := $(KEYBOARD_BASE_DIR)/sync_a2/common
 else
-    $(error Invalid MULTIMODE_VARIANT: $(MULTIMODE_VARIANT). Valid options: async, sync_a1, sync_a2)
+    $(error Invalid MULTIMODE_VARmakeIANT: $(MULTIMODE_VARIANT). Valid options: async, sync_a1, sync_a2)
 endif
 
 ifeq ($(strip $(CONSOLE_ENABLE)), yes)
