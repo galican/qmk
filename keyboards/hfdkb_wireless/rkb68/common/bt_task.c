@@ -103,6 +103,10 @@ long_pressed_keys_t long_pressed_keys[] = {
 };
 // clang-format on
 
+bool get_kb_sleep_flag(void) {
+    return kb_sleep_flag;
+}
+
 #include "command.h"
 
 void register_mouse(uint8_t mouse_keycode, bool pressed);

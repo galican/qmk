@@ -36,7 +36,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [WIN_FN] = LAYOUT( /* FN */
         KC_2G4,  KC_BT1,   KC_BT2,   KC_BT3,   _______, _______, _______, _______, _______, _______, _______, _______,    _______, _______, _______,
-        KC_USB,  RM_TOGG,  RM_NEXT,  RM_PREV,  RM_HUEU, RM_HUED, RM_SATU, RM_SATD, RM_SPDU, RM_SPDD, _______, _______,    _______, _______, _______,
+        KC_USB,  RM_TOGG,  RM_NEXT,  RM_PREV,  RM_HUEU, RM_HUED, RM_SATU, RM_SATD, RM_VALU, RM_VALD, RM_SPDU, RM_SPDD,    _______, _______, _______,
         _______, _______,  SW_OS1,   _______,  _______, _______, _______, _______, _______, _______, _______, _______,             _______, _______,
         _______,           KC_MSEL,  KC_VOLD,  KC_VOLU, KC_MUTE, BT_VOL,  _______, _______, _______, _______, _______,    _______, _______, _______,
         KC_N2FN, GU_TOGG,  _______,                              EE_CLR,                    _______, _______, _______,    _______, _______, _______),
@@ -57,7 +57,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [MAC_FN] = LAYOUT( /* FN */
         KC_2G4,  KC_BT1,   KC_BT2,   KC_BT3,   _______, _______, _______, _______, _______, _______, _______, _______,    _______, _______, _______,
-        KC_USB,  RM_TOGG,  RM_NEXT,  RM_PREV,  RM_HUEU, RM_HUED, RM_SATU, RM_SATD, RM_SPDU, RM_SPDD, _______, _______,    _______, _______, _______,
+        KC_USB,  RM_TOGG,  RM_NEXT,  RM_PREV,  RM_HUEU, RM_HUED, RM_SATU, RM_SATD, RM_VALU, RM_VALD, RM_SPDU, RM_SPDD,    _______, _______, _______,
         _______, SW_OS1,   _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,             _______, _______,
         _______,           KC_MSEL,  KC_VOLD,  KC_VOLU, KC_MUTE, BT_VOL,  _______, _______, _______, _______, _______,    _______, _______, _______,
         KC_N2FN, _______,  _______,                              EE_CLR,                    _______, _______, _______,    _______, _______, _______),
