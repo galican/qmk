@@ -767,7 +767,7 @@ static void long_pressed_keys_cb(uint16_t keycode) {
                 set_single_persistent_default_layer(0);
             }
             all_blink_cnt   = 6;
-            all_blink_color = (RGB){RGB_WHITE};
+            all_blink_color = (RGB){100, 100, 100};
             all_blink_time  = timer_read32();
         } break;
         case EE_CLR: {
@@ -912,6 +912,7 @@ static void handle_ee_clr_indication(void) {
             EE_CLR_press_cnt  = 0;
             EE_CLR_flag       = false;
             eeconfig_init();
+
             if (keymap_config.no_gui) {
                 keymap_config.no_gui = false;
             }
