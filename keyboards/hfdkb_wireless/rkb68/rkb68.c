@@ -108,7 +108,7 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     }
 
     extern bool get_kb_sleep_flag(void);
-    if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !get_kb_sleep_flag()) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state != USB_SUSPENDED)))) {
+    if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !get_kb_sleep_flag()) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state == USB_ACTIVE)))) {
         rgb_matrix_set_color(LED_CAPS_LOCK_INDEX, 0x77, 0x77, 0x77);
     }
 
@@ -120,11 +120,40 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
 }
 
 void housekeeping_task_kb(void) {
+#ifdef BT_MODE_ENABLE
+    extern void housekeeping_task_bt(void);
+    housekeeping_task_bt();
+#endif
+
 #ifdef USB_SUSPEND_CHECK_ENABLE
     static uint32_t usb_suspend_timer = 0;
-    static uint32_t usb_suspend       = false;
+    static bool     usb_suspend       = false;
 
     if (dev_info.devs == DEVS_USB) {
+        if ((USB_DRIVER.state != USB_ACTIVE)) {
+            if (!usb_suspend_timer) {
+                usb_suspend_timer = timer_read32() ? timer_read32() : 1;
+            } else if (timer_elapsed32(usb_suspend_timer) > 10000) {
+                if (!usb_suspend) {
+                    usb_suspend = true;
+#    ifdef LED_POWER_EN_PIN
+                    writePinLow(LED_POWER_EN_PIN);
+#    endif
+                    rgb_matrix_set_suspend_state(true); // Software suspend
+                }
+            }
+        } else {
+            if (usb_suspend) {
+                usb_suspend_timer = 0;
+                usb_suspend       = false;
+
+#    ifdef LED_POWER_EN_PIN
+                writePinHigh(LED_POWER_EN_PIN);
+#    endif
+                rgb_matrix_set_suspend_state(false); // Software wake
+            }
+        }
+
         if (usb_suspend) {
             bool wakeup = false;
             for (uint8_t r = 0; r < MATRIX_ROWS; r++) {
@@ -134,44 +163,23 @@ void housekeeping_task_kb(void) {
                 }
             }
             if (wakeup) {
-                // usbWakeupHost(&USB_DRIVER);
-                // restart_usb_driver(&USB_DRIVER);
                 usb_suspend       = false;
                 usb_suspend_timer = 0;
 #    ifdef LED_POWER_EN_PIN
-                writePinLow(LED_POWER_EN_PIN);
+                writePinHigh(LED_POWER_EN_PIN);
 #    endif
+                rgb_matrix_set_suspend_state(false);
             }
         }
-
-        if ((USB_DRIVER.state != USB_ACTIVE)) {
-            if (!usb_suspend_timer) {
-                usb_suspend_timer = timer_read32();
-            } else if (timer_elapsed32(usb_suspend_timer) > 10000) {
-                usb_suspend_timer = 0;
-                if (!usb_suspend) {
-                    usb_suspend = true;
+    } else {
+        if (usb_suspend) {
+            usb_suspend_timer = 0;
+            usb_suspend       = false;
 #    ifdef LED_POWER_EN_PIN
-                    writePinHigh(LED_POWER_EN_PIN);
+            writePinHigh(LED_POWER_EN_PIN);
 #    endif
-                    // lpwr_set_state(LPWR_PRESLEEP);
-                }
-            }
-        } else {
-            if (usb_suspend) {
-                usb_suspend_timer = 0;
-                usb_suspend       = false;
-
-#    ifdef LED_POWER_EN_PIN
-                writePinLow(LED_POWER_EN_PIN);
-#    endif
-            }
+            rgb_matrix_set_suspend_state(false);
         }
     }
-#endif
-
-#ifdef BT_MODE_ENABLE
-    extern void housekeeping_task_bt(void);
-    housekeeping_task_bt();
 #endif
 }

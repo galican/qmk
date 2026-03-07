@@ -744,8 +744,10 @@ static void long_pressed_keys_hook(void) {
 
 static void bt_used_pin_init(void) {
 #ifdef LED_POWER_EN_PIN
-    setPinOutput(LED_POWER_EN_PIN);
-    writePinLow(LED_POWER_EN_PIN);
+    setPinOutputPushPull(LED_POWER_EN_PIN);
+    writePinHigh(LED_POWER_EN_PIN);
+    // setPinOutputOpenDrain(LED_POWER_EN_PIN);
+    // writePinLow(LED_POWER_EN_PIN);
 #endif
 
 #ifdef WL_PWR_SW_PIN
@@ -808,7 +810,9 @@ static void close_rgb(void) {
             close_rgb_time = timer_read32();
             rgb_matrix_disable_noeeprom();
 #ifdef LED_POWER_EN_PIN
-            writePinHigh(LED_POWER_EN_PIN);
+            writePinLow(LED_POWER_EN_PIN);
+            // writePinHigh(LED_POWER_EN_PIN);
+            // setPinOutputOpenDrain(LED_POWER_EN_PIN);
 #endif
         }
     } else {
@@ -831,10 +835,13 @@ static void close_rgb(void) {
 
 static void open_rgb(void) {
     key_press_time = timer_read32();
-#ifdef LED_POWER_EN_PIN
-    writePinLow(LED_POWER_EN_PIN);
-#endif
+
     if (!sober) {
+#ifdef LED_POWER_EN_PIN
+        writePinHigh(LED_POWER_EN_PIN);
+        // setPinOutput(LED_POWER_EN_PIN);
+        // writePinLow(LED_POWER_EN_PIN);
+#endif
         if (bak_rgb_toggle) {
             kb_sleep_flag = false;
             extern bool low_vol_offed_sleep;
@@ -951,7 +958,7 @@ static void bt_indicator_led(void) {
         static bool     USB_blink      = false;
 
         if ((USB_DRIVER.state != USB_ACTIVE)) {
-            if (USB_blink_cnt <= 20) {
+            if (USB_blink_cnt <= 18) {
                 if (timer_elapsed32(USB_blink_time) >= 500) {
                     USB_blink_cnt++;
                     USB_blink      = !USB_blink;
