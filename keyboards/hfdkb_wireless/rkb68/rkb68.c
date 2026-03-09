@@ -101,19 +101,19 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
             RGB rgb = hsv_to_rgb(hsv);
             rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
         }
+
+        extern bool get_kb_sleep_flag(void);
+        if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !get_kb_sleep_flag()) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state == USB_ACTIVE)))) {
+            rgb_matrix_set_color(LED_CAPS_LOCK_INDEX, 0x77, 0x77, 0x77);
+        }
+
+        if (keymap_config.no_gui) {
+            rgb_matrix_set_color(LED_GUI_LOCK_INDEX, 0x77, 0x77, 0x77);
+        }
     }
 
     if (bt_indicator_rgb(led_min, led_max) != true) {
         return false;
-    }
-
-    extern bool get_kb_sleep_flag(void);
-    if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !get_kb_sleep_flag()) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state == USB_ACTIVE)))) {
-        rgb_matrix_set_color(LED_CAPS_LOCK_INDEX, 0x77, 0x77, 0x77);
-    }
-
-    if (keymap_config.no_gui) {
-        rgb_matrix_set_color(LED_GUI_LOCK_INDEX, 0x77, 0x77, 0x77);
     }
 
     return true;
