@@ -41,13 +41,13 @@ enum bt_keycodes {
     RGB_SPI,
 };
 
-enum custom_keycodes {
-    RGB_TEST = SAFE_RANGE,
-    RGB_HUD,
-    RGB_SAD,
-    RGB_VAD,
-    RGB_SPD,
-};
+// enum custom_keycodes {
+// RGB_TEST = SAFE_RANGE,
+// RGB_HUD,
+// RGB_SAD,
+// RGB_VAD,
+// RGB_SPD,
+// };
 
 typedef union {
     uint32_t raw;

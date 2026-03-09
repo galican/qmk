@@ -143,7 +143,7 @@
     {
         "name": "RGB_ Bright",
         "title": "Increase RGB brightness",
-        "shortName": "RGB_VAL"
+        "shortName": "RGB_Bright"
     },
     {
         "name": "RGB_ Speed",
