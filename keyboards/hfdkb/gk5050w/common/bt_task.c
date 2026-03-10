@@ -818,7 +818,7 @@ static void long_pressed_keys_cb(uint16_t keycode) {
             single_blink_cnt   = 6;
             single_blink_time  = timer_read32();
             single_blink_color = (RGB){100, 100, 100};
-            single_blink_index = 50;
+            single_blink_index = 40;
         } break;
 
         default:
