@@ -79,13 +79,13 @@ void SLed_task(void) {
         }
 
         case SLED_MODE_SOLID_RED: {
-            HSV hsv;
-            hsv.h   = hsv_table[8][0];
-            hsv.s   = hsv_table[8][1];
-            hsv.v   = dev_info.brightness;
-            RGB rgb = hsv_to_rgb(hsv);
+            // HSV hsv;
+            // hsv.h   = hsv_table[8][0];
+            // hsv.s   = hsv_table[8][1];
+            // hsv.v   = dev_info.brightness;
+            // RGB rgb = hsv_to_rgb(hsv);
             for (uint8_t i = SLed_MIN; i < (SLed_MAX + 1); i++) {
-                rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+                rgb_matrix_set_color(i, 255, 140, 60);
             }
             break;
         }

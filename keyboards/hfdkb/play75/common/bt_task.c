@@ -880,24 +880,22 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
         extern bool low_battery_vol_off;
         extern bool low_vol_offed_sleep;
 
-        if (readPin(BT_CABLE_PIN)) {
-            if (low_battery_vol) {
-                static bool     Low_power_bink;
-                static uint16_t Low_power_time;
-                if (timer_elapsed(Low_power_time) >= 300) {
-                    Low_power_bink = !Low_power_bink;
-                    Low_power_time = timer_read32();
-                }
-                if (Low_power_bink) {
-                    rgb_matrix_set_color(76, RGB_RED);
-                } else {
-                    rgb_matrix_set_color(76, 0, 0, 0);
-                }
+        if (low_battery_vol && !low_battery_vol_off) {
+            static bool     Low_power_bink;
+            static uint16_t Low_power_time;
+            if (timer_elapsed(Low_power_time) >= 300) {
+                Low_power_bink = !Low_power_bink;
+                Low_power_time = timer_read32();
             }
-            if (low_battery_vol_off) {
-                kb_sleep_flag       = true;
-                low_vol_offed_sleep = true;
+            if (Low_power_bink) {
+                rgb_matrix_set_color(76, RGB_RED);
+            } else {
+                rgb_matrix_set_color(76, 0, 0, 0);
             }
+        }
+        if (low_battery_vol_off) {
+            kb_sleep_flag       = true;
+            low_vol_offed_sleep = true;
         }
     }
 

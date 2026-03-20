@@ -158,7 +158,7 @@ bts_info_t bts_info = {
      {.keycode = FACTORY_RESET, .press_time = 0, .event_cb = long_pressed_keys_cb},
      {.keycode = KEYBOARD_RESET, .press_time = 0, .event_cb = long_pressed_keys_cb},
      {.keycode = BLE_RESET, .press_time = 0, .event_cb = long_pressed_keys_cb},
-     {.keycode = RGB_TEST, .press_time = 0, .event_cb = long_pressed_keys_cb},
+    //  {.keycode = RGB_TEST, .press_time = 0, .event_cb = long_pressed_keys_cb},
  };
 // clang-format on
 // 指示器状态
@@ -999,14 +999,14 @@ static bool bt_process_record_other(uint16_t keycode, keyrecord_t *record) {
             }
         } break;
 
-        case RGB_TEST: {
-            if (record->event.pressed) {
-                if (rgb_test_en) {
-                    rgb_test_en    = false;
-                    rgb_test_index = 0;
-                }
-            }
-        } break;
+        // case RGB_TEST: {
+        //     if (record->event.pressed) {
+        //         if (rgb_test_en) {
+        //             rgb_test_en    = false;
+        //             rgb_test_index = 0;
+        //         }
+        //     }
+        // } break;
 
         case FACTORY_RESET:
         case KEYBOARD_RESET:
@@ -1071,13 +1071,13 @@ static void long_pressed_keys_cb(uint16_t keycode) {
             break;
         }
 
-        case RGB_TEST: {
-            if (rgb_test_en != true) {
-                rgb_test_en    = true;
-                rgb_test_index = 1;
-                rgb_test_time  = timer_read32();
-            }
-        } break;
+        // case RGB_TEST: {
+        //     if (rgb_test_en != true) {
+        //         rgb_test_en    = true;
+        //         rgb_test_index = 1;
+        //         rgb_test_time  = timer_read32();
+        //     }
+        // } break;
 
         default:
             break;
@@ -1869,6 +1869,8 @@ bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max) {
     return true;
 }
 
+static void rgb_test_scan(void);
+
 void matrix_scan_kb(void) {
 #ifdef MULTIMODE_ENABLE
     bt_task();
@@ -1926,6 +1928,8 @@ void matrix_scan_kb(void) {
     }
 #endif
 
+    rgb_test_scan();
+
     matrix_scan_user();
 }
 
@@ -1958,4 +1962,55 @@ void suspend_wakeup_init_kb(void) {
 #ifdef RGB_DRIVER_SDB_PIN
     // writePinHigh(RGB_DRIVER_SDB_PIN);
 #endif
+}
+
+enum {
+    RGB_TEST_NONE = 0,
+    RGB_TEST_START,
+    RGB_TEST_END,
+};
+
+static uint32_t rgb_test_timer = 0;
+
+static void rgb_test_scan(void) {
+    uint8_t row1 = 0;
+    uint8_t row2 = 5;
+    uint8_t col1 = 3;
+    uint8_t col2 = 2;
+
+    static uint8_t rgb_test_state = RGB_TEST_NONE;
+
+    switch (rgb_test_state) {
+        case RGB_TEST_NONE:
+            if ((matrix_get_row(row1) & (1 << col1)) && (matrix_get_row(row2) & (1 << col2))) {
+                if (!rgb_test_timer) rgb_test_timer = timer_read32();
+                rgb_test_state = RGB_TEST_START;
+            }
+            break;
+
+        case RGB_TEST_START:
+            if ((matrix_get_row(row1) & (1 << col1)) && (matrix_get_row(row2) & (1 << col2))) {
+                if (rgb_test_timer && (timer_elapsed32(rgb_test_timer) > 3000)) {
+                    if (!rgb_test_en) {
+                        rgb_test_en    = true;
+                        rgb_test_index = 1;
+                        rgb_test_time  = timer_read32();
+                    }
+                }
+            } else {
+                rgb_test_timer = 0;
+                rgb_test_state = RGB_TEST_END;
+            }
+            break;
+
+        case RGB_TEST_END:
+            if ((matrix_get_row(row1) & (1 << col1)) && (matrix_get_row(row2) & (1 << col2))) {
+                if (rgb_test_en) rgb_test_en = false;
+                rgb_test_state = RGB_TEST_NONE;
+            }
+            break;
+
+        default:
+            break;
+    }
 }
