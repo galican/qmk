@@ -37,7 +37,7 @@ extern uint8_t get_enc_blink_cnt(void);
 static bool low_bat_vol     = false;
 static bool low_bat_vol_off = false;
 
-uint8_t pvol = 94;
+uint8_t pvol = 100;
 
 extern bool low_vol_offed_sleep;
 
@@ -53,7 +53,7 @@ bool dip_switch_update_kb(uint8_t index, bool active) {
         return false;
     }
     if (index == 0) {
-        default_layer_set(1UL << (active ? 2 : 0));
+        default_layer_set(1UL << (active ? 0 : 2));
         if (get_highest_layer(default_layer_state) == 2) {
             if (keymap_config.no_gui) {
                 keymap_config.no_gui = false;
@@ -64,8 +64,6 @@ bool dip_switch_update_kb(uint8_t index, bool active) {
     return true;
 }
 #endif
-
-#if defined(RGB_MATRIX_ENABLE)
 
 static uint8_t color_tab[][3] = {
     {HSV_RED},    // RED
@@ -88,7 +86,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     }
 
     switch (keycode) {
-#    ifdef RGB_MATRIX_ENABLE
+#ifdef RGB_MATRIX_ENABLE
         case QK_RGB_MATRIX_TOGGLE:
             if (record->event.pressed) {
                 switch (rgb_matrix_get_flags()) {
@@ -106,7 +104,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 rgb_matrix_enable();
             }
             return false;
-#    endif
+#endif
         case RM_HUEU:
             if (record->event.pressed) {
                 if (dev_info.rgb_test_en) {
@@ -152,20 +150,20 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
 
-#    ifdef MM_MODE_ENABLE
+#ifdef MM_MODE_ENABLE
     if (process_record_bt(keycode, record) != true) {
         return false;
     }
-#    endif
+#endif
 
     return true;
 }
 
 void keyboard_post_init_kb(void) {
     // Apply the saved color
-#    ifdef RGB_MATRIX_ENABLE
+#ifdef RGB_MATRIX_ENABLE
     rgb_matrix_config.hsv.h = color_tab[dev_info.color_index][0];
-#    endif
+#endif
 
     // Call existing initialization
     LCD_init();
@@ -184,7 +182,7 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
         rgb_matrix_set_color_all(0, 0, 0);
     }
 
-    rgb_matrix_set_color(LED_PWR_LOW_INDEX, 0, 0, 0);
+    rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
 
     if (dev_info.rgb_test_en) {
         uint8_t brightness = rgb_matrix_get_val();
@@ -268,8 +266,6 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
 
     return true;
 }
-
-#endif
 
 void set_led_state(void) {
     static uint8_t now_led_stuts = 0;
@@ -361,12 +357,9 @@ void set_led_state(void) {
     } else {
 #if defined(MM_CABLE_PIN)
 
-        static bool charging_old_satus = false;
-        static bool charging_now_satus = false;
-
-        static uint32_t full_charged_time = 0;
-        static uint32_t entry_full_time   = 0;
-        // static uint32_t entry_charge_time = 0;
+        static bool     charging_old_satus = false;
+        static bool     charging_now_satus = false;
+        static uint32_t entry_full_time    = 0;
 
         if (!readPin(MM_CABLE_PIN)) {
             charging_now_satus = 1;
@@ -375,28 +368,20 @@ void set_led_state(void) {
             low_bat_vol_off = false;
 
             if (!readPin(MM_CHARGE_PIN) && pvol < 100) {
-                // if (timer_elapsed(entry_charge_time) > 500) {
-                entry_full_time   = timer_read32();
-                full_charged_time = timer_read32();
-                rgb_matrix_set_color(LED_PWR_LOW_INDEX, 100, 0, 0);
-                // }
+                entry_full_time = timer_read32();
+                writePinHigh(LED_PWR_IND_PIN);
             } else {
                 if (timer_elapsed32(entry_full_time) >= 2000) {
-                    // entry_charge_time = timer_read32();
-                    if (timer_elapsed32(full_charged_time) < 5000) {
-                        rgb_matrix_set_color(LED_PWR_LOW_INDEX, 0, 100, 0);
-                    }
+                    writePinLow(LED_PWR_IND_PIN);
                 }
             }
         } else {
             charging_now_satus = 0;
 
-            // entry_charge_time = timer_read32();
-            entry_full_time   = timer_read32();
-            full_charged_time = timer_read32();
+            entry_full_time = timer_read32();
 
             if (dev_info.devs != DEVS_USB) {
-                if (pvol <= 10) {
+                if (pvol < 20) {
                     low_bat_vol = true;
                 } else {
                     low_bat_vol = false;
@@ -451,29 +436,28 @@ void set_led_state(void) {
 #endif
     }
 
-    if (!get_enc_blink_cnt()) {
-        if (dev_info.ind_toggle || low_bat_vol_off) {
+    if (dev_info.ind_toggle || low_bat_vol_off) {
+        writePinLow(LED_CAPS_LOCK_IND_PIN);
+        rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
+    } else {
+        if (dev_info.devs == DEVS_USB && USB_DRIVER.state != USB_ACTIVE) {
             writePinLow(LED_CAPS_LOCK_IND_PIN);
-            writePinLow(LED_MAC_OS_IND_PIN);
+            rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
         } else {
-            if (dev_info.devs == DEVS_USB && USB_DRIVER.state != USB_ACTIVE) {
-                writePinLow(LED_CAPS_LOCK_IND_PIN);
-                writePinLow(LED_MAC_OS_IND_PIN);
+            writePin(LED_CAPS_LOCK_IND_PIN, host_keyboard_led_state().caps_lock);
+            if ((get_highest_layer(default_layer_state) == 2)) {
+                rgb_matrix_set_color(LED_MAC_OS_INDEX, 100, 100, 100);
             } else {
-                writePin(LED_CAPS_LOCK_IND_PIN, host_keyboard_led_state().caps_lock);
-                if ((get_highest_layer(default_layer_state) == 2)) {
-                    writePinHigh(LED_MAC_OS_IND_PIN);
-                } else {
-                    writePinLow(LED_MAC_OS_IND_PIN);
-                }
+                rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
             }
         }
     }
 }
 
 static uint8_t get_pvol_from_uart(void) {
-    uint8_t uart_data_read[3] = {0};
-    uint8_t uart_data_send[3] = {0};
+    uint8_t        uart_data_read[3] = {0};
+    uint8_t        uart_data_send[3] = {0};
+    static uint8_t soc               = 0;
 
     if (uart3_available()) {
         uart3_receive(uart_data_read, 3);
@@ -483,30 +467,32 @@ static uint8_t get_pvol_from_uart(void) {
         uart_data_send[1] = uart_data_read[1];
         uart_data_send[2] = (uart_data_send[0] + uart_data_send[1]) & 0xFF;
 
-        uart_transmit(uart_data_send, 3);
+        if (bts_info.bt_info.paired) uart_transmit(uart_data_send, 3);
 
-        return uart_data_read[1];
+        soc  = uart_data_read[1];
+        pvol = soc;
     }
 
-    return 94;
+    return soc;
 }
 
 static void low_power_indicator(void) {
     static bool     Low_power_bink = false;
     static uint32_t Low_power_time = 0;
 
-    if (low_bat_vol && !low_bat_vol_off) {
+    if (low_bat_vol && !low_bat_vol_off && !dev_info.ind_toggle) {
         if (timer_elapsed32(Low_power_time) >= 1000) {
             Low_power_bink = !Low_power_bink;
             Low_power_time = timer_read32();
         }
         if (Low_power_bink) {
-            rgb_matrix_set_color(LED_PWR_LOW_INDEX, 100, 0, 0);
+            writePinHigh(LED_PWR_IND_PIN);
         } else {
-            rgb_matrix_set_color(LED_PWR_LOW_INDEX, 0, 0, 0);
+            writePinLow(LED_PWR_IND_PIN);
         }
     } else {
         Low_power_bink = 0;
+        writePinLow(LED_PWR_IND_PIN);
     }
 
     if (low_bat_vol_off) {
@@ -519,6 +505,8 @@ static void low_power_indicator(void) {
 
 void matrix_init_kb(void) {
     bt_init();
+
+    led_config_all();
 
     matrix_init_user();
 }
@@ -588,7 +576,7 @@ void housekeeping_task_kb(void) {
 #    endif
 
                     writePinLow(LED_CAPS_LOCK_IND_PIN);
-                    writePinLow(LED_MAC_OS_IND_PIN);
+                    rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
 
                     LCD_command_update(LCD_LIGHT_SLEEP);
                     if (!LCD_Sleep_Flag) {
@@ -639,7 +627,7 @@ void suspend_power_down_kb(void) {
     }
 
     writePinLow(LED_CAPS_LOCK_IND_PIN);
-    writePinLow(LED_MAC_OS_IND_PIN);
+    rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
     // led_deconfig_all();
 }
 

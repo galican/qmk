@@ -49,7 +49,7 @@
 
 /* Others */
 #    define RGB_MATRIX_DRIVER_SDB_PIN A15
-#    define LED_MAC_OS_IND_PIN C15
+#    define LED_PWR_IND_PIN C15
 #    define LED_CAPS_LOCK_IND_PIN D2
 #    define KEY_NUM 6
 
@@ -82,9 +82,5 @@
 /* Encoder Configuration */
 #define ENCODER_DEFAULT_POS 0x0
 
-// #define CHRG_LOW_LED_INDEX 84
-/* Enable caps-lock LED */
-// #define CAPS_LOCK_LED_INDEX 85
-#define LED_PWR_LOW_INDEX 84
-// #define NUM_LOCK_LED_INDEX 87
-// #define GUI_LOCK_LED_INDEX 88
+/* Enable Mac OS LED */
+#define LED_MAC_OS_INDEX 84

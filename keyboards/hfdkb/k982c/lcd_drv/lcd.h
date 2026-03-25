@@ -24,9 +24,10 @@ enum LCD_command {
     LCD_RESET = 0,
     LCD_SLEEP,
     LCD_WAKEUP,
-    LCD_SWITCH,
+    LCD_ON_OFF,
     LCD_LIGHT_SLEEP,
     LCD_LIGHT_WAKEUP,
+    LCD_TIME_12H_24H,
 };
 
 void LCD_IND_update(void);
