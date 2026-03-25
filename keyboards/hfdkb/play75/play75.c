@@ -148,7 +148,7 @@ void led_deconfig_all(void) {
 bool low_battery_vol     = false;
 bool low_battery_vol_off = false;
 
-static uint8_t soc = 0;
+static uint8_t soc = 94;
 
 uint8_t get_battery_soc(void) {
     return soc;
@@ -230,7 +230,7 @@ void set_led_state(void) {
         uart3_transmit(IND_data, 5);
     }
     static uint16_t power_update_time;
-    if (timer_elapsed(power_update_time) >= 4000) {
+    if (timer_elapsed(power_update_time) >= 5000) {
         power_update_time = timer_read();
         // bts_send_vendor(v_query_vol);
 
@@ -241,18 +241,6 @@ void set_led_state(void) {
             uart3_receive(uart_data_read, 3);
         }
         if ((uart_data_read[0] == 0xA7) && (uart_data_read[2] == ((uart_data_read[0] + uart_data_read[1]) & 0xFF))) {
-            if (uart_data_read[1] < 10) {
-                low_battery_vol = true;
-            } else {
-                low_battery_vol = false;
-            }
-
-            if (uart_data_read[1] < 1) {
-                low_battery_vol_off = true;
-            } else {
-                low_battery_vol_off = false;
-            }
-
             soc = uart_data_read[1];
 
             uart_data_send[0] = uart_data_read[0];
@@ -279,6 +267,19 @@ void set_led_state(void) {
             LCD_charge_update();
         }
 #endif
+    }
+
+    if (readPin(BT_CABLE_PIN)) {
+        if (soc < 10) {
+            if (!low_battery_vol) low_battery_vol = true;
+        }
+
+        if (soc < 1) {
+            if (!low_battery_vol_off) low_battery_vol_off = true;
+        }
+    } else {
+        if (low_battery_vol_off) low_battery_vol_off = false;
+        if (low_battery_vol) low_battery_vol = false;
     }
 }
 

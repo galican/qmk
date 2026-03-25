@@ -37,9 +37,9 @@
 #define LED_WIN_LOCK 81
 
 /* LED Indicator pin */
-#define LED_CHRG_PIN B13
-#define LED_DOWN_PIN A8
-#define LED_UNUSED_PIN B12
+#define LED_RED_PIN B13
+#define LED_GREEN_PIN A8
+#define LED_BLUE_PIN B12
 
 /* SPI Config for spi flash*/
 #define SPI_DRIVER SPIDQ

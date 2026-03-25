@@ -22,8 +22,6 @@ typedef union {
         uint8_t last_devs;
         uint8_t LCD_Page : 2;
         uint8_t color_index : 3;
-        uint8_t encoder_mode : 2;
-        uint8_t encoder_lsat_mode : 2;
         uint8_t ind_toggle : 1;
         uint8_t rgb_test_en : 1;
     };

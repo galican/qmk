@@ -28,29 +28,29 @@ enum __layers {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [WIN_B] = LAYOUT_ansi( /* Base */
-		         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,
-		KC_ESC,  KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,
-		KC_PGUP, KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,
-		KC_PGDN, KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,
+		         KC_ESC,  KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,
+		KC_PGUP, KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,
+		KC_PGDN, KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,
+		KC_DEL,  KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,
 		MO(1),   KC_LCTL, KC_LGUI, KC_LALT,                   KC_SPC),
 
     [WIN_FN] = LAYOUT_ansi( /* FN */
-		         _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,
-		EE_CLR,  BT_VOL,  SW_OS1,  _______, _______, _______, _______,
+		         EE_CLR,  _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,
+		_______, BT_VOL,  SW_OS1,  _______, _______, _______, _______,
 		_______, CHG_TOG, _______, _______, _______, _______, _______,
 		_______, _______, BT_HOST1,BT_HOST2,BT_HOST3,BT_2_4G, BT_USB,
 		_______, WL_2_4G, GU_TOGG, _______,                   _______),
 
     [MAC_B] = LAYOUT_ansi( /* Base */
-		         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,
-		KC_ESC,  KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,
-		KC_PGUP, KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,
-		KC_PGDN, KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,
+		         KC_ESC,  KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,
+		KC_PGUP, KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,
+		KC_PGDN, KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,
+		KC_DEL,  KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,
 		MO(3),   KC_LCTL, KC_LALT, KC_LGUI,                   KC_SPC),
 
     [MAC_FN] = LAYOUT_ansi( /* FN */
-		         _______, KC_BRID, KC_BRIU, KC_MCTL, KC_LPAD, _______, _______,
-		EE_CLR,  BT_VOL,  SW_OS1,  _______, _______, _______, _______,
+		         EE_CLR,  _______, KC_BRID, KC_BRIU, KC_MCTL, KC_LPAD, _______,
+		_______, BT_VOL,  SW_OS1,  _______, _______, _______, _______,
 		_______, CHG_TOG, _______, _______, _______, _______, _______,
 		_______, _______, BT_HOST1,BT_HOST2,BT_HOST3,BT_2_4G, BT_USB,
 		_______, WL_2_4G, _______, _______,                   _______),

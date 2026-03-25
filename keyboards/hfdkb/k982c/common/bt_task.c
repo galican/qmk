@@ -117,7 +117,7 @@ void led_config_all(void) {
 void led_deconfig_all(void) {
     if (led_inited) {
         // writePinLow(LED_CAPS_LOCK_IND_PIN);
-        // writePinLow(LED_CHRG_LOW_PWR_PIN);
+        writePinLow(LED_PWR_IND_PIN);
         led_inited = false;
     }
 }
@@ -735,7 +735,7 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
         case EE_CLR: {
         } break;
 
-        case RGB_TEST: {
+        case LED_WHITE: {
             if (record->event.pressed) {
                 if (dev_info.rgb_test_en) {
                     dev_info.rgb_test_en = 0;
@@ -812,9 +812,9 @@ static void bt_used_pin_init(void) {
     writePinHigh(RGB_MATRIX_DRIVER_SDB_PIN);
 #    endif
 
-#    ifdef LED_MAC_OS_IND_PIN
-    setPinOutputPushPull(LED_MAC_OS_IND_PIN);
-    writePinLow(LED_MAC_OS_IND_PIN);
+#    ifdef LED_PWR_IND_PIN
+    setPinOutputPushPull(LED_PWR_IND_PIN);
+    writePinLow(LED_PWR_IND_PIN);
 #    endif
 
 #    ifdef LED_CAPS_LOCK_IND_PIN
@@ -895,7 +895,8 @@ static void close_rgb(void) {
                 }
 
                 writePinLow(LED_CAPS_LOCK_IND_PIN);
-                writePinLow(LED_MAC_OS_IND_PIN);
+                rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
+                // writePinLow(LED_PWR_IND_PIN);
 
                 uart3_stop();
 
@@ -946,9 +947,9 @@ static void open_rgb(void) {
         writePin(LED_CAPS_LOCK_IND_PIN, host_keyboard_led_state().caps_lock);
 
         if (get_highest_layer(default_layer_state) == 2)
-            writePin(LED_MAC_OS_IND_PIN, 1);
+            rgb_matrix_set_color(LED_MAC_OS_INDEX, 100, 100, 100);
         else
-            writePin(LED_MAC_OS_IND_PIN, 0);
+            rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
 
         sober = true;
     }
@@ -964,17 +965,17 @@ static void factory_reset_indicator(void) {
             EE_CLR_press_time = 0;
             EE_CLR_press_cnt  = 0;
             EE_CLR_flag       = false;
-            eeconfig_init();
+            // eeconfig_init();
+            eeconfig_update_rgb_matrix_default();
 
-            keymap_config.no_gui = false;
+            // keymap_config.no_gui = false;
 
             dev_info.LCD_Page = 0;
             LCD_Page_update(dev_info.LCD_Page);
-            dev_info.rgb_test_en       = 0;
-            dev_info.ind_toggle        = 0;
-            dev_info.color_index       = 0;
-            dev_info.encoder_mode      = 0;
-            dev_info.encoder_lsat_mode = 0;
+
+            dev_info.rgb_test_en = 0;
+            dev_info.ind_toggle  = 0;
+            dev_info.color_index = 0;
             eeconfig_update_user(dev_info.raw);
 
             if (dev_info.devs != DEVS_USB && !bts_info.bt_info.paired) {
@@ -986,6 +987,8 @@ static void factory_reset_indicator(void) {
             }
 
             dip_switch_read(true);
+
+            LCD_command_update(LCD_RESET);
         }
 
         if (EE_CLR_press_cnt % 2) {
@@ -1002,6 +1005,7 @@ static void factory_reset_indicator(void) {
 
 static void battery_level_indicator(void) {
     if (query_vol_flag) {
+        rgb_matrix_set_color_all(0, 0, 0);
         const uint8_t leds[] = BAT_LEVEL_DISPLAY_INDEX;
 
         uint8_t led_count = (pvol < 10) ? 1 : ((pvol / 10) >= 10 ? 10 : (pvol / 10));
@@ -1138,7 +1142,7 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
 
     if (dev_info.devs != DEVS_USB) {
         ble_led();
-        if (readPin(MM_CABLE_PIN)) battery_level_indicator();
+        battery_level_indicator();
     }
 
     factory_reset_indicator();

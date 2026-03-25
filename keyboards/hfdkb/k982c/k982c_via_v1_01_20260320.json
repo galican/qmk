@@ -73,11 +73,10 @@
         {"name":"BAT VOL","title":"Query battery voltage level","shortName":"BAT_VOL"},
         {"name":"SIRI","title":"Siri in Mac OS","shortName":"KC_SIRI"},
         {"name":"SPOT LIGHT","title":"Spotlight in Mac OS","shortName":"SPOTLIGHT"},
-        {"name":"ENC MODE","title":"Long press to seclect encoder mode","shortName":"ENC_MODE"},
-        {"name":"LCD MODE","title":"Single tap switch to lcd mode","shortName":"LCD_MODE"},
-        {"name":"RGB TEST","title":"All leds bright white","shortName":"RGB_TEST"},
+        {"name":"IND LIGHT OFF","title":"Indicator light off","shortName":"IND_LIGHT_OFF"},
         {"name":"LCD HOME","title":"Switch to home page in LCD screen","shortName":"LCD_HOME"},
-        {"name":"LCD PAGE","title":"Switch to animation page in LCD screen","shortName":"LCD_PAGE"}
+        {"name":"LCD PAGE","title":"Switch to animation page in LCD screen","shortName":"LCD_PAGE"},
+        {"name":"LED WHITE","title":"All leds bright white","shortName":"LED_WHITE"}
     ],
     "layouts": {
       "keymap":[

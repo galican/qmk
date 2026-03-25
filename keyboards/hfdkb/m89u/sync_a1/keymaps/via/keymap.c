@@ -66,7 +66,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         RGB_HUI, RGB_VAI, RGB_MOD, RGB_SAI,
         BT_2_4G, BT_USB,  RGB_SPI, _______,
         BT_HOST1,BT_HOST2,BT_HOST3,_______,
-        SW_OS,   RGB_TEST
+        SW_OS,   _______
     ),
 
     [MAC_B] = LAYOUT_numpad_6x4(
@@ -84,7 +84,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         RGB_HUI, RGB_VAI, RGB_MOD, RGB_SAI,
         BT_2_4G, BT_USB,  RGB_SPI, _______,
         BT_HOST1,BT_HOST2,BT_HOST3,_______,
-        SW_OS,   RGB_TEST
+        SW_OS,   _______
     )
 };
 // clang-format on
@@ -123,35 +123,35 @@ extern uint8_t numpad_keys_pressed_count;
 bool process_rgb_matrix_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         switch (keycode) {
-            // case RGB_TOG:
-            //     rgb_matrix_toggle();
-            //     return false;
+                //             // case RGB_TOG:
+                //             //     rgb_matrix_toggle();
+                //             //     return false;
             case RGB_MOD:
                 rgb_matrix_step();
                 return false;
-            // case RGB_HUI:
-            //     rgb_matrix_increase_hue();
-            //     return false;
-            case RGB_HUD:
-                rgb_matrix_decrease_hue();
-                return false;
-            // case RGB_SAI:
-            //     rgb_matrix_increase_sat();
-            //     return false;
-            case RGB_SAD:
-                rgb_matrix_decrease_sat();
-                return false;
-            // case RGB_VAI:
-            //     rgb_matrix_increase_val();
-            //     return false;
-            case RGB_VAD:
-                rgb_matrix_decrease_val();
-            // case RGB_SPI:
-            //     rgb_matrix_increase_speed();
-            //     return false;
-            case RGB_SPD:
-                rgb_matrix_decrease_speed();
-                return false;
+                //             // case RGB_HUI:
+                //             //     rgb_matrix_increase_hue();
+                //             //     return false;
+                //             case RGB_HUD:
+                //                 rgb_matrix_decrease_hue();
+                //                 return false;
+                //             // case RGB_SAI:
+                //             //     rgb_matrix_increase_sat();
+                //             //     return false;
+                //             case RGB_SAD:
+                //                 rgb_matrix_decrease_sat();
+                //                 return false;
+                //             // case RGB_VAI:
+                //             //     rgb_matrix_increase_val();
+                //             //     return false;
+                //             case RGB_VAD:
+                //                 rgb_matrix_decrease_val();
+                //             // case RGB_SPI:
+                //             //     rgb_matrix_increase_speed();
+                //             //     return false;
+                //             case RGB_SPD:
+                //                 rgb_matrix_decrease_speed();
+                //                 return false;
         }
     }
 

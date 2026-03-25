@@ -75,9 +75,10 @@ static uint32_t close_rgb_time;
 
 static bool bak_rgb_toggle;
 static bool led_inited;
-static bool sober                = true;
-static bool kb_sleep_flag        = false;
-static bool backlight_sleep_flag = false;
+static bool sober         = true;
+static bool kb_sleep_flag = false;
+
+bool backlight_sleep_flag = false;
 
 bool low_battery_vol     = false;
 bool low_battery_vol_off = false;
@@ -340,7 +341,7 @@ void bt_init(void) {
     if (dev_info.devs != DEVS_USB) {
         usbDisconnectBus(&USB_DRIVER);
         usbStop(&USB_DRIVER);
-        writePinHigh(A12);
+        // writePinHigh(A12);
     }
     if (dev_info.devs == DEVS_USB) {
         writePinLow(A14);
@@ -817,7 +818,7 @@ static void long_pressed_keys_cb(uint16_t keycode) {
             single_blink_cnt   = 6;
             single_blink_time  = timer_read32();
             single_blink_color = (RGB){100, 100, 100};
-            single_blink_index = 50;
+            single_blink_index = 40;
         } break;
 
         default:
@@ -845,14 +846,14 @@ static void bt_used_pin_init(void) {
     setPinInput(BT_CHARGE_PIN);
 #endif
 
-#if defined(LED_CHRG_PIN) && defined(LED_DOWN_PIN)
-    setPinOutputPushPull(LED_CHRG_PIN);
-    setPinOutputPushPull(LED_DOWN_PIN);
-    setPinOutputPushPull(LED_UNUSED_PIN);
+#if defined(LED_RED_PIN) && defined(LED_GREEN_PIN) && defined(LED_BLUE_PIN)
+    setPinOutputPushPull(LED_RED_PIN);
+    setPinOutputPushPull(LED_GREEN_PIN);
+    setPinOutputPushPull(LED_BLUE_PIN);
 
-    writePinHigh(LED_CHRG_PIN);
-    writePinHigh(LED_DOWN_PIN);
-    writePinHigh(LED_UNUSED_PIN);
+    writePinHigh(LED_RED_PIN);
+    writePinHigh(LED_GREEN_PIN);
+    writePinHigh(LED_BLUE_PIN);
 #endif
 }
 
@@ -957,6 +958,10 @@ void led_config_all(void) {
         setPinOutputPushPull(RGB_MATRIX_SDB_PIN);
         writePinHigh(RGB_MATRIX_SDB_PIN);
 #endif
+
+        writePin(LED_RED_PIN, !host_keyboard_led_state().caps_lock);
+        writePin(LED_GREEN_PIN, !host_keyboard_led_state().caps_lock);
+        writePin(LED_BLUE_PIN, !host_keyboard_led_state().caps_lock);
         // if (dev_info.devs == DEVS_USB) LCD_command_update(LCD_WAKEUP);
     }
 }
@@ -968,6 +973,10 @@ void led_deconfig_all(void) {
         setPinOutputPushPull(RGB_MATRIX_SDB_PIN);
         writePinLow(RGB_MATRIX_SDB_PIN);
 #endif
+
+        writePinHigh(LED_RED_PIN);
+        writePinHigh(LED_GREEN_PIN);
+        writePinHigh(LED_BLUE_PIN);
         // if (dev_info.devs == DEVS_USB) LCD_command_update(LCD_SLEEP);
     }
 }
@@ -983,6 +992,9 @@ static void close_rgb(void) {
         if (!backlight_sleep_flag) {
             backlight_sleep_flag = true;
             LCD_command_update(LCD_LIGHT_SLEEP);
+            writePinHigh(LED_RED_PIN);
+            writePinHigh(LED_GREEN_PIN);
+            writePinHigh(LED_BLUE_PIN);
         }
         // writePinHigh(LED_CHRG_PIN);
     } else {
@@ -1042,6 +1054,9 @@ void open_rgb(void) {
     if (backlight_sleep_flag) {
         backlight_sleep_flag = false;
         LCD_command_update(LCD_LIGHT_WAKEUP);
+        writePin(LED_RED_PIN, !host_keyboard_led_state().caps_lock);
+        writePin(LED_GREEN_PIN, !host_keyboard_led_state().caps_lock);
+        writePin(LED_BLUE_PIN, !host_keyboard_led_state().caps_lock);
     }
 
     if (!sober) {
@@ -1181,7 +1196,7 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
 
     static uint32_t query_vol_time  = 0;
     static uint32_t charg_full_time = 0;
-    static uint32_t charging_time   = 0;
+    // static uint32_t charging_time   = 0;
     /*************************************************************************************/
     if (EE_CLR_flag) {
         if (timer_elapsed32(EE_CLR_press_time) >= EE_CLR_press_cnt * 300) {
@@ -1242,31 +1257,40 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
     /*************************************************************************************/
     if (!readPin(BT_CABLE_PIN)) {
         if (!readPin(BT_CHARGE_PIN)) {
-            if (timer_elapsed32(charging_time) > 1200) {
-                writePinLow(LED_CHRG_PIN);
-                writePinHigh(LED_DOWN_PIN);
-                // if (!bat_vol_full) {
-                // } else {
-                //     writePinHigh(LED_CHRG_PIN);
-                //     writePinHigh(LED_DOWN_PIN);
-                // }
-                charg_full_time = timer_read32();
+            // if (timer_elapsed32(charging_time) > 500) {
+            // writePinLow(LED_CHRG_PIN);
+            // writePinHigh(LED_DOWN_PIN);
+            // if (!bat_vol_full) {
+            // } else {
+            //     writePinHigh(LED_CHRG_PIN);
+            //     writePinHigh(LED_DOWN_PIN);
+            // }
+            for (uint8_t i = 83; i <= 130; i++) {
+                rgb_matrix_set_color(i, 100, 0, 0);
             }
+            charg_full_time = timer_read32();
+            // }
         } else {
-            if (timer_elapsed32(charg_full_time) > 1200) {
-                if (timer_elapsed32(charg_full_time) < 3000) {
-                    writePinHigh(LED_CHRG_PIN);
-                    writePinLow(LED_DOWN_PIN);
-                } else {
-                    writePinHigh(LED_CHRG_PIN);
-                    writePinHigh(LED_DOWN_PIN);
+            if (timer_elapsed32(charg_full_time) > 500) {
+                if (timer_elapsed32(charg_full_time) < 3500) {
+                    //     writePinHigh(LED_CHRG_PIN);
+                    //     writePinLow(LED_DOWN_PIN);
+                    // } else {
+                    //     writePinHigh(LED_CHRG_PIN);
+                    //     writePinHigh(LED_DOWN_PIN);
+                    for (uint8_t i = 83; i <= 130; i++) {
+                        rgb_matrix_set_color(i, 0, 100, 0);
+                    }
                 }
-                charging_time = timer_read32();
+                // charging_time = timer_read32();
             }
         }
         low_battery_vol     = false;
         low_battery_vol_off = false;
     } else {
+        charg_full_time = timer_read32();
+        // charging_time   = timer_read32();
+
         if (low_battery_vol && !low_battery_vol_off) {
             static bool     Low_power_bink;
             static uint16_t Low_power_time;
@@ -1275,21 +1299,28 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
                 Low_power_time = timer_read32();
             }
             if (Low_power_bink) {
-                writePinLow(LED_CHRG_PIN);
+                // writePinLow(LED_CHRG_PIN);
+                for (uint8_t i = 83; i <= 130; i++) {
+                    rgb_matrix_set_color(i, 100, 0, 0);
+                }
             } else {
-                writePinHigh(LED_CHRG_PIN);
+                // writePinHigh(LED_CHRG_PIN);
+                for (uint8_t i = 83; i <= 130; i++) {
+                    rgb_matrix_set_color(i, 0, 0, 0);
+                }
             }
         } else if (low_battery_vol_off) {
-            writePinHigh(LED_CHRG_PIN);
+            // writePinHigh(LED_CHRG_PIN);
             extern bool low_vol_offed_sleep;
             if (timer_elapsed32(pressed_time) > 2000) {
                 kb_sleep_flag = true;
             }
             low_vol_offed_sleep = true;
-        } else {
-            writePinHigh(LED_CHRG_PIN);
-            writePinHigh(LED_DOWN_PIN);
         }
+        // else {
+        //     writePinHigh(LED_CHRG_PIN);
+        //     writePinHigh(LED_DOWN_PIN);
+        // }
     }
     /*************************************************************************************/
     if (dev_info.devs != DEVS_USB) {

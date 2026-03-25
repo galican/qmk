@@ -31,7 +31,7 @@ enum bt_keycodes {
     KC_SIRI,
 
     LCD_TOGG,
-    LCD_ENTER,
+    // LCD_ENTER,
     LCD_LEFT,
     LCD_RIGHT,
 
@@ -42,8 +42,10 @@ enum bt_keycodes {
     SLED_SPI,
     SLED_SPD,
     SLED_TOG,
+};
 
-    RGB_TEST,
+enum custom_keycodes {
+    RGB_TEST = SAFE_RANGE,
     WL_2_4G,
 };
 

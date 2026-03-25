@@ -27,10 +27,4 @@
 #define SPI_MOSI_PAL_MODE 5
 #define EXTERNAL_FLASH_SPI_SLAVE_SELECT_PIN C12
 
-/* Enable CapsLock LED */
-#define CAPS_LOCK_LED_INDEX 56
-
-/* Enable GUI Lock LED */
-#define GUI_LOCK_LED_INDEX 79
-
 #define KEY_NUM 6

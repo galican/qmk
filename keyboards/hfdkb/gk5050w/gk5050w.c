@@ -112,13 +112,13 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
         case SLED_VAI:
             if (record->event.pressed) {
-                if (dev_info.brightness >= (RGB_MATRIX_MAXIMUM_BRIGHTNESS - RGB_MATRIX_VAL_STEP)) {
-                    dev_info.brightness = RGB_MATRIX_MAXIMUM_BRIGHTNESS;
+                if (dev_info.brightness >= (SLED_BRIGHTNESS_MAX - SLED_BRIGHTNESS_STEP)) {
+                    dev_info.brightness = SLED_BRIGHTNESS_MAX;
                     all_blink_cnt       = 6;
                     all_blink_color     = (RGB){ALARM_COLOR_WHITE};
                     all_blink_time      = timer_read32();
                 } else {
-                    dev_info.brightness += RGB_MATRIX_VAL_STEP;
+                    dev_info.brightness += SLED_BRIGHTNESS_STEP;
                 }
                 // dev_info.brightness = qadd8(dev_info.brightness, RGB_MATRIX_VAL_STEP);
                 eeconfig_update_user(dev_info.raw);
@@ -127,13 +127,13 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
         case SLED_VAD:
             if (record->event.pressed) {
-                if (dev_info.brightness <= RGB_MATRIX_VAL_STEP) {
+                if (dev_info.brightness <= SLED_BRIGHTNESS_STEP) {
                     dev_info.brightness = 0;
                     all_blink_cnt       = 6;
                     all_blink_color     = (RGB){ALARM_COLOR_WHITE};
                     all_blink_time      = timer_read32();
                 } else {
-                    dev_info.brightness -= RGB_MATRIX_VAL_STEP;
+                    dev_info.brightness -= SLED_BRIGHTNESS_STEP;
                 }
                 // dev_info.brightness = qsub8(dev_info.brightness, RGB_MATRIX_VAL_STEP);
                 eeconfig_update_user(dev_info.raw);
@@ -467,15 +467,30 @@ void housekeeping_task_kb(void) {
 }
 
 extern bool low_battery_vol;
+extern bool backlight_sleep_flag;
+
+bool led_update_kb(led_t led_state) {
+    bool res = led_update_user(led_state);
+
+    if (res) {
+        if (!backlight_sleep_flag) {
+            writePin(LED_RED_PIN, !led_state.caps_lock);
+            writePin(LED_GREEN_PIN, !led_state.caps_lock);
+            writePin(LED_BLUE_PIN, !led_state.caps_lock);
+        }
+    }
+
+    return res;
+}
 
 bool rgb_matrix_indicators_kb(void) {
     if (!rgb_matrix_get_flags() || low_battery_vol) {
         rgb_matrix_set_color_all(RGB_OFF);
     }
 
-    if (host_keyboard_led_state().caps_lock) {
-        rgb_matrix_set_color(LED_CAPS_LOCK, RGB_WHITE);
-    }
+    // if (host_keyboard_led_state().caps_lock) {
+    // rgb_matrix_set_color(LED_CAPS_LOCK, RGB_WHITE);
+    // }
 
     if (keymap_config.no_gui) {
         rgb_matrix_set_color(LED_WIN_LOCK, RGB_CYAN);
@@ -497,7 +512,7 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     if (dev_info.enable && !low_battery_vol) {
         SLed_task();
     } else {
-        for (uint8_t i = 83; i <= 129; i++) {
+        for (uint8_t i = 83; i <= 130; i++) {
             rgb_matrix_set_color(i, 0, 0, 0);
         }
     }
