@@ -117,7 +117,7 @@ void led_config_all(void) {
 void led_deconfig_all(void) {
     if (led_inited) {
         // writePinLow(LED_CAPS_LOCK_IND_PIN);
-        writePinLow(LED_PWR_IND_PIN);
+        gpio_write_pin_low(LED_PWR_IND_PIN);
         led_inited = false;
     }
 }
@@ -400,14 +400,14 @@ void bt_init(void) {
     if (dev_info.devs != DEVS_USB) {
         usbDisconnectBus(&USB_DRIVER);
         usbStop(&USB_DRIVER);
-        writePinHigh(A12);
+        // gpio_write_pin_high(A12);
     }
 
-    setPinOutput(A14);
+    gpio_set_pin_output(A14);
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
 
     bt_init_time = timer_read32();
@@ -584,7 +584,7 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
         if (!!now_mode) {
             usbDisconnectBus(&USB_DRIVER);
             usbStop(&USB_DRIVER);
-            writePinHigh(A12);
+            // gpio_write_pin_high(A12);
         } else {
             init_usb_driver(&USB_DRIVER);
         }
@@ -597,11 +597,11 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
     }
 
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
         USB_switch_time = timer_read32();
         USB_blink_cnt   = 0;
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
         last_total_time = timer_read32();
     }
 
@@ -690,7 +690,7 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case BT_HOST1: {
             if (record->event.pressed) {
-                if ((dev_info.devs != DEVS_HOST1) && (!readPin(MM_BT_MODE_PIN))) {
+                if ((dev_info.devs != DEVS_HOST1) && (!gpio_read_pin(MM_BT_MODE_PIN))) {
                     bt_switch_mode(dev_info.devs, DEVS_HOST1, false);
                     LCD_IND_update();
                     LCD_charge_update();
@@ -699,7 +699,7 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
         } break;
         case BT_HOST2: {
             if (record->event.pressed) {
-                if ((dev_info.devs != DEVS_HOST2) && (!readPin(MM_BT_MODE_PIN))) {
+                if ((dev_info.devs != DEVS_HOST2) && (!gpio_read_pin(MM_BT_MODE_PIN))) {
                     bt_switch_mode(dev_info.devs, DEVS_HOST2, false);
                     LCD_IND_update();
                     LCD_charge_update();
@@ -708,7 +708,7 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
         } break;
         case BT_HOST3: {
             if (record->event.pressed) {
-                if ((dev_info.devs != DEVS_HOST3) && (!readPin(MM_BT_MODE_PIN))) {
+                if ((dev_info.devs != DEVS_HOST3) && (!gpio_read_pin(MM_BT_MODE_PIN))) {
                     bt_switch_mode(dev_info.devs, DEVS_HOST3, false);
                     LCD_IND_update();
                     LCD_charge_update();
@@ -717,7 +717,7 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
         } break;
         case BT_2_4G: {
             if (record->event.pressed) {
-                if ((dev_info.devs != DEVS_2_4G) && (!readPin(MM_2G4_MODE_PIN))) {
+                if ((dev_info.devs != DEVS_2_4G) && (!gpio_read_pin(MM_2G4_MODE_PIN))) {
                     bt_switch_mode(dev_info.devs, DEVS_2_4G, false);
                     LCD_IND_update();
                     LCD_charge_update();
@@ -798,28 +798,28 @@ static void long_pressed_keys_hook(void) {
 
 static void bt_used_pin_init(void) {
 #    ifdef MM_BT_MODE_PIN
-    setPinInputHigh(MM_BT_MODE_PIN);
-    setPinInputHigh(MM_2G4_MODE_PIN);
+    gpio_set_pin_input_high(MM_BT_MODE_PIN);
+    gpio_set_pin_input_high(MM_2G4_MODE_PIN);
 #    endif
 
 #    if defined(MM_CABLE_PIN) && defined(MM_CHARGE_PIN)
-    setPinInputHigh(MM_CABLE_PIN);
-    setPinInput(MM_CHARGE_PIN);
+    gpio_set_pin_input_high(MM_CABLE_PIN);
+    gpio_set_pin_input(MM_CHARGE_PIN);
 #    endif
 
 #    ifdef RGB_MATRIX_DRIVER_SDB_PIN
-    setPinOutputOpenDrain(RGB_MATRIX_DRIVER_SDB_PIN);
-    writePinHigh(RGB_MATRIX_DRIVER_SDB_PIN);
+    gpio_set_pin_output_open_drain(RGB_MATRIX_DRIVER_SDB_PIN);
+    gpio_write_pin_high(RGB_MATRIX_DRIVER_SDB_PIN);
 #    endif
 
 #    ifdef LED_PWR_IND_PIN
-    setPinOutputPushPull(LED_PWR_IND_PIN);
-    writePinLow(LED_PWR_IND_PIN);
+    gpio_set_pin_output_push_pull(LED_PWR_IND_PIN);
+    gpio_write_pin_low(LED_PWR_IND_PIN);
 #    endif
 
 #    ifdef LED_CAPS_LOCK_IND_PIN
-    setPinOutputPushPull(LED_CAPS_LOCK_IND_PIN);
-    writePinLow(LED_CAPS_LOCK_IND_PIN);
+    gpio_set_pin_output_push_pull(LED_CAPS_LOCK_IND_PIN);
+    gpio_write_pin_low(LED_CAPS_LOCK_IND_PIN);
 #    endif
 }
 
@@ -834,10 +834,10 @@ static void bt_scan_mode(void) {
     static uint8_t old_mode   = 0;
     static bool    first_call = true;
 
-    if (readPin(MM_BT_MODE_PIN) && !readPin(MM_2G4_MODE_PIN)) {
+    if (gpio_read_pin(MM_BT_MODE_PIN) && !gpio_read_pin(MM_2G4_MODE_PIN)) {
         now_mode = 0;
         if (dev_info.devs != DEVS_2_4G) bt_switch_mode(dev_info.devs, DEVS_2_4G, false); // 2_4G mode
-    } else if (readPin(MM_2G4_MODE_PIN) && !readPin(MM_BT_MODE_PIN)) {
+    } else if (gpio_read_pin(MM_2G4_MODE_PIN) && !gpio_read_pin(MM_BT_MODE_PIN)) {
         now_mode = 1;
         if ((dev_info.devs == DEVS_USB) || (dev_info.devs == DEVS_2_4G)) bt_switch_mode(dev_info.devs, dev_info.last_devs, false); // BT mode
     } else {
@@ -858,9 +858,9 @@ static void bt_scan_mode(void) {
         LCD_charge_update();
 
 #        ifdef RGB_MATRIX_DRIVER_SDB_PIN
-        writePinLow(RGB_MATRIX_DRIVER_SDB_PIN);
+        gpio_write_pin_low(RGB_MATRIX_DRIVER_SDB_PIN);
         wait_ms(1);
-        writePinHigh(RGB_MATRIX_DRIVER_SDB_PIN);
+        gpio_write_pin_high(RGB_MATRIX_DRIVER_SDB_PIN);
 #        endif
 
         rgb_matrix_init();
@@ -882,7 +882,7 @@ static void close_rgb(void) {
             rgb_matrix_disable_noeeprom();
 
 #    ifdef RGB_MATRIX_DRIVER_SDB_PIN
-            writePinLow(RGB_MATRIX_DRIVER_SDB_PIN);
+            gpio_write_pin_low(RGB_MATRIX_DRIVER_SDB_PIN);
 #    endif
             LCD_command_update(LCD_SLEEP);
         }
@@ -894,7 +894,7 @@ static void close_rgb(void) {
                     led_deconfig_all();
                 }
 
-                writePinLow(LED_CAPS_LOCK_IND_PIN);
+                gpio_write_pin_low(LED_CAPS_LOCK_IND_PIN);
                 rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
                 // writePinLow(LED_PWR_IND_PIN);
 
@@ -904,11 +904,11 @@ static void close_rgb(void) {
                 lp_system_sleep();
 #    endif
 
-                setPinOutputOpenDrain(SD3_TX_PIN);
+                gpio_set_pin_output_open_drain(SD3_TX_PIN);
                 for (uint8_t i = 0; i < 5; i++) {
-                    writePinHigh(SD3_TX_PIN);
+                    gpio_write_pin_high(SD3_TX_PIN);
                     wait_ms(5);
-                    writePinLow(SD3_TX_PIN);
+                    gpio_write_pin_low(SD3_TX_PIN);
                     wait_ms(5);
                 }
 
@@ -928,7 +928,7 @@ static void open_rgb(void) {
 
     if (!sober) {
 #    ifdef RGB_MATRIX_DRIVER_SDB_PIN
-        writePinHigh(RGB_MATRIX_DRIVER_SDB_PIN);
+        gpio_write_pin_high(RGB_MATRIX_DRIVER_SDB_PIN);
 #    endif
 
         if (bak_rgb_toggle) {
@@ -944,7 +944,7 @@ static void open_rgb(void) {
 
         led_config_all();
 
-        writePin(LED_CAPS_LOCK_IND_PIN, host_keyboard_led_state().caps_lock);
+        gpio_write_pin(LED_CAPS_LOCK_IND_PIN, host_keyboard_led_state().caps_lock);
 
         if (get_highest_layer(default_layer_state) == 2)
             rgb_matrix_set_color(LED_MAC_OS_INDEX, 100, 100, 100);
