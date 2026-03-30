@@ -93,7 +93,7 @@ void LCD_charge_update(void) {
     charge_data[0] = 0xAA;
     charge_data[1] = 0x04;
 
-    if (!readPin(BT_CABLE_PIN))
+    if (!gpio_read_pin(BT_CABLE_PIN))
         charge_data[2] |= 0x80;
     else
         charge_data[2] &= ~0x80;

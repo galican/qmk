@@ -63,7 +63,7 @@ long_pressed_keys_t long_pressed_keys[] = {
 //   {.keycode = SW_OS1, .press_time = 0, .event_cb = long_pressed_keys_cb},
 //   {.keycode = TO(0), .press_time = 0, .event_cb = long_pressed_keys_cb},
 //   {.keycode = TO(2), .press_time = 0, .event_cb = long_pressed_keys_cb},
-  {.keycode = RGB_TEST, .press_time = 0, .event_cb = long_pressed_keys_cb},
+//   {.keycode = RGB_TEST, .press_time = 0, .event_cb = long_pressed_keys_cb},
   {.keycode = EE_CLR, .press_time = 0, .event_cb = long_pressed_keys_cb},
 };
 // clang-format on
@@ -77,6 +77,7 @@ static uint32_t close_rgb_time;
 static bool bak_rgb_toggle;
 static bool sober         = true;
 static bool kb_sleep_flag = false;
+
 extern bool led_inited;
 extern void led_config_all(void);
 extern void led_deconfig_all(void);
@@ -438,6 +439,7 @@ void bt_task(void) {
     long_pressed_keys_hook();
     if (!wl_init_time) bt_scan_mode();
 }
+
 uint32_t pressed_time = 0;
 
 bool process_record_bt(uint16_t keycode, keyrecord_t *record) {
@@ -701,14 +703,6 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
             }
             return true;
         }
-        case RGB_TEST: {
-            // if (record->event.pressed) {
-            //     extern uint8_t rgb_test_en;
-            //     if (rgb_test_en) {
-            //         rgb_test_en = false;
-            //     }
-            // }
-        } break;
         case EE_CLR: {
         } break;
         // case GU_TOGG:
@@ -794,19 +788,6 @@ static void long_pressed_keys_cb(uint16_t keycode) {
         //         blink_rgb_set(0, 0);
         //     }
         // } break;
-        case RGB_TEST: {
-            if (dev_info.devs == DEVS_USB) {
-                // extern void    blink_rgb_set(uint8_t, uint8_t);
-                extern bool    rgb_test_en;
-                extern uint8_t rgb_test_index;
-
-                if (rgb_test_en != true) {
-                    // blink_rgb_set(2, 0);
-                    rgb_test_en    = true;
-                    rgb_test_index = 1;
-                }
-            }
-        } break;
         case EE_CLR: {
             if (!EE_CLR_flag) {
                 rgb_matrix_enable();
@@ -936,7 +917,6 @@ static void close_rgb(void) {
 #ifdef ENTRY_STOP_MODE
                 lp_system_sleep();
 #endif
-                extern void open_rgb(void);
 
                 // if ((dev_info.devs != DEVS_USB) && (dev_info.devs != DEVS_2_4G))
                 //     bt_switch_mode(DEVS_USB, dev_info.last_devs, false);
@@ -946,22 +926,21 @@ static void close_rgb(void) {
                 //     bt_switch_mode(dev_info.last_devs, DEVS_USB, false);
                 // }
 
-                gpio_set_pin_output_push_pull(SD3_TX_PIN);
-                for (uint8_t i = 0; i < 5; i++) {
-                    gpio_write_pin_high(SD3_TX_PIN);
-                    wait_ms(5);
-                    gpio_write_pin_low(SD3_TX_PIN);
-                    wait_ms(5);
-                }
+                // gpio_set_pin_output_push_pull(SD3_TX_PIN);
+                // gpio_set_pin_output_open_drain(SD3_TX_PIN);
+                // for (uint8_t i = 0; i < 5; i++) {
+                //     gpio_write_pin_low(SD3_TX_PIN);
+                //     wait_ms(5);
+                //     gpio_write_pin_high(SD3_TX_PIN);
+                //     wait_ms(5);
+                // }
 
                 LCD_start();
 
                 LCD_command_update(LCD_WEAKUP);
 
+                extern void open_rgb(void);
                 open_rgb();
-
-                LCD_IND_update();
-                LCD_charge_update();
             }
         }
     }
@@ -975,8 +954,8 @@ void open_rgb(void) {
         gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
         wait_ms(1);
         gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
-#endif
         rgb_matrix_init();
+#endif
 
         extern bool low_vol_offed_sleep;
         low_vol_offed_sleep = false;
@@ -985,6 +964,9 @@ void open_rgb(void) {
         if (bak_rgb_toggle) {
             rgb_matrix_enable_noeeprom();
         }
+
+        LCD_IND_update();
+        LCD_charge_update();
 
         if (!led_inited) {
             led_config_all();

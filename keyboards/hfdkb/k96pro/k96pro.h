@@ -12,11 +12,15 @@ enum bt_keycodes {
     BT_HOST2,
     BT_HOST3,
     BT_2_4G,
-    BT_USB,
     BT_VOL,
     LCD_HOME,
     LCD_PAGE,
-    RGB_TEST,
+    LCD_TOGG,
+};
+
+enum custom_keycodes {
+    RGB_TEST = SAFE_RANGE,
+    BT_USB,
     BT_SW,
     FN_FUN,
 };

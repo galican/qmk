@@ -62,15 +62,15 @@
     ],
     "matrix": { "rows": 6, "cols": 18 },
     "customKeycodes":[
-        {"name":"BT_HOST1","title":"BT_HOST1","shortName":"BT_HOST1"},
-        {"name":"BT_HOST2","title":"BT_HOST2","shortName":"BT_HOST2"},
-        {"name":"BT_HOST3","title":"BT_HOST3","shortName":"BT_HOST3"},
-        {"name":"BT_2_4G", "title":"BT_2_4G", "shortName":"BT_2_4G"},
-        {"name":"BT_USB",  "title":"BT_USB",  "shortName":"BT_USB"},
-        {"name":"BT_VOL",  "title":"BT_VOL",  "shortName":"BT_VOL"},
-        {"name":"LCD_HOME,",  "title":"LCD_HOME",  "shortName":"LCD_HOME"},
-        {"name":"LCD_PAGE,",  "title":"LCD_PAGE",  "shortName":"LCD_PAGE"}
-      ],
+        {"name":"BT_1","title":"BT device 1","shortName":"BT_1"},
+        {"name":"BT_2","title":"BT device 2","shortName":"BT_2"},
+        {"name":"BT_3","title":"BT device 3","shortName":"BT_3"},
+        {"name":"2.4G", "title":"2.4G device", "shortName":"2.4G"},
+        {"name":"Batt. Check",  "title":"Query the voltage of battery",  "shortName":"Batt.Check"},
+        {"name":"LCD HOME",  "title":"Switch to LCD home page",  "shortName":"LCD_HOME"},
+        {"name":"LCD PAGE",  "title":"Switch LCD display page",  "shortName":"LCD_PAGE"},
+        {"name":"LCD TOGG",  "title":"Toggle LCD display status",  "shortName":"LCD_TOGG"}
+    ],
     "layouts": {
       "keymap":[
         [

@@ -169,35 +169,25 @@ void Charge_Chat(void) {
 }
 #endif
 
+static bool uart_off_flag = false;
+
 void led_config_all(void) {
     if (!led_inited) {
-        // Set our LED pins as output
         gpio_set_pin_output(A14);
         if (dev_info.devs == DEVS_USB) {
             gpio_write_pin_low(A14);
         } else {
             gpio_write_pin_high(A14);
         }
-        // setPinOutputOpenDrain(RGB_DRIVER_SDB_PIN);
-        // writePinHigh(RGB_DRIVER_SDB_PIN);
-        // setPinOutput(LED_WIN_LOCK_PIN); // LDE2 Caps Lock
-        // writePinLow(LED_WIN_LOCK_PIN);
-        // setPinOutput(LED_MAC_MODE_PIN); // LDE2 Caps Lock
-        // writePinLow(LED_MAC_MODE_PIN);
-        // LCD_start();
+
+        if (uart_off_flag) uart_off_flag = false;
         led_inited = true;
     }
 }
 
 void led_deconfig_all(void) {
     if (led_inited) {
-        // Set our LED pins as input
-        // writePinLow(RGB_DRIVER_SDB_PIN);
-        // writePinLow(LED_NUM_LOCK_PIN);
-        // writePinLow(LED_CAPS_LOCK_PIN);
-        // writePinLow(LED_WIN_LOCK_PIN);
-        // writePinLow(LED_MAC_MODE_PIN);
-        // LCD_stop();
+        if (!uart_off_flag) uart_off_flag = true;
         led_inited = false;
     }
 }
@@ -284,7 +274,7 @@ static uint8_t get_pvol_from_uart(void) {
         uart_data_send[1] = uart_data_read[1];
         uart_data_send[2] = (uart_data_send[0] + uart_data_send[1]) & 0xFF;
 
-        if (dev_info.devs == DEVS_USB || ((dev_info.devs != DEVS_USB) && !get_kb_sleep_flag() && bts_info.bt_info.paired)) {
+        if (bts_info.bt_info.paired) {
             uart_transmit(uart_data_send, 3);
         }
 
@@ -429,6 +419,12 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         }
+        case LCD_TOGG: {
+            if (record->event.pressed) {
+                LCD_command_update(LCD_SLEEP_TOGGLE);
+            }
+            return false;
+        }
         case RM_VALU: {
             if (record->event.pressed && (rgb_matrix_get_val() == RGB_MATRIX_MAXIMUM_BRIGHTNESS)) {
                 blink_led_set(3);
@@ -453,11 +449,11 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 dprintf("speed out in\r\n");
             }
         } break;
-        case KC_ESC: {
-            if (record->event.pressed) {
-                LCD_command_update(3);
-            }
-        } break;
+            // case KC_ESC: {
+            //     if (record->event.pressed) {
+            //         LCD_command_update(3);
+            //     }
+            // } break;
 
         case RM_TOGG: {
             if (record->event.pressed) {
@@ -503,9 +499,17 @@ void matrix_init_kb(void) {
 void matrix_scan_kb(void) {
 #ifdef BT_MODE_ENABLE
     bt_task();
-    set_led_state();
+
+    if (((dev_info.devs != DEVS_USB) && !get_kb_sleep_flag() && !uart_off_flag) || ((dev_info.devs == DEVS_USB))) {
+        set_led_state();
+    }
+
     blink_led_advanced();
 #endif
+
+    extern void rgb_test_scan(void);
+    rgb_test_scan();
+
     matrix_scan_user();
 }
 
@@ -650,3 +654,55 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     return true;
 }
 #endif
+
+static uint32_t rgb_test_timer = 0;
+static uint32_t rgb_test_time  = 0;
+
+enum {
+    RGB_TEST_NONE = 0,
+    RGB_TEST_START,
+    RGB_TEST_END,
+};
+
+void rgb_test_scan(void) {
+    uint8_t row1 = 4;
+    uint8_t row2 = 5;
+    uint8_t col1 = 10;
+    uint8_t col2 = 10;
+
+    static uint8_t rgb_test_state = RGB_TEST_NONE;
+
+    switch (rgb_test_state) {
+        case RGB_TEST_NONE:
+            if ((matrix_get_row(row1) & (1 << col1)) && (matrix_get_row(row2) & (1 << col2))) {
+                if (!rgb_test_timer) rgb_test_timer = timer_read32();
+                rgb_test_state = RGB_TEST_START;
+            }
+            break;
+
+        case RGB_TEST_START:
+            if ((matrix_get_row(row1) & (1 << col1)) && (matrix_get_row(row2) & (1 << col2))) {
+                if (rgb_test_timer && (timer_elapsed32(rgb_test_timer) > 3000)) {
+                    if (!rgb_test_en) {
+                        rgb_test_en    = true;
+                        rgb_test_index = 1;
+                        rgb_test_time  = timer_read32();
+                    }
+                }
+            } else {
+                rgb_test_timer = 0;
+                rgb_test_state = RGB_TEST_END;
+            }
+            break;
+
+        case RGB_TEST_END:
+            if ((matrix_get_row(row1) & (1 << col1)) && (matrix_get_row(row2) & (1 << col2))) {
+                if (rgb_test_en) rgb_test_en = false;
+                rgb_test_state = RGB_TEST_NONE;
+            }
+            break;
+
+        default:
+            break;
+    }
+}
