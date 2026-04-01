@@ -167,42 +167,42 @@ bool low_vol_offed_sleep;
 static void exti_init(void) {
     if (!low_vol_offed_sleep) {
         for (int col = 0; col < MATRIX_COLS; col++) {
-            setPinOutputOpenDrain(col_pins[col]);
-            writePinLow(col_pins[col]);
+            gpio_set_pin_output_open_drain(col_pins[col]);
+            gpio_write_pin_low(col_pins[col]);
         }
 
         for (int row = 0; row < MATRIX_ROWS; row++) {
-            setPinInputHigh(row_pins[row]);
+            gpio_set_pin_input_high(row_pins[row]);
             waitInputPinDelay();
             _pal_lld_enablepadevent(PAL_PORT(row_pins[row]), PAL_PAD(row_pins[row]), PAL_EVENT_MODE_BOTH_EDGES);
             pad_enbale_interrupt(PAL_PAD(row_pins[row]));
         }
 
 #    if defined(MM_BT_MODE_PIN) && defined(MM_2G4_MODE_PIN)
-        setPinInputHigh(MM_BT_MODE_PIN);
+        gpio_set_pin_input_high(MM_BT_MODE_PIN);
         pad_enbale_interrupt(PAL_PAD(MM_BT_MODE_PIN));
         _pal_lld_enablepadevent(PAL_PORT(MM_BT_MODE_PIN), PAL_PAD(MM_BT_MODE_PIN), PAL_EVENT_MODE_BOTH_EDGES);
 
-        setPinInputHigh(MM_2G4_MODE_PIN);
+        gpio_set_pin_input_high(MM_2G4_MODE_PIN);
         pad_enbale_interrupt(PAL_PAD(MM_2G4_MODE_PIN));
         _pal_lld_enablepadevent(PAL_PORT(MM_2G4_MODE_PIN), PAL_PAD(MM_2G4_MODE_PIN), PAL_EVENT_MODE_BOTH_EDGES);
 
 #    endif
 
         // #    ifdef MM_CABLE_PIN
-        //         setPinInputHigh(MM_CABLE_PIN);
+        //         gpio_set_pin_input_high(MM_CABLE_PIN);
         //         _pal_lld_enablepadevent(PAL_PORT(MM_CABLE_PIN), PAL_PAD(MM_CABLE_PIN), PAL_EVENT_MODE_BOTH_EDGES);
         //         pad_enbale_interrupt(PAL_PAD(MM_CABLE_PIN));
         // #    endif
 
 #    ifdef ENCODER_ENABLE
-        setPinInputHigh(C13);
+        gpio_set_pin_input_high(C13);
         _pal_lld_enablepadevent(PAL_PORT(C13), PAL_PAD(C13), PAL_EVENT_MODE_BOTH_EDGES);
         pad_enbale_interrupt(PAL_PAD(C13));
 #    endif
     } else {
 #    ifdef MM_CABLE_PIN
-        setPinInputHigh(MM_CABLE_PIN);
+        gpio_set_pin_input_high(MM_CABLE_PIN);
         _pal_lld_enablepadevent(PAL_PORT(MM_CABLE_PIN), PAL_PAD(MM_CABLE_PIN), PAL_EVENT_MODE_BOTH_EDGES);
         pad_enbale_interrupt(PAL_PAD(MM_CABLE_PIN));
     }

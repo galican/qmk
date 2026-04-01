@@ -47,7 +47,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [WIN_FN] = LAYOUT_100_ansi(
         EE_CLR,            KC_BRID,  KC_BRIU,  WIN_TSK,  KC_MYCM, KC_MAIL, KC_WHOM, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE,  KC_VOLD,  KC_VOLU,  _______,  KC_PSCR, KC_SCRL,  _______,  _______,
         _______, BT_HOST1, BT_HOST2, BT_HOST3, BT_2_4G,  _______, _______, _______, _______, _______, _______, _______,  _______,  RM_TOGG,  _______,  _______, _______,  _______,  _______,
-        RGB_TEST,_______,  _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______,  _______,  RM_NEXT,  _______,  _______, _______,  _______,  _______,
+        RGB_TEST,_______,  _______,  _______,  _______,  _______, _______, _______, _______, _______, NK_TOGG, _______,  _______,  RM_NEXT,  _______,  _______, _______,  _______,  _______,
         _______, _______,  _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______,            RM_HUEU,  _______,  _______, _______,  _______,
         BLED_MOD,          BLED_HUI, _______,  _______,  _______, BT_VOL,  _______, _______, _______, _______, SLED_HUI, SLED_MOD, RM_VALU,            _______, _______,  _______,  _______,
         BLED_SPI,GU_TOGG,  BLED_VAI,                              SLED_SPI,                           SLED_VAI,_______,  RM_SPDD,  RM_VALD,  RM_SPDU,  _______,           _______),
@@ -63,7 +63,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [MAC_FN] = LAYOUT_100_ansi(
         EE_CLR,            KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,  KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,   KC_F11,   KC_F12,   _______,  KC_PSCR, KC_SCRL,  _______,  _______,
         _______, BT_HOST1, BT_HOST2, BT_HOST3, BT_2_4G,  _______, _______, _______, _______, _______, _______, _______,  _______,  RM_TOGG,  _______,  _______, _______,  _______,  _______,
-        RGB_TEST,_______,  _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______,  _______,  RM_NEXT,  _______,  _______, _______,  _______,  _______,
+        RGB_TEST,_______,  _______,  _______,  _______,  _______, _______, _______, _______, _______, NK_TOGG, _______,  _______,  RM_NEXT,  _______,  _______, _______,  _______,  _______,
         _______, _______,  _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______,            RM_HUEU,  _______,  _______, _______,  _______,
         BLED_MOD,          BLED_HUI, _______,  _______,  _______, BT_VOL,  _______, _______, _______, _______, SLED_HUI, SLED_MOD, RM_VALU,            _______, _______,  _______,  _______,
         BLED_SPI,_______,  BLED_VAI,                              SLED_SPI,                           SLED_VAI,_______,  RM_SPDD,  RM_VALD,  RM_SPDU,  _______,           _______),
@@ -166,16 +166,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     register_code(KC_LWIN);
                     register_code(KC_TAB);
                 } else {
-                    bts_process_keys(KC_LWIN, 1, dev_info.devs, 0);
-                    bts_process_keys(KC_TAB, 1, dev_info.devs, 0);
+                    bts_process_keys(KC_LWIN, 1, dev_info.devs, 0, KEY_NUM);
+                    bts_process_keys(KC_TAB, 1, dev_info.devs, 0, KEY_NUM);
                 }
             } else {
                 if (dev_info.devs == DEVS_USB) {
                     unregister_code(KC_TAB);
                     unregister_code(KC_LWIN);
                 } else {
-                    bts_process_keys(KC_TAB, 0, dev_info.devs, 0);
-                    bts_process_keys(KC_LWIN, 0, dev_info.devs, 0);
+                    bts_process_keys(KC_TAB, 0, dev_info.devs, 0, KEY_NUM);
+                    bts_process_keys(KC_LWIN, 0, dev_info.devs, 0, KEY_NUM);
                 }
             }
             return false;
@@ -196,13 +196,13 @@ void keyboard_post_init_user(void) {
     }
 
     bled_init();
-
-    // extern void snled27351_reset(void);
-    // snled27351_reset();
 }
 
 void eeconfig_init_user(void) {
     bled_eeconfig_init();
+
+    keymap_config.nkro = 1;
+    eeconfig_update_keymap(&keymap_config);
 }
 
 bool rgb_matrix_indicators_user(void) {
@@ -217,7 +217,8 @@ bool show_chrg      = false;
 bool show_chrg_full = false;
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    if (!backlight_sleep_flag && rgb_matrix_get_flags()) {
+    // if (!backlight_sleep_flag && rgb_matrix_get_flags()) {
+    if (!backlight_sleep_flag) {
         bled_task();
         if (!show_chrg && !show_chrg_full) sled_task();
     }
@@ -231,18 +232,23 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     return true;
 }
 
-// void suspend_power_down_user(void) {
-//     wwdg_disable();
-// }
-// void suspend_wakeup_init_user(void) {
-// wwdg_enable();
-// }
+#ifdef WWDG_ENABLE
+extern void wb32_wwdg_start(void);
+extern void wb32_wwdg_stop(void);
+
+void suspend_power_down_user(void) {
+    wb32_wwdg_stop();
+}
+
+void suspend_wakeup_init_user(void) {
+    wb32_wwdg_start();
+}
+#endif
 
 void housekeeping_task_user(void) {
-    static uint32_t chrg_check_time = 0;
-
 #ifdef MULTIMODE_ENABLE
-    bt_housekeeping_task();
+    extern void housekeeping_task_bt(void);
+    housekeeping_task_bt();
 #endif
 
 #ifdef USB_SUSPEND_CHECK_ENABLE
@@ -264,8 +270,9 @@ void housekeeping_task_user(void) {
                 usb_suspend       = false;
                 usb_suspend_timer = 0;
 #    ifdef RGB_MATRIX_SHUTDOWN_PIN
-                writePinHigh(RGB_MATRIX_SHUTDOWN_PIN);
+                gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
 #    endif
+                rgb_matrix_init();
             }
         }
 
@@ -276,7 +283,7 @@ void housekeeping_task_user(void) {
                 if (!usb_suspend) {
                     usb_suspend = true;
 #    ifdef RGB_MATRIX_SHUTDOWN_PIN
-                    writePinLow(RGB_MATRIX_SHUTDOWN_PIN);
+                    gpio_write_pin_low(RGB_MATRIX_SHUTDOWN_PIN);
 #    endif
                 }
 
@@ -288,8 +295,9 @@ void housekeeping_task_user(void) {
                 usb_suspend       = false;
 
 #    ifdef RGB_MATRIX_SHUTDOWN_PIN
-                writePinHigh(RGB_MATRIX_SHUTDOWN_PIN);
+                gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
 #    endif
+                rgb_matrix_init();
             }
         }
     } else {
@@ -297,13 +305,15 @@ void housekeeping_task_user(void) {
             usb_suspend_timer = 0;
             usb_suspend       = false;
 #    ifdef RGB_MATRIX_SHUTDOWN_PIN
-            writePinHigh(RGB_MATRIX_SHUTDOWN_PIN);
+            gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
 #    endif
+            rgb_matrix_init();
         }
     }
 #endif
 
-    extern void Charge_Chat(void);
+    static uint32_t chrg_check_time = 0;
+    extern void     Charge_Chat(void);
     if (timer_elapsed32(chrg_check_time) >= 2) {
         chrg_check_time = timer_read32();
         Charge_Chat();
@@ -317,13 +327,11 @@ void matrix_scan_user(void) {
 }
 
 void matrix_init_user(void) {
-    // wwdg_enable();
-
 #ifdef RGB_MATRIX_SHUTDOWN_PIN
-    setPinOutputPushPull(RGB_MATRIX_SHUTDOWN_PIN);
-    writePinLow(RGB_MATRIX_SHUTDOWN_PIN);
+    gpio_set_pin_output_push_pull(RGB_MATRIX_SHUTDOWN_PIN);
+    gpio_write_pin_low(RGB_MATRIX_SHUTDOWN_PIN);
     wait_ms(10);
-    writePinHigh(RGB_MATRIX_SHUTDOWN_PIN);
+    gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
 #endif
 
 #ifdef MULTIMODE_ENABLE
@@ -339,13 +347,17 @@ static uint16_t rChr_Cnt     = 0;
 static uint8_t  f_ChargeOn   = 0;
 static uint8_t  f_ChargeFull = 0;
 
-#    define CHR_DEBOUNCE 100
+#    define CHR_DEBOUNCE 25
 
 void Charge_Chat(void) {
     uint8_t i = 0;
 
-    if (USBLINK_Status == 0 && CHARGE_Status == 0) i |= 0x01;
-    if ((USBLINK_Status == 0) && (CHARGE_Status == 1 || bts_info.bt_info.pvol >= 100)) i |= 0x02;
+    if (USBLINK_Status == 0) i |= 0x01;
+    if ((CHARGE_Status == 1) || ((dev_info.devs != DEVS_USB) && (bts_info.bt_info.pvol >= 100))) i |= 0x02;
+    // if ((USBLINK_Status == 0) && ((CHARGE_Status == 0) || (CHARGE_Status == 1))) i |= 0x01;
+    // if ((USBLINK_Status == 0) && (CHARGE_Status == 1 || bts_info.bt_info.pvol >= 100)) i |= 0x02;
+    // if (USBLINK_Status == 0 && CHARGE_Status == 0) i |= 0x01;
+    // if ((USBLINK_Status == 0) && (CHARGE_Status == 1 || bts_info.bt_info.pvol >= 100)) i |= 0x02;
 
     if (rChr_ChkBuf != i) {
         rChr_Cnt    = CHR_DEBOUNCE;
@@ -359,9 +371,8 @@ void Charge_Chat(void) {
                 if (i != 0) {
                     rChr_OldBuf = rChr_ChkBuf;
 
-                    if (i) {
-                        f_ChargeOn = (rChr_ChkBuf & 0x01) ? 1 : 0;
-
+                    if (i & 0x3) {
+                        f_ChargeOn   = (rChr_ChkBuf & 0x01) ? 1 : 0;
                         f_ChargeFull = (rChr_ChkBuf & 0x02) ? 1 : 0;
                     }
                 }

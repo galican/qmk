@@ -44,8 +44,9 @@
 #    define BAT_LEVEL_DISPLAY_INDEX {102, 103, 104, 105, 106} // Battery level indicator
 
 #    define USB_SUSPEND_CHECK_ENABLE
-#    define USBLINK_Status readPin(MM_CABLE_PIN)
-#    define CHARGE_Status readPin(MM_CHARGE_PIN)
+#    define USBLINK_Status gpio_read_pin(MM_CABLE_PIN)
+#    define CHARGE_Status gpio_read_pin(MM_CHARGE_PIN)
+#    define KEY_NUM 6
 #endif
 
 // Win lock indicator
@@ -65,9 +66,8 @@
 /* I2C Config for LED Driver */
 #define SNLED27351_I2C_ADDRESS_1 SNLED27351_I2C_ADDRESS_GND
 #define SNLED27351_I2C_ADDRESS_2 SNLED27351_I2C_ADDRESS_VDDIO
-
 #define I2C1_OPMODE OPMODE_I2C
-#define I2C1_CLOCK_SPEED 1000000
+#define I2C1_CLOCK_SPEED 400000
 
 // RGB Matrix Config
 #define RGB_MATRIX_SHUTDOWN_PIN A15

@@ -6,53 +6,28 @@
 #include <stdlib.h>
 #include "wwdg.h"
 
-static bool     feed_dog   = false;
-static bool     enable_dog = false;
-static uint16_t time       = 0;
+static volatile bool is_initialised = false;
 
-void wwdg_disable(void) {
-    if (feed_dog) {
-        Disable_WWDG();
-        feed_dog = false;
-    }
+volatile uint8_t wb32_wwdg_started(void) {
+    return is_initialised;
 }
 
-void wwdg_enable(void) {
-    enable_dog = true;
-}
+void wb32_wwdg_start(void) {
+    if (!is_initialised) {
+        is_initialised = true;
+        rccEnableWWDG();
+        rccResetWWDG();
 
-void housekeeping_task_kb(void) {
-    if (enable_dog) {
-        enable_dog = false;
-        feed_dog   = true;
-        Init_WWDG();
+        WWDG_SetPrescaler(WWDG_Prescaler_8);
+        WWDG_SetWindowValue(0x7F); // maximum
         WWDG_Enable(127);
-        time = timer_read();
-    }
-    if (timer_elapsed(time) > 1) {
-        time = timer_read();
-        if (feed_dog) {
-            WWDG_SetCounter(127);
-        }
     }
 }
 
-void snled27351_reset(void) {
-    setPinOutputOpenDrain(C11);
-    writePinLow(C11);
-    wait_ms(1);
-    writePinHigh(C11);
-    // wait_ms(20);
-
-    WWDG_SetCounter(127);
-    time = timer_read();
-
-    rgb_matrix_init();
+void wb32_wwdg_stop(void) {
+    if (is_initialised) {
+        is_initialised = false;
+        rccResetWWDG();
+        rccDisableWWDG();
+    }
 }
-
-// void keyboard_pre_init_kb(void) {
-//     feed_dog = true;
-//     Init_WWDG();
-//     WWDG_Enable(127);
-//     time = timer_read();
-// }
