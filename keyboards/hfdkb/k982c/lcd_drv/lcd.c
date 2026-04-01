@@ -102,8 +102,8 @@ void LCD_charge_update(void) {
     charge_data[1] = 0x04;
 
     extern uint8_t pvol;
-    if (!readPin(MM_CABLE_PIN)) {
-        if (readPin(MM_CHARGE_PIN) && pvol == 100) {
+    if (!gpio_read_pin(MM_CABLE_PIN)) {
+        if (gpio_read_pin(MM_CHARGE_PIN) && pvol == 100) {
             charge_data[2] &= ~0x80;
         } else {
             charge_data[2] |= 0x80;

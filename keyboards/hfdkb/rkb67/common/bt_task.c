@@ -81,7 +81,7 @@ extern void led_deconfig_all(void);
 
 static uint32_t sleep_time[] = {1 * 60 * 1000, 3 * 60 * 1000, (5 * 60 - 40) * 1000, 30 * 60 * 1000, 60 * 60 * 1000};
 
-static const uint8_t rgb_index_table[]          = {15, 13, 12, 11, 255, 255, 14};
+static const uint8_t rgb_index_table[]          = {USB_LED_INDEX, BT1_LED_INDEX, BT2_LED_INDEX, BT3_LED_INDEX, 255, 255, WL_LED_INDEX};
 static const uint8_t rgb_index_color_table[][3] = {
     {100, 100, 100}, {0, 0, 100}, {0, 0, 100}, {0, 0, 100}, {0, 0, 0}, {0, 0, 0}, {0, 100, 0},
 };
@@ -369,12 +369,12 @@ void bt_init(void) {
     if (dev_info.devs != DEVS_USB) {
         usbDisconnectBus(&USB_DRIVER);
         usbStop(&USB_DRIVER);
-        writePinHigh(A12);
+        // gpio_write_pin_high(A12);
     }
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
     bt_init_time = timer_read32();
 }
@@ -549,7 +549,7 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
         if (!!now_mode) {
             usbDisconnectBus(&USB_DRIVER);
             usbStop(&USB_DRIVER);
-            writePinHigh(A12);
+            // gpio_write_pin_high(A12);
         } else {
             init_usb_driver(&USB_DRIVER);
         }
@@ -564,9 +564,9 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
     }
 
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
     bts_info.bt_info.pairing       = false;
     bts_info.bt_info.paired        = false;
@@ -710,10 +710,10 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
                     if (keymap_config.no_gui) {
                         keymap_config.no_gui = false;
                     }
-                    single_blink_index = 41;
+                    single_blink_index = KEY_A_LED_INDEX;
                 } else if (get_highest_layer(default_layer_state) == 3) { // MAC_BASE
                     set_single_persistent_default_layer(0);
-                    single_blink_index = 42;
+                    single_blink_index = KEY_S_LED_INDEX;
                 }
                 single_blink_cnt   = 6;
                 single_blink_color = (RGB){RGB_WHITE};
@@ -775,18 +775,18 @@ static void long_pressed_keys_hook(void) {
 
 static void bt_used_pin_init(void) {
 #ifdef BT_MODE_SW_PIN
-    setPinInputHigh(BT_MODE_SW_PIN);
-    setPinInputHigh(RF_MODE_SW_PIN);
+    gpio_set_pin_input_high(BT_MODE_SW_PIN);
+    gpio_set_pin_input_high(RF_MODE_SW_PIN);
 #endif
 
 #if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
-    setPinInputHigh(BT_CABLE_PIN);
-    setPinInput(BT_CHARGE_PIN);
+    gpio_set_pin_input_high(BT_CABLE_PIN);
+    gpio_set_pin_input(BT_CHARGE_PIN);
 #endif
 
 #ifdef RGB_DRIVER_SDB_PIN
-    setPinOutputPushPull(RGB_DRIVER_SDB_PIN);
-    writePinLow(RGB_DRIVER_SDB_PIN);
+    gpio_set_pin_output_push_pull(RGB_DRIVER_SDB_PIN);
+    gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
 #endif
 }
 
@@ -797,19 +797,19 @@ static void bt_used_pin_init(void) {
  */
 static void bt_scan_mode(void) {
 #ifdef BT_MODE_SW_PIN
-    if (!readPin(BT_MODE_SW_PIN) && readPin(RF_MODE_SW_PIN)) {
+    if (!gpio_read_pin(BT_MODE_SW_PIN) && gpio_read_pin(RF_MODE_SW_PIN)) {
         if ((dev_info.devs == DEVS_USB) || (dev_info.devs == DEVS_2_4G)) {
             bt_switch_mode(dev_info.devs, dev_info.last_devs, false); // BT mode
             // mcu_reset();
         }
     }
-    if (!readPin(RF_MODE_SW_PIN) && readPin(BT_MODE_SW_PIN)) {
+    if (!gpio_read_pin(RF_MODE_SW_PIN) && gpio_read_pin(BT_MODE_SW_PIN)) {
         if (dev_info.devs != DEVS_2_4G) {
             bt_switch_mode(dev_info.devs, DEVS_2_4G, false); // 2_4G mode
             // mcu_reset();
         }
     }
-    if (readPin(BT_MODE_SW_PIN) && readPin(RF_MODE_SW_PIN)) {
+    if (gpio_read_pin(BT_MODE_SW_PIN) && gpio_read_pin(RF_MODE_SW_PIN)) {
         if (dev_info.devs != DEVS_USB) bt_switch_mode(dev_info.devs, DEVS_USB, false); // usb mode
     }
 #endif
@@ -850,7 +850,7 @@ static void close_rgb(void) {
             close_rgb_time = timer_read32();
             rgb_matrix_disable_noeeprom();
 #ifdef RGB_DRIVER_SDB_PIN
-            writePinHigh(RGB_DRIVER_SDB_PIN);
+            gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #endif
         }
     } else {
@@ -880,7 +880,7 @@ void open_rgb(void) {
 
     if (!sober) {
 #ifdef RGB_DRIVER_SDB_PIN
-        writePinLow(RGB_DRIVER_SDB_PIN);
+        gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
 #endif
 
         if (bak_rgb_toggle) {
@@ -957,7 +957,7 @@ static void battery_voltage_display(void) {
             rgb_matrix_set_color(i, 0, 0, 0);
         }
 
-        uint8_t query_index[] = {67, 68, 69, 70, 71, 72};
+        uint8_t query_index[] = BAT_VOL_LED_INDEX;
         uint8_t pvol          = bts_info.bt_info.pvol;
         uint8_t led_count     = 0;
 
@@ -1168,7 +1168,7 @@ static void indicator_bluetooth_connection(void) {
 uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
     battery_voltage_query();
 
-    if (readPin(BT_CABLE_PIN)) {
+    if (gpio_read_pin(BT_CABLE_PIN)) {
         battery_low_warning();
         battery_voltage_display();
     } else {

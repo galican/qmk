@@ -65,7 +65,6 @@ extern bool backlight_sleep_flag;
 
 extern bool query_vol_flag;
 
-void bt_housekeeping_task(void);
 void led_config_all(void);
 void led_deconfig_all(void);
 
@@ -106,11 +105,3 @@ bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max);
  * @return None
  */
 void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset);
-
-/**
- * @brief usb suspend task
- * @param none
- * @param none
- * @return None
- */
-void bt_housekeeping_task(void);

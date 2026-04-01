@@ -144,14 +144,13 @@ const snled27351_led_t PROGMEM g_snled27351_leds[SNLED27351_LED_COUNT] = {
     {1, CB7_CA11,  CB8_CA11,  CB9_CA11},
 };
 #endif
+
 // clang-format on
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     if (get_low_vol_off()) {
-        bts_process_keys(keycode, 0, dev_info.devs, keymap_config.no_gui);
+        bts_process_keys(keycode, 0, dev_info.devs, keymap_config.no_gui, KEY_NUM);
         bts_task(dev_info.devs);
-        while (bts_is_busy()) {
-            wait_ms(1);
-        }
+
         return false;
     }
 
@@ -160,7 +159,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     }
 
     switch (keycode) {
-        case QK_RGB_MATRIX_TOGGLE: {
+        case RM_TOGG: {
             if (record->event.pressed) {
                 switch (rgb_matrix_get_flags()) {
                     case LED_FLAG_ALL: {

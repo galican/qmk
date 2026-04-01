@@ -32,7 +32,7 @@ extern uint8_t sleep_time;
 #define KEY_RES KEYBOARD_RESET
 #define BLE_RES BLE_RESET
 
-// #define KC_SPOT MAC_Spotlight
+#define KC_SPOT MAC_Spotlight
 // #define KC_DICT MAC_Dictation
 // #define KC_DND MAC_Do_Not_Disturb
 
@@ -46,36 +46,36 @@ enum __layers {
  const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [WIN_B] = LAYOUT_104_ansi( /* Base */
-        KC_ESC,           KC_F1,   KC_F2,   KC_F3,   KC_F4,     KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,   KC_F12,  KC_PSCR, KC_SCRL, KC_PAUS,
-        KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,      KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,   KC_BSPC, KC_INS,  KC_HOME, KC_PGUP,  KC_NUM,  KC_PSLS, KC_PAST, KC_PMNS,
-        KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,      KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC,  KC_BSLS, KC_DEL,  KC_END,  KC_PGDN,  KC_P7,   KC_P8,   KC_P9,   KC_PPLS,
-        KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,      KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,           KC_ENT,                              KC_P4,   KC_P5,   KC_P6,
-        KC_LSFT,          KC_Z,    KC_X,    KC_C,    KC_V,      KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,           KC_RSFT,          KC_UP,             KC_P1,   KC_P2,   KC_P3,   KC_PENT,
-        KC_LCTL, KC_LWIN, KC_LALT,                              KC_SPC,                             KC_RALT, KC_APP,MO(WIN_FN), KC_RCTL, KC_LEFT, KC_DOWN, KC_RGHT,           KC_P0,   KC_PDOT),
+        KC_ESC,           KC_F1,   KC_F2,   KC_F3,   KC_F4,    KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,   KC_F12,  KC_PSCR, KC_SCRL, KC_PAUS,
+        KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,     KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,   KC_BSPC, KC_INS,  KC_HOME, KC_PGUP,  KC_NUM,  KC_PSLS, KC_PAST, KC_PMNS,
+        KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,     KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC,  KC_BSLS, KC_DEL,  KC_END,  KC_PGDN,  KC_P7,   KC_P8,   KC_P9,   KC_PPLS,
+        KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,     KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,           KC_ENT,                              KC_P4,   KC_P5,   KC_P6,
+        KC_LSFT,          KC_Z,    KC_X,    KC_C,    KC_V,     KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,           KC_RSFT,          KC_UP,             KC_P1,   KC_P2,   KC_P3,   KC_PENT,
+        KC_LCTL, KC_LWIN, KC_LALT,                             KC_SPC,                             KC_RALT, KC_APP,MO(WIN_FN), KC_RCTL, KC_LEFT, KC_DOWN, KC_RGHT,           KC_P0,   KC_PDOT),
 
     [WIN_FN] = LAYOUT_104_ansi( /* FN */
-        NK_TOGG,          KC_BRID, KC_BRIU, KC_NO,   KC_NO,     KC_NO,   KC_NO,   KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD,  KC_VOLU, _______, _______, _______,
-        FN_FUN,  BT_HOST1,BT_HOST2,BT_HOST3,BT_2_4G, BT_USB,    _______, _______, _______, IND_VAL, IND_HUE, RGB_HUD, RGB_HUI,  FACTORY, _______, _______, _______,  _______, _______, _______, _______,
-        BT_VOL,  _______, _______, _______, _______, _______,   _______, _______, _______, _______, _______, RGB_SAD, RGB_SAI,  RGB_MOD, BLE_RES, KEY_RES, _______,  _______, _______, _______, _______,
-        RGB_TEST,_______, _______, _______, _______, _______,   _______, _______, _______, _______, _______, KEY_ECO,           RGB_TOG,                             _______, _______, _______,
-        _______,          _______, _______, _______, _______,   _______, _______, _______, _______, SW_OS,   FN_MENU,           _______,          RGB_VAI,           _______, _______, _______, _______,
-        _______, WIN_LOCK,_______,                              _______,                            _______, KC_RWIN,MO(WIN_FN),_______, RGB_SPD, RGB_VAD, RGB_SPI,           _______, _______),
+        NK_TOGG,          KC_BRID, KC_BRIU, KC_NO,   KC_NO,    KC_NO,   KC_NO,   KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD,  KC_VOLU, _______, _______, _______,
+        FN_FUN,  BT_HOST1,BT_HOST2,BT_HOST3,BT_2_4G, BT_USB,   _______, _______, _______, IND_VAL, IND_HUE, RGB_HUD, RGB_HUI,  FACTORY, _______, _______, _______,  _______, _______, _______, _______,
+        BT_VOL,  _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, RGB_SAD, RGB_SAI,  RGB_MOD, BLE_RES, KEY_RES, _______,  _______, _______, _______, _______,
+        RGB_TEST,_______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, KEY_ECO,           RGB_TOG,                             _______, _______, _______,
+        _______,          _______, _______, _______, _______,  _______, _______, _______, _______, SW_OS,   FN_MENU,           _______,          RGB_VAI,           _______, _______, _______, _______,
+        _______, WIN_LOCK,_______,                             _______,                            _______, KC_RWIN,MO(WIN_FN),_______, RGB_SPD, RGB_VAD, RGB_SPI,           _______, _______),
 
     [MAC_B] = LAYOUT_104_ansi( /* Base */
-        KC_ESC,           KC_F1,   KC_F2,   KC_F3,   KC_F4,     KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,   KC_F12,  _______, _______, _______,
-        KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,      KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,   KC_BSPC, KC_INS,  KC_HOME, KC_PGUP,  KC_NUM,  KC_PSLS, KC_PAST, KC_PMNS,
-        KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,      KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC,  KC_BSLS, KC_DEL,  KC_END,  KC_PGDN,  KC_P7,   KC_P8,   KC_P9,   KC_PPLS,
-        KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,      KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,           KC_ENT,                              KC_P4,   KC_P5,   KC_P6,
-        KC_LSFT,          KC_Z,    KC_X,    KC_C,    KC_V,      KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,           KC_RSFT, KC_UP,                      KC_P1,   KC_P2,   KC_P3,   KC_PENT,
-        KC_LCTL, KC_LOPT, KC_LCMD,                              KC_SPC,                             KC_RCMD, KC_APP, MO(MAC_FN),KC_RCTL, KC_LEFT, KC_DOWN, KC_RGHT,           KC_P0,   KC_PDOT),
+        KC_ESC,           KC_F1,   KC_F2,   KC_F3,   KC_F4,    KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,   KC_F12,  _______, _______, _______,
+        KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,     KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,   KC_BSPC, KC_INS,  KC_HOME, KC_PGUP,  KC_NUM,  KC_PSLS, KC_PAST, KC_PMNS,
+        KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,     KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC,  KC_BSLS, KC_DEL,  KC_END,  KC_PGDN,  KC_P7,   KC_P8,   KC_P9,   KC_PPLS,
+        KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,     KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,           KC_ENT,                              KC_P4,   KC_P5,   KC_P6,
+        KC_LSFT,          KC_Z,    KC_X,    KC_C,    KC_V,     KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,           KC_RSFT, KC_UP,                      KC_P1,   KC_P2,   KC_P3,   KC_PENT,
+        KC_LCTL, KC_LOPT, KC_LCMD,                             KC_SPC,                             KC_RCMD, KC_APP, MO(MAC_FN),KC_RCTL, KC_LEFT, KC_DOWN, KC_RGHT,           KC_P0,   KC_PDOT),
 
     [MAC_FN] = LAYOUT_104_ansi( /* mac fn */
-        NK_TOGG,          KC_BRID, KC_BRIU, KC_MICT, KC_NO,     KC_NO,   KC_NO,   KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD,  KC_VOLU, KC_PSCR, KC_SCRL, KC_PAUS,
-        FN_FUN,  BT_HOST1,BT_HOST2,BT_HOST3,BT_2_4G, BT_USB,    _______, _______, _______, IND_VAL, IND_HUE, RGB_HUD, RGB_HUI,  FACTORY, _______, _______, _______,  _______, _______, _______, _______,
-        BT_VOL,  _______, _______, _______, _______, _______,   _______, _______, _______, _______, _______, RGB_SAD, RGB_SAI,  RGB_MOD, BLE_RES, KEY_RES, _______,  _______, _______, _______, _______,
-        RGB_TEST,_______, _______, _______, _______, _______,   _______, _______, _______, _______, _______, KEY_ECO,           RGB_TOG,                             _______, _______, _______,
-        _______,          _______, _______, _______, _______,   _______, _______, _______, SW_OS,   _______, FN_MENU,           _______,          RGB_VAI,           _______, _______, _______, _______,
-        _______, _______, _______,                              _______,                            _______, KC_ROPT, _______,  _______, RGB_SPD, RGB_VAD, RGB_SPI,           _______, _______),
+        NK_TOGG,          KC_BRID, KC_BRIU, KC_MICT, KC_LAPA,  KC_NO,   KC_NO,   KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD,  KC_VOLU, KC_PSCR, KC_SCRL, KC_PAUS,
+        FN_FUN,  BT_HOST1,BT_HOST2,BT_HOST3,BT_2_4G, BT_USB,   _______, _______, _______, IND_VAL, IND_HUE, RGB_HUD, RGB_HUI,  FACTORY, _______, _______, _______,  _______, _______, _______, _______,
+        BT_VOL,  _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, RGB_SAD, RGB_SAI,  RGB_MOD, BLE_RES, KEY_RES, _______,  _______, _______, _______, _______,
+        RGB_TEST,_______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, KEY_ECO,           RGB_TOG,                             _______, _______, _______,
+        _______,          _______, _______, _______, _______,  _______, _______, _______, SW_OS,   _______, FN_MENU,           _______,          RGB_VAI,           _______, _______, _______, _______,
+        _______, _______, _______,                             _______,                            _______, KC_ROPT, _______,  _______, RGB_SPD, RGB_VAD, RGB_SPI,           _______, _______),
 
  };
 
@@ -97,7 +97,7 @@ uint16_t FN_FUN_table[][12] = {
     {KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12},
     {KC_BRID, KC_BRIU, KC_NO, KC_NO, KC_NO, KC_NO, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU},
     {KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12},
-    {KC_BRID, KC_BRIU, KC_MCTL, KC_NO, KC_NO, KC_NO, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU},
+    {KC_BRID, KC_BRIU, KC_MCTL, KC_LPAD, KC_NO, KC_NO, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU},
 };
 
 uint16_t FN_MENU_table[][1] = {
@@ -107,15 +107,21 @@ uint16_t FN_MENU_table[][1] = {
     {KC_ROPT},
 };
 
-static uint8_t indicator_color_tab[][3] = {
+uint8_t indicator_color_tab[][3] = {
     {HSV_BLUE},    // BLUE
     {HSV_PURPLE},  // PURPLE
     {HSV_MAGENTA}, // MAGENTA
     {HSV_RED},     // RED
-    {HSV_ORANGE},  // ORANGE
-    {HSV_YELLOW},  // YELLOW
-    {HSV_GREEN},   // GREEN
-    {HSV_CYAN},    // CYAN
+    // {HSV_ORANGE},  // ORANGE
+    {12, 255, 255}, // ORANGE
+    // {HSV_YELLOW},  // YELLOW
+    {25, 255, 255}, // YELLOW
+    {HSV_GREEN},    // GREEN
+    {HSV_CYAN},     // CYAN
+};
+
+uint8_t sat_tab[] = {
+    0, 100, 180, 230, 255,
 };
 
 void function_multimedia_swap(void) {
@@ -128,7 +134,7 @@ void function_multimedia_swap(void) {
             VAL_OUT_blink_time  = timer_read32();
             VAL_OUT_blink_cnt   = 6;
             VAL_OUT_LEDINDEX    = 16;
-            VAL_OUT_blink_color = (RGB){0, 0, 100};
+            VAL_OUT_blink_color = (RGB){0, 0, 200};
         } else {
             for (size_t i = 0; i < 12; i++) {
                 dynamic_keymap_set_keycode(WIN_B, KC_F1_ROW, i + KC_F1_COL, FN_FUN_table[WIN_B][i]);
@@ -137,7 +143,7 @@ void function_multimedia_swap(void) {
             VAL_OUT_blink_time  = timer_read32();
             VAL_OUT_blink_cnt   = 6;
             VAL_OUT_LEDINDEX    = 16;
-            VAL_OUT_blink_color = (RGB){100, 100, 100};
+            VAL_OUT_blink_color = (RGB){200, 200, 200};
         }
     } else if (get_highest_layer(default_layer_state) == MAC_B) {
         if (dynamic_keymap_get_keycode(MAC_B, KC_F1_ROW, KC_F1_COL) == KC_F1) {
@@ -148,7 +154,7 @@ void function_multimedia_swap(void) {
             VAL_OUT_blink_time  = timer_read32();
             VAL_OUT_blink_cnt   = 6;
             VAL_OUT_LEDINDEX    = 16;
-            VAL_OUT_blink_color = (RGB){0, 0, 100};
+            VAL_OUT_blink_color = (RGB){0, 0, 200};
         } else {
             for (size_t i = 0; i < 12; i++) {
                 dynamic_keymap_set_keycode(MAC_B, KC_F1_ROW, i + KC_F1_COL, FN_FUN_table[MAC_B][i]);
@@ -157,7 +163,7 @@ void function_multimedia_swap(void) {
             VAL_OUT_blink_time  = timer_read32();
             VAL_OUT_blink_cnt   = 6;
             VAL_OUT_LEDINDEX    = 16;
-            VAL_OUT_blink_color = (RGB){100, 100, 100};
+            VAL_OUT_blink_color = (RGB){200, 200, 200};
         }
     }
 }
@@ -170,14 +176,14 @@ void function_menu_swap(void) {
             VAL_OUT_blink_time  = timer_read32();
             VAL_OUT_blink_cnt   = 6;
             VAL_OUT_LEDINDEX    = 84;
-            VAL_OUT_blink_color = (RGB){0, 0, 100};
+            VAL_OUT_blink_color = (RGB){0, 0, 200};
         } else {
             dynamic_keymap_set_keycode(WIN_B, KC_MENU_ROW, KC_MENU_COL, FN_MENU_table[WIN_B][0]);
             dynamic_keymap_set_keycode(WIN_FN, KC_MENU_ROW, KC_MENU_COL, FN_MENU_table[WIN_FN][0]);
             VAL_OUT_blink_time  = timer_read32();
             VAL_OUT_blink_cnt   = 6;
             VAL_OUT_LEDINDEX    = 84;
-            VAL_OUT_blink_color = (RGB){100, 100, 100};
+            VAL_OUT_blink_color = (RGB){200, 200, 200};
         }
     } else if (get_highest_layer(default_layer_state) == MAC_B) {
         if (dynamic_keymap_get_keycode(MAC_B, KC_MENU_ROW, KC_MENU_COL) == KC_APP) {
@@ -186,68 +192,35 @@ void function_menu_swap(void) {
             VAL_OUT_blink_time  = timer_read32();
             VAL_OUT_blink_cnt   = 6;
             VAL_OUT_LEDINDEX    = 84;
-            VAL_OUT_blink_color = (RGB){0, 0, 100};
+            VAL_OUT_blink_color = (RGB){0, 0, 200};
         } else {
             dynamic_keymap_set_keycode(MAC_B, KC_MENU_ROW, KC_MENU_COL, FN_MENU_table[MAC_B][0]);
             dynamic_keymap_set_keycode(MAC_FN, KC_MENU_ROW, KC_MENU_COL, FN_MENU_table[MAC_FN][0]);
             VAL_OUT_blink_time  = timer_read32();
             VAL_OUT_blink_cnt   = 6;
             VAL_OUT_LEDINDEX    = 84;
-            VAL_OUT_blink_color = (RGB){100, 100, 100};
+            VAL_OUT_blink_color = (RGB){200, 200, 200};
         }
     }
-}
-
-bool process_rgb_matrix_user(uint16_t keycode, keyrecord_t *record) {
-    if (record->event.pressed) {
-        switch (keycode) {
-            // case RGB_TOG:
-            //     rgb_matrix_toggle();
-            //     return false;
-            case RGB_MOD:
-                rgb_matrix_step();
-                return false;
-            // case RGB_HUI:
-            //     rgb_matrix_increase_hue();
-            //     return false;
-            // case RGB_HUD:
-            //     rgb_matrix_decrease_hue();
-            //     return false;
-            case RGB_SAI:
-                rgb_matrix_increase_sat();
-                return false;
-            // case RGB_SAD:
-            //     rgb_matrix_decrease_sat();
-            //     return false;
-            case RGB_VAI:
-                rgb_matrix_increase_val();
-                return false;
-            // case RGB_VAD:
-            //     rgb_matrix_decrease_val();
-            //     return false;
-            case RGB_SPI:
-                rgb_matrix_increase_speed();
-                return false;
-                // case RGB_SPD:
-                //     rgb_matrix_decrease_speed();
-                //     return false;
-        }
-    }
-
-    return true;
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (!process_rgb_matrix_user(keycode, record)) return false;
-
     switch (keycode) {
-            // case MO(WIN_FN):
-            // case MO(MAC_FN):
-            //     if ((USB_DRIVER.state != USB_ACTIVE) || (USB_DRIVER.state == USB_SUSPENDED)) {
-            //         return false;
-            //     }
-            //     break;
-
+        case RGB_MOD:
+            if (record->event.pressed) {
+                rgb_matrix_step();
+            }
+            return false;
+        case RGB_VAI:
+            if (record->event.pressed) {
+                if (rgb_matrix_get_val() >= RGB_MATRIX_MAXIMUM_BRIGHTNESS) {
+                    rgb_matrix_config.hsv.v = RGB_MATRIX_MAXIMUM_BRIGHTNESS;
+                    eeconfig_update_rgb_matrix(&rgb_matrix_config);
+                } else {
+                    rgb_matrix_increase_val();
+                }
+            }
+            return false;
         case RGB_VAD: {
             if (record->event.pressed) {
                 if (rgb_matrix_get_val() <= RGB_MATRIX_VAL_STEP) {
@@ -259,6 +232,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         }
+        case RGB_SPI:
+            if (record->event.pressed) {
+                if (rgb_matrix_get_speed() >= UINT8_MAX) {
+                    rgb_matrix_config.speed = UINT8_MAX;
+                    eeconfig_update_rgb_matrix(&rgb_matrix_config);
+                } else {
+                    rgb_matrix_increase_speed();
+                }
+            }
+            return false;
         case RGB_SPD: {
             if (record->event.pressed) {
                 if (rgb_matrix_get_speed() <= RGB_MATRIX_SPD_STEP) {
@@ -270,13 +253,34 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         }
+        case RGB_SAI: {
+            if (record->event.pressed) {
+                if (dev_info.smd_sat_index < sizeof(sat_tab) / sizeof(sat_tab[0]) - 1) {
+                    dev_info.smd_sat_index++;
+                    if (dev_info.smd_sat_index == sizeof(sat_tab) / sizeof(sat_tab[0]) - 1) {
+                        dev_info.smd_sat_index = sizeof(sat_tab) / sizeof(sat_tab[0]) - 1;
+                    }
+                    rgb_matrix_config.hsv.s = sat_tab[dev_info.smd_sat_index];
+                    eeconfig_update_user(dev_info.raw);
+                }
+            }
+            return false;
+        }
         case RGB_SAD: {
             if (record->event.pressed) {
-                if (rgb_matrix_get_sat() <= RGB_MATRIX_SAT_STEP) {
-                    rgb_matrix_config.hsv.s = RGB_MATRIX_SAT_STEP;
-                    eeconfig_update_rgb_matrix(&rgb_matrix_config);
-                } else {
-                    rgb_matrix_decrease_sat();
+                // if (rgb_matrix_get_sat() <= RGB_MATRIX_SAT_STEP) {
+                //     rgb_matrix_config.hsv.s = RGB_MATRIX_SAT_STEP;
+                //     eeconfig_update_rgb_matrix();
+                // } else {
+                //     rgb_matrix_decrease_sat();
+                // }
+                if (dev_info.smd_sat_index > 0) {
+                    dev_info.smd_sat_index--;
+                    if (dev_info.smd_sat_index == 0) {
+                        dev_info.smd_sat_index = 0;
+                    }
+                    rgb_matrix_config.hsv.s = sat_tab[dev_info.smd_sat_index];
+                    eeconfig_update_user(dev_info.raw);
                 }
             }
             return false;
@@ -285,7 +289,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case IND_VAL: {
             if (record->event.pressed) {
                 dev_info.ind_brightness += RGB_MATRIX_VAL_STEP;
-                if (dev_info.ind_brightness > RGB_MATRIX_MAXIMUM_BRIGHTNESS) {
+                if (dev_info.ind_brightness > 255) {
                     dev_info.ind_brightness = RGB_MATRIX_VAL_STEP;
                 }
                 eeconfig_update_user(dev_info.raw);
@@ -343,6 +347,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
         }
             return false; // Skip all further processing of this key
+        case KC_LAPA: {
+            if (record->event.pressed) {
+                register_code(KC_LPAD);
+            } else {
+                unregister_code(KC_LPAD);
+            }
+        }
+            return false; // Skip all further processing of this key
 
         case KC_RGUI: {
             if (keymap_config.no_gui) {
@@ -382,10 +394,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+bool charge_full = false;
+
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     // GUI lock red
     if (keymap_config.no_gui) {
-        rgb_matrix_set_color(92, 160, 160, 160);
+        rgb_matrix_set_color(92, 200, 200, 200);
     }
 
     static HSV hsv;
@@ -396,23 +410,23 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     hsv.v = dev_info.ind_brightness;
     rgb   = hsv_to_rgb(hsv);
 
-    // extern bool show_full;
-    // extern bool low_vol_warning;
+    bool is_connected = (dev_info.devs != DEVS_USB) ? bts_info.bt_info.paired : (USB_DRIVER.state == USB_ACTIVE);
+    bool ind_enabled  = !dev_info.eco_tog_flag && !charge_full && is_connected;
 
-    if (!dev_info.eco_tog_flag && host_keyboard_led_state().num_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state == USB_ACTIVE)))) {
-        rgb_matrix_set_color(NUM_LOCK_IND_INDEX, rgb.r, rgb.g, rgb.b);
-    } else {
-        rgb_matrix_set_color(NUM_LOCK_IND_INDEX, 0, 0, 0);
-    }
-    if (!dev_info.eco_tog_flag && host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state == USB_ACTIVE)))) {
-        rgb_matrix_set_color(CAPS_LOCK_IND_INDEX, rgb.r, rgb.g, rgb.b);
-    } else {
-        rgb_matrix_set_color(CAPS_LOCK_IND_INDEX, 0, 0, 0);
-    }
-    if (!dev_info.eco_tog_flag && host_keyboard_led_state().scroll_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state == USB_ACTIVE)))) {
-        rgb_matrix_set_color(SCROLL_LOCK_IND_INDEX, rgb.r, rgb.g, rgb.b);
-    } else {
-        rgb_matrix_set_color(SCROLL_LOCK_IND_INDEX, 0, 0, 0);
+    led_t led_state = host_keyboard_led_state();
+
+    const uint8_t lock_ind_map[][2] = {
+        {NUM_LOCK_IND_INDEX, led_state.num_lock},
+        {CAPS_LOCK_IND_INDEX, led_state.caps_lock},
+        {SCROLL_LOCK_IND_INDEX, led_state.scroll_lock},
+    };
+
+    for (uint8_t i = 0; i < sizeof(lock_ind_map) / sizeof(lock_ind_map[0]); i++) {
+        if (ind_enabled && lock_ind_map[i][1]) {
+            rgb_matrix_set_color(lock_ind_map[i][0], rgb.r, rgb.g, rgb.b);
+        } else {
+            rgb_matrix_set_color(lock_ind_map[i][0], 0, 0, 0);
+        }
     }
 
     if (VAL_OUT_blink_cnt) {
@@ -433,15 +447,17 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 void keyboard_post_init_user() {
     dev_info.raw            = eeconfig_read_user();
     rgb_matrix_config.hsv.h = indicator_color_tab[dev_info.smd_color_index][0];
-    snled27351_pwm_phase_delay_enable(0);
-    snled27351_pwm_phase_delay_enable(1);
+    rgb_matrix_config.hsv.s = sat_tab[dev_info.smd_sat_index];
+
+    snled27351_pwm_phase_delay_enable(SNLED27351_I2C_ADDRESS_GND);
+    snled27351_pwm_phase_delay_enable(SNLED27351_I2C_ADDRESS_VDDIO);
 }
 
 void eeconfig_init_user(void) {
-    // 设置默认值
     dev_info.ind_brightness  = RGB_MATRIX_VAL_STEP * 3;
     dev_info.smd_color_index = 0;
     dev_info.ind_color_index = 0;
+    dev_info.smd_sat_index   = 4;
     dev_info.eco_tog_flag    = false;
     dev_info.manual_usb_mode = false;
     eeconfig_update_user(dev_info.raw);

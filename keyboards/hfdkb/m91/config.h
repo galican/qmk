@@ -8,6 +8,7 @@
  *  These options are also useful to firmware size reduction.
  */
 
+#define BT_MODE_ENABLE
 #ifdef BT_MODE_ENABLE
 #    define BT_CABLE_PIN B9  // 充电接入时为高
 #    define BT_CHARGE_PIN B8 // 充电时为低，充满时为高
@@ -19,23 +20,14 @@
 #    define BT_MODE_SW_PIN B10
 
 #    define RGB_DRIVER_SDB_PIN A15
-#    define RGB_DRIVER_RESET_PIN C11
-
-// Indicate color of wl device
-#    define BT_HOST1_COLOR RGB_WHITE // 蓝牙1指示灯颜色
-#    define BT_HOST2_COLOR RGB_WHITE // 蓝牙2指示灯颜色
-#    define BT_HOST3_COLOR RGB_WHITE // 蓝牙3指示灯颜色
-#    define BT_2_4G_COLOR RGB_WHITE  // 2.4G指示灯颜色
-#    define BT_USB_COLOR RGB_WHITE   // USB指示灯颜色
+// #    define RGB_DRIVER_RESET_PIN C11
 
 #    define USB_SUSPEND_CHECK_ENABLE
+#    define USBLINK_Status gpio_read_pin(BT_CABLE_PIN)
+#    define CHARGE_Status gpio_read_pin(BT_CHARGE_PIN)
 
-#    define USBLINK_Status readPin(BT_CABLE_PIN)
-#    define CHARGE_Status readPin(BT_CHARGE_PIN)
+// #    define WAKEUP_RESET
 #endif
-
-/* RGB Matrix */
-// #define RGB_MATRIX_LED_COUNT 81
 
 /* SPI Config for spi flash*/
 #define SPI_DRIVER SPIDQ
@@ -48,13 +40,11 @@
 /* I2C Config for LED Driver */
 #define SNLED27351_I2C_ADDRESS_1 SNLED27351_I2C_ADDRESS_GND
 #define SNLED27351_I2C_ADDRESS_2 SNLED27351_I2C_ADDRESS_VDDIO
-// #define IS31FL3733_I2C_ADDRESS_1 0x74
-// #define IS31FL3733_I2C_ADDRESS_2 0x77
 #define I2C1_OPMODE OPMODE_I2C
 #define I2C1_CLOCK_SPEED 400000
 
-// #define SNLED27351_CURRENT_TUNE_2 {0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80}
-// #define SNLED27351_CURRENT_TUNE {0x80, 0x50, 0x70, 0x80, 0x50, 0x70, 0x80, 0x50, 0x70, 0x80, 0x50, 0x70}
+/* Set LED driver current */
+#define SNLED27351_CURRENT_TUNE {0x50, 0xFF, 0xFF, 0x50, 0xFF, 0xFF, 0x50, 0xFF, 0xFF, 0x50, 0xFF, 0xFF}
 
 #define NUM_LOCK_IND_INDEX 104
 #define CAPS_LOCK_IND_INDEX 105

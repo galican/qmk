@@ -24,8 +24,9 @@ typedef union {
         uint8_t last_devs : 3;
         bool    eco_tog_flag : 1;
         bool    manual_usb_mode : 1;
-        uint8_t smd_color_index : 4;
-        uint8_t ind_color_index : 4;
+        uint8_t smd_color_index : 3;
+        uint8_t smd_sat_index : 3;
+        uint8_t ind_color_index : 3;
         uint8_t ind_brightness;
     };
 } dev_info_t;

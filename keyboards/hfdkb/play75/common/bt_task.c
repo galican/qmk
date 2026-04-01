@@ -251,10 +251,11 @@ void bt_init(void) {
         usbStop(&USB_DRIVER);
         // writePinHigh(A12);
     }
+
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
 }
 
@@ -414,9 +415,9 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
     }
 
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
 
     bts_info.bt_info.pairing       = false;
@@ -693,13 +694,13 @@ static void long_pressed_keys_hook(void) {
 
 static void bt_used_pin_init(void) {
 #ifdef BT_MODE_SW_PIN
-    setPinInputHigh(BT_MODE_SW_PIN);
-    setPinInputHigh(RF_MODE_SW_PIN);
+    gpio_set_pin_input_high(BT_MODE_SW_PIN);
+    gpio_set_pin_input_high(RF_MODE_SW_PIN);
 #endif
 
 #if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
-    setPinInputHigh(BT_CABLE_PIN);
-    setPinInput(BT_CHARGE_PIN);
+    gpio_set_pin_input_high(BT_CABLE_PIN);
+    gpio_set_pin_input(BT_CHARGE_PIN);
 #endif
 }
 
@@ -751,7 +752,7 @@ static void close_rgb(void) {
             close_rgb_time = timer_read32();
             rgb_matrix_disable_noeeprom();
 #ifdef RGB_DRIVER_SDB_PIN
-            writePinLow(RGB_DRIVER_SDB_PIN);
+            gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
 #endif
             LCD_command_update(LCD_SLEEP);
         }
@@ -764,25 +765,26 @@ static void close_rgb(void) {
                 }
 
                 uart3_stop();
-                setPinOutputPushPull(SD3_TX_PIN);
 
 #ifdef ENTRY_STOP_MODE
                 lp_system_sleep();
 #endif
 
+                gpio_set_pin_output_open_drain(SD3_TX_PIN);
                 for (uint8_t i = 0; i < 5; i++) {
-                    writePinHigh(SD3_TX_PIN);
+                    gpio_write_pin_high(SD3_TX_PIN);
                     wait_ms(5);
-                    writePinLow(SD3_TX_PIN);
+                    gpio_write_pin_low(SD3_TX_PIN);
                     wait_ms(5);
                 }
 
                 uart3_start();
 
-                extern void open_rgb(void);
                 // bt_switch_mode(DEVS_USB, dev_info.last_devs, false);
+
+                extern void open_rgb(void);
                 open_rgb();
-                // LCD_charge_update();
+
                 LCD_command_update(LCD_WEAKUP);
             }
         }
@@ -794,8 +796,7 @@ void open_rgb(void) {
 
     if (!sober) {
 #ifdef RGB_DRIVER_SDB_PIN
-        // wait_ms(100);
-        writePinHigh(RGB_DRIVER_SDB_PIN);
+        gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #endif
 
         if (bak_rgb_toggle) {
@@ -804,9 +805,14 @@ void open_rgb(void) {
             low_vol_offed_sleep = false;
             rgb_matrix_enable_noeeprom();
         }
+
+        LCD_IND_update();
+        LCD_charge_update();
+
         if (!led_inited) {
             led_config_all();
         }
+
         sober = true;
     }
 }
@@ -830,7 +836,7 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
             EE_CLR_flag       = false;
             LCD_command_update(LCD_RESET);
             eeconfig_init();
-            if (!readPin(C0)) {
+            if (!gpio_read_pin(C0)) {
                 default_layer_set(1UL << 2);
             }
             eeconfig_update_rgb_matrix_default();

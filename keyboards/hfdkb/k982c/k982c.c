@@ -361,18 +361,18 @@ void set_led_state(void) {
         static bool     charging_now_satus = false;
         static uint32_t entry_full_time    = 0;
 
-        if (!readPin(MM_CABLE_PIN)) {
+        if (!gpio_read_pin(MM_CABLE_PIN)) {
             charging_now_satus = 1;
 
             low_bat_vol     = false;
             low_bat_vol_off = false;
 
-            if (!readPin(MM_CHARGE_PIN) && pvol < 100) {
+            if (!gpio_read_pin(MM_CHARGE_PIN) && pvol < 100) {
                 entry_full_time = timer_read32();
-                writePinHigh(LED_PWR_IND_PIN);
+                gpio_write_pin_high(LED_PWR_IND_PIN);
             } else {
                 if (timer_elapsed32(entry_full_time) >= 2000) {
-                    writePinLow(LED_PWR_IND_PIN);
+                    gpio_write_pin_low(LED_PWR_IND_PIN);
                 }
             }
         } else {
@@ -437,14 +437,14 @@ void set_led_state(void) {
     }
 
     if (dev_info.ind_toggle || low_bat_vol_off) {
-        writePinLow(LED_CAPS_LOCK_IND_PIN);
+        gpio_write_pin_low(LED_CAPS_LOCK_IND_PIN);
         rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
     } else {
         if (dev_info.devs == DEVS_USB && USB_DRIVER.state != USB_ACTIVE) {
-            writePinLow(LED_CAPS_LOCK_IND_PIN);
+            gpio_write_pin_low(LED_CAPS_LOCK_IND_PIN);
             rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
         } else {
-            writePin(LED_CAPS_LOCK_IND_PIN, host_keyboard_led_state().caps_lock);
+            gpio_write_pin(LED_CAPS_LOCK_IND_PIN, host_keyboard_led_state().caps_lock);
             if ((get_highest_layer(default_layer_state) == 2)) {
                 rgb_matrix_set_color(LED_MAC_OS_INDEX, 100, 100, 100);
             } else {
@@ -486,13 +486,13 @@ static void low_power_indicator(void) {
             Low_power_time = timer_read32();
         }
         if (Low_power_bink) {
-            writePinHigh(LED_PWR_IND_PIN);
+            gpio_write_pin_high(LED_PWR_IND_PIN);
         } else {
-            writePinLow(LED_PWR_IND_PIN);
+            gpio_write_pin_low(LED_PWR_IND_PIN);
         }
     } else {
         Low_power_bink = 0;
-        writePinLow(LED_PWR_IND_PIN);
+        gpio_write_pin_low(LED_PWR_IND_PIN);
     }
 
     if (low_bat_vol_off) {
@@ -557,7 +557,7 @@ void housekeeping_task_kb(void) {
                 LCD_Sleep_Flag    = false;
                 usb_suspend_timer = 0;
 #    ifdef RGB_MATRIX_DRIVER_SDB_PIN
-                writePinHigh(RGB_MATRIX_DRIVER_SDB_PIN);
+                gpio_write_pin_high(RGB_MATRIX_DRIVER_SDB_PIN);
 #    endif
                 LCD_command_update(LCD_LIGHT_WAKEUP);
                 LCD_IND_update();
@@ -572,10 +572,10 @@ void housekeeping_task_kb(void) {
                 if (!usb_suspend) {
                     usb_suspend = true;
 #    ifdef RGB_MATRIX_DRIVER_SDB_PIN
-                    writePinLow(RGB_MATRIX_DRIVER_SDB_PIN);
+                    gpio_write_pin_low(RGB_MATRIX_DRIVER_SDB_PIN);
 #    endif
 
-                    writePinLow(LED_CAPS_LOCK_IND_PIN);
+                    gpio_write_pin_low(LED_CAPS_LOCK_IND_PIN);
                     rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
 
                     LCD_command_update(LCD_LIGHT_SLEEP);
@@ -592,7 +592,7 @@ void housekeeping_task_kb(void) {
                 LCD_Sleep_Flag    = false;
 
 #    ifdef RGB_MATRIX_DRIVER_SDB_PIN
-                writePinHigh(RGB_MATRIX_DRIVER_SDB_PIN);
+                gpio_write_pin_high(RGB_MATRIX_DRIVER_SDB_PIN);
 #    endif
                 LCD_command_update(LCD_LIGHT_WAKEUP);
             }
@@ -603,7 +603,7 @@ void housekeeping_task_kb(void) {
             usb_suspend       = false;
             LCD_Sleep_Flag    = false;
 #    ifdef RGB_MATRIX_DRIVER_SDB_PIN
-            writePinHigh(RGB_MATRIX_DRIVER_SDB_PIN);
+            gpio_write_pin_high(RGB_MATRIX_DRIVER_SDB_PIN);
 #    endif
             LCD_command_update(LCD_LIGHT_WAKEUP);
         }
@@ -626,7 +626,7 @@ void suspend_power_down_kb(void) {
         LCD_command_update(LCD_LIGHT_SLEEP);
     }
 
-    writePinLow(LED_CAPS_LOCK_IND_PIN);
+    gpio_write_pin_low(LED_CAPS_LOCK_IND_PIN);
     rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
     // led_deconfig_all();
 }

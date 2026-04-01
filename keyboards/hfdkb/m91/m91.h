@@ -26,19 +26,19 @@ enum bt_keycodes {
     FN_MENU,
     WIN_LOCK,
     KC_MICT,
-
+    KC_LAPA,
+    RGB_TEST,
+    // MAC_Spotlight,
+    // MAC_Dictation,
+    // MAC_Do_Not_Disturb,
     RGB_TOG,
     RGB_MOD,
-    RGB_HUD,
-    RGB_HUI,
-    RGB_SAD,
-    RGB_SAI,
-    RGB_VAD,
     RGB_VAI,
-    RGB_SPD,
+    RGB_VAD,
+    RGB_SAI,
+    RGB_SAD,
+    RGB_HUI,
+    RGB_HUD,
     RGB_SPI,
-};
-
-enum _keycodes {
-    RGB_TEST = SAFE_RANGE,
+    RGB_SPD,
 };

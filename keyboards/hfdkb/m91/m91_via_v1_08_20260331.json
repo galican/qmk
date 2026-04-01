@@ -78,16 +78,18 @@
     {"name": "FN_ MENU", "title": "Swap the menu and alt", "shortName": "FN_MENU"},
     {"name": "WIN_ LOCK", "title": "WIN key lock", "shortName": "WIN_LOCK"},
     {"name": "Mission Ctrl", "title": "Mission Control in macOS", "shortName": "MCtrl"},
-    {"name": "RGB_ Toggle", "title": "Toggle RGB lighting", "shortName": "RGB_TOG"},
-    {"name": "RGB_ Mode+", "title": "Cycle RGB lighting modes", "shortName": "RGB_MOD"},
-    {"name": "RGB_ Hue-", "title": "Decrease RGB hue", "shortName": "RGB_HUD"},
-    {"name": "RGB_ Hue+", "title": "Increase RGB hue", "shortName": "RGB_HUI"},
-    {"name": "RGB_ Sat-", "title": "Decrease RGB saturation", "shortName": "RGB_SAD"},
-    {"name": "RGB_ Sat+", "title": "Increase RGB saturation", "shortName": "RGB_SAI"},
-    {"name": "RGB_ Bright-", "title": "Decrease RGB brightness", "shortName": "RGB_VAD"},
-    {"name": "RGB_ Bright+", "title": "Increase RGB brightness", "shortName": "RGB_VAI"},
-    {"name": "RGB_ Speed-", "title": "Decrease RGB effect speed", "shortName": "RGB_SPD"},
-    {"name": "RGB_ Speed+", "title": "Increase RGB effect speed", "shortName": "RGB_SPI"}
+    {"name": "Launch pad", "title": "Launchpad in macOS", "shortName": "Lpad"},
+    {"name": "RGB Test Key", "title": "Mission Control in macOS", "shortName": "RGB Test Key"},
+    {"name": "RGB_ Toggle", "title": "Toggle RGB lighting", "shortName": "RGB_Toggle"},
+    {"name": "RGB_ Pattern", "title": "Cycle RGB lighting modes", "shortName": "RGB_Pattern"},
+    {"name": "RGB_ Bright Up", "title": "Increase RGB brightness", "shortName": "RGB_Bright_UP"},
+    {"name": "RGB_ Bright Down", "title": "Decrease RGB brightness", "shortName": "RGB_Bright_Down"},
+    {"name": "RGB_ Sat Up", "title": "Increase RGB saturation", "shortName": "RGB_Sat_Up"},
+    {"name": "RGB_ Sat Down", "title": "Decrease RGB saturation", "shortName": "RGB_Sat_Down"},
+    {"name": "RGB_ Hue Up", "title": "Increase RGB hue", "shortName": "RGB_Hue_Up"},
+    {"name": "RGB_ Hue Down", "title": "Decrease RGB hue", "shortName": "RGB_Hue_Down"},
+    {"name": "RGB_ Speed Up", "title": "Increase RGB effect speed", "shortName": "RGB_Speed_UP"},
+    {"name": "RGB_ Speed Down", "title": "Decrease RGB effect speed", "shortName": "RGB_Speed_Down"}
   ],
   "layouts": {
     "keymap": [

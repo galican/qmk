@@ -112,11 +112,11 @@ bool led_inited = false;
 void led_config_all(void) {
     if (!led_inited) {
         // Set our LED pins as output
-        setPinOutput(A14);
+        gpio_set_pin_output(A14);
         if (dev_info.devs == DEVS_USB) {
-            writePinLow(A14);
+            gpio_write_pin_low(A14);
         } else {
-            writePinHigh(A14);
+            gpio_write_pin_high(A14);
         }
 #ifdef RGB_DRIVER_SDB_PIN
         // setPinOutputPushPull(RGB_DRIVER_SDB_PIN);
@@ -257,7 +257,7 @@ void set_led_state(void) {
         // 充电接入
         static bool charging_old_satus;
         static bool charging_now_satus;
-        if (!readPin(BT_CABLE_PIN)) {
+        if (!gpio_read_pin(BT_CABLE_PIN)) {
             charging_now_satus = 1;
         } else {
             charging_now_satus = 0;
@@ -269,7 +269,7 @@ void set_led_state(void) {
 #endif
     }
 
-    if (readPin(BT_CABLE_PIN)) {
+    if (gpio_read_pin(BT_CABLE_PIN)) {
         if (soc < 10) {
             if (!low_battery_vol) low_battery_vol = true;
         }
@@ -352,8 +352,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
 void matrix_init_kb(void) {
 #ifdef RGB_DRIVER_SDB_PIN
-    setPinOutputPushPull(RGB_DRIVER_SDB_PIN);
-    writePinHigh(RGB_DRIVER_SDB_PIN);
+    gpio_set_pin_output_push_pull(RGB_DRIVER_SDB_PIN);
+    gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #endif
 
     LCD_init();
@@ -434,7 +434,7 @@ void housekeeping_task_kb(void) {
                 LCD_Sleep_Flag    = false;
                 usb_suspend_timer = 0;
 #    ifdef RGB_DRIVER_SDB_PIN
-                writePinHigh(RGB_DRIVER_SDB_PIN);
+                gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #    endif
                 LCD_command_update(LCD_BACKLIGHT_WAKE);
             }
@@ -447,7 +447,7 @@ void housekeeping_task_kb(void) {
                 if (!usb_suspend) {
                     usb_suspend = true;
 #    ifdef RGB_DRIVER_SDB_PIN
-                    writePinLow(RGB_DRIVER_SDB_PIN);
+                    gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
 #    endif
                     LCD_command_update(LCD_BACKLIGHT_SLEP);
                     if (!LCD_Sleep_Flag) {
@@ -463,7 +463,7 @@ void housekeeping_task_kb(void) {
                 LCD_Sleep_Flag    = false;
 
 #    ifdef RGB_DRIVER_SDB_PIN
-                writePinHigh(RGB_DRIVER_SDB_PIN);
+                gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #    endif
                 LCD_command_update(LCD_BACKLIGHT_WAKE);
             }
@@ -474,7 +474,7 @@ void housekeeping_task_kb(void) {
             usb_suspend       = false;
             LCD_Sleep_Flag    = false;
 #    ifdef RGB_DRIVER_SDB_PIN
-            writePinHigh(RGB_DRIVER_SDB_PIN);
+            gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #    endif
             LCD_command_update(LCD_BACKLIGHT_WAKE);
         }
