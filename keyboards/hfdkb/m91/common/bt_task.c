@@ -1550,11 +1550,11 @@ static void handle_battery_query_display(void) {
         //     color = (RGB){0, 100, 0}; // 绿色
         // } else {
         if ((pvol < 21) || (bts_info.bt_info.low_vol)) {
-            color = (RGB){0, 100, 0}; // 红色
+            color = (RGB){100, 0, 0}; // 红色
         } else if (pvol < 90) {
-            color = (RGB){50, 200, 0}; // 橙色
+            color = (RGB){100, 50, 0}; // 橙色
         } else {
-            color = (RGB){100, 0, 0}; // 绿色
+            color = (RGB){0, 100, 0}; // 绿色
         }
         // }
 
