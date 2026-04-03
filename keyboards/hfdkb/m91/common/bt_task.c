@@ -463,6 +463,8 @@ void bt_init(void) {
     gpio_set_pin_output(A14);
     if (dev_info.devs == DEVS_USB) {
         gpio_write_pin_low(A14);
+        // Clear cached LED lock bits from wireless mode; USB host will resend its state.
+        usb_device_state_set_leds(0);
     } else {
         gpio_write_pin_high(A14);
     }
@@ -629,6 +631,8 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
 
     if (dev_info.devs == DEVS_USB) {
         gpio_write_pin_low(A14);
+        // Clear cached LED lock bits from wireless mode; USB host will resend its state.
+        usb_device_state_set_leds(0);
     } else {
         gpio_write_pin_high(A14);
     }

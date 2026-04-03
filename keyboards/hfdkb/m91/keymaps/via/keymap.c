@@ -410,7 +410,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     hsv.v = dev_info.ind_brightness;
     rgb   = hsv_to_rgb(hsv);
 
-    bool is_connected = (dev_info.devs != DEVS_USB) ? bts_info.bt_info.paired : (USB_DRIVER.state == USB_ACTIVE);
+    bool is_connected = ((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state == USB_ACTIVE));
     bool ind_enabled  = !dev_info.eco_tog_flag && !charge_full && is_connected;
 
     led_t led_state = host_keyboard_led_state();
