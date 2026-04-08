@@ -36,7 +36,8 @@ typedef struct {
     void (*event_cb)(uint16_t);
 } long_pressed_keys_t;
 
-static uint32_t bt_init_time = 0;
+static uint32_t bt_init_time    = 0;
+uint32_t        sys_start_timer = 0;
 
 dev_info_t dev_info = {0};
 bts_info_t bts_info = {
@@ -117,7 +118,6 @@ void led_config_all(void) {
 void led_deconfig_all(void) {
     if (led_inited) {
         // writePinLow(LED_CAPS_LOCK_IND_PIN);
-        gpio_write_pin_low(LED_PWR_IND_PIN);
         led_inited = false;
     }
 }
@@ -128,10 +128,6 @@ bool get_kb_sleep_flag(void) {
 
 void set_kb_sleep_flag(bool flag) {
     kb_sleep_flag = flag;
-}
-
-uint32_t get_key_press_time(void) {
-    return key_press_time;
 }
 
 bool get_EE_CLR_flag(void) {
@@ -410,7 +406,8 @@ void bt_init(void) {
         gpio_write_pin_high(A14);
     }
 
-    bt_init_time = timer_read32();
+    bt_init_time    = timer_read32();
+    sys_start_timer = timer_read32();
 
     // rgb_status_save = rgb_matrix_config.enable;
 }
@@ -452,6 +449,10 @@ void bt_task(void) {
         }
 
         // bts_send_vendor(v_en_sleep_bt);
+    }
+
+    if ((sys_start_timer != 0) && (timer_elapsed32(sys_start_timer) > 4000)) {
+        sys_start_timer = 0;
     }
 
     /* Execute every 1ms */
@@ -812,9 +813,9 @@ static void bt_used_pin_init(void) {
     gpio_write_pin_high(RGB_MATRIX_DRIVER_SDB_PIN);
 #    endif
 
-#    ifdef LED_PWR_IND_PIN
-    gpio_set_pin_output_push_pull(LED_PWR_IND_PIN);
-    gpio_write_pin_low(LED_PWR_IND_PIN);
+#    ifdef LED_MAC_IND_PIN
+    gpio_set_pin_output_push_pull(LED_MAC_IND_PIN);
+    gpio_write_pin_low(LED_MAC_IND_PIN);
 #    endif
 
 #    ifdef LED_CAPS_LOCK_IND_PIN
@@ -875,7 +876,7 @@ static void close_rgb(void) {
     }
 
     if (sober) {
-        if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= sleep_time[0])) {
+        if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= sleep_time[1])) {
             bak_rgb_toggle = rgb_matrix_config.enable;
             sober          = false;
             close_rgb_time = timer_read32();
@@ -895,8 +896,7 @@ static void close_rgb(void) {
                 }
 
                 gpio_write_pin_low(LED_CAPS_LOCK_IND_PIN);
-                rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
-                // writePinLow(LED_PWR_IND_PIN);
+                gpio_write_pin_low(LED_MAC_IND_PIN);
 
                 uart3_stop();
 
@@ -924,7 +924,7 @@ static void close_rgb(void) {
 }
 
 static void open_rgb(void) {
-    if (!low_vol_offed_sleep) key_press_time = timer_read32();
+    key_press_time = timer_read32();
 
     if (!sober) {
 #    ifdef RGB_MATRIX_DRIVER_SDB_PIN
@@ -946,10 +946,7 @@ static void open_rgb(void) {
 
         gpio_write_pin(LED_CAPS_LOCK_IND_PIN, host_keyboard_led_state().caps_lock);
 
-        if (get_highest_layer(default_layer_state) == 2)
-            rgb_matrix_set_color(LED_MAC_OS_INDEX, 100, 100, 100);
-        else
-            rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
+        if (get_highest_layer(default_layer_state) == 2) gpio_write_pin_high(LED_MAC_IND_PIN);
 
         sober = true;
     }

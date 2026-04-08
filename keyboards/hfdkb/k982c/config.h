@@ -49,8 +49,8 @@
 
 /* Others */
 #    define RGB_MATRIX_DRIVER_SDB_PIN A15
-#    define LED_PWR_IND_PIN C15
-#    define LED_CAPS_LOCK_IND_PIN D2
+#    define LED_MAC_IND_PIN D2
+#    define LED_CAPS_LOCK_IND_PIN C15
 #    define KEY_NUM 6
 
 #    define USBLINK_Status readPin(MM_CABLE_PIN)
@@ -83,4 +83,4 @@
 #define ENCODER_DEFAULT_POS 0x0
 
 /* Enable Mac OS LED */
-#define LED_MAC_OS_INDEX 84
+#define LED_PWR_INDEX 84

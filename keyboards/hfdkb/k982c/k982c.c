@@ -23,8 +23,8 @@
 #    include "uart.h"
 #endif
 
-static void    low_power_indicator(void);
-static uint8_t get_pvol_from_uart(void);
+static void low_power_indicator(void);
+static void get_pvol_from_uart(void);
 
 bool is_charging(void);
 bool is_fully_charged(void);
@@ -39,7 +39,8 @@ static bool low_bat_vol_off = false;
 
 uint8_t pvol = 100;
 
-extern bool low_vol_offed_sleep;
+extern bool     low_vol_offed_sleep;
+extern uint32_t pressed_time;
 
 // static uint8_t  rChr_ChkBuf = 0;
 // static uint8_t  rChr_OldBuf = 0;
@@ -182,7 +183,7 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
         rgb_matrix_set_color_all(0, 0, 0);
     }
 
-    rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
+    rgb_matrix_set_color(LED_PWR_INDEX, 0, 0, 0);
 
     if (dev_info.rgb_test_en) {
         uint8_t brightness = rgb_matrix_get_val();
@@ -194,67 +195,6 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     if (keymap_config.no_gui) {
         rgb_matrix_set_color(73, 60, 60, 60);
     }
-
-    // static uint32_t full_charged_time = 0;
-
-    // if (!get_enc_blink_cnt()) {
-    //     if (!dev_info.ind_toggle) {
-    //         if (is_charging()) {
-    //             low_bat_vol     = false;
-    //             low_bat_vol_off = false;
-
-    //             rgb_matrix_set_color(LED_PWR_LOW_INDEX, 100, 0, 0);
-    //             full_charged_time = timer_read32();
-    //         } else {
-    //             if (is_fully_charged()) {
-    //                 if (timer_elapsed32(full_charged_time) < 5000) {
-    //                     rgb_matrix_set_color(LED_PWR_LOW_INDEX, 0, 100, 0);
-    //                 }
-    //             } else {
-    //                 if (pvol <= 10) {
-    //                     low_bat_vol = true;
-    //                 }
-    //                 if (pvol < 1) {
-    //                     low_bat_vol_off = true;
-    //                 }
-
-    //                 low_power_indicator();
-    //             }
-    //         }
-    //     }
-    // }
-
-    // static uint32_t full_charged_time = 0;
-    // static uint32_t entry_full_time   = 0;
-
-    // if (f_ChargeOn) {
-    //     low_bat_vol     = false;
-    //     low_bat_vol_off = false;
-
-    //     if (f_Charged && pvol < 100) {
-    //         entry_full_time   = timer_read32();
-    //         full_charged_time = timer_read32();
-    //         rgb_matrix_set_color(LED_PWR_LOW_INDEX, 100, 0, 0);
-    //     } else {
-    //         if (timer_elapsed32(entry_full_time) >= 2000) {
-    //             if (timer_elapsed32(full_charged_time) < 5000) {
-    //                 rgb_matrix_set_color(LED_PWR_LOW_INDEX, 0, 100, 0);
-    //             }
-    //         }
-    //     }
-    // } else {
-    //     entry_full_time   = timer_read32();
-    //     full_charged_time = timer_read32();
-
-    //     if (pvol <= 10) {
-    //         low_bat_vol = true;
-    //     }
-    //     if (pvol < 1) {
-    //         low_bat_vol_off = true;
-    //     }
-
-    //     if (dev_info.devs != DEVS_USB) low_power_indicator();
-    // }
 
     if (!rgb_matrix_indicators_advanced_user(led_min, led_max)) {
         return false;
@@ -350,7 +290,7 @@ void set_led_state(void) {
     if (timer_elapsed(power_update_time) >= 4000) {
         power_update_time = timer_read();
 
-        pvol = get_pvol_from_uart();
+        get_pvol_from_uart();
 
         LCD_IND_update();
         LCD_charge_update();
@@ -367,12 +307,15 @@ void set_led_state(void) {
             low_bat_vol     = false;
             low_bat_vol_off = false;
 
-            if (!gpio_read_pin(MM_CHARGE_PIN) && pvol < 100) {
-                entry_full_time = timer_read32();
-                gpio_write_pin_high(LED_PWR_IND_PIN);
-            } else {
-                if (timer_elapsed32(entry_full_time) >= 2000) {
-                    gpio_write_pin_low(LED_PWR_IND_PIN);
+            if (!dev_info.ind_toggle) {
+                if (!gpio_read_pin(MM_CHARGE_PIN) && pvol < 100) {
+                    // if (!gpio_read_pin(MM_CHARGE_PIN)) {
+                    entry_full_time = timer_read32();
+                    rgb_matrix_set_color(LED_PWR_INDEX, 100, 0, 0);
+                } else {
+                    if (timer_elapsed32(entry_full_time) >= 2000) {
+                        rgb_matrix_set_color(LED_PWR_INDEX, 0, 100, 0);
+                    }
                 }
             }
         } else {
@@ -380,84 +323,50 @@ void set_led_state(void) {
 
             entry_full_time = timer_read32();
 
-            if (dev_info.devs != DEVS_USB) {
-                if (pvol < 20) {
-                    low_bat_vol = true;
-                } else {
-                    low_bat_vol = false;
+            extern bool sys_start_timer;
+            if (!sys_start_timer) {
+                if (bts_info.bt_info.paired) {
+                    if (dev_info.devs != DEVS_USB) {
+                        if (pvol < 20) {
+                            low_bat_vol = true;
+                        }
+                        if (pvol < 1) {
+                            low_bat_vol_off = true;
+                        }
+                        low_power_indicator();
+                    }
                 }
-                if (pvol < 1) {
-                    low_bat_vol_off = true;
-                } else {
-                    low_bat_vol_off = false;
-                }
-
-                low_power_indicator();
             }
         }
+
         if (charging_old_satus != charging_now_satus) {
             charging_old_satus = charging_now_satus;
             LCD_charge_update();
         }
-
-        // static uint32_t full_charged_time = 0;
-        // static uint32_t entry_full_time   = 0;
-
-        // if (!get_enc_blink_cnt()) {
-        //     if (!dev_info.ind_toggle) {
-        //         if (is_charging()) {
-        //             low_bat_vol     = false;
-        //             low_bat_vol_off = false;
-
-        //             rgb_matrix_set_color(LED_PWR_LOW_INDEX, 100, 0, 0);
-        //             full_charged_time = timer_read32();
-        //             entry_full_time   = timer_read32();
-        //         } else {
-        //             if (is_fully_charged()) {
-        //                 if (timer_elapsed32(entry_full_time) >= 2000) {
-        //                     if (timer_elapsed32(full_charged_time) < 5000) {
-        //                         rgb_matrix_set_color(LED_PWR_LOW_INDEX, 0, 100, 0);
-        //                     }
-        //                 }
-        //             } else {
-        //                 if (pvol <= 10) {
-        //                     low_bat_vol = true;
-        //                 }
-        //                 if (pvol < 1) {
-        //                     low_bat_vol_off = true;
-        //                 }
-
-        //                 low_power_indicator();
-        //             }
-        //         }
-        //     }
-        // }
-
 #endif
     }
 
     if (dev_info.ind_toggle || low_bat_vol_off) {
         gpio_write_pin_low(LED_CAPS_LOCK_IND_PIN);
-        rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
+        gpio_write_pin_low(LED_MAC_IND_PIN);
     } else {
         if (dev_info.devs == DEVS_USB && USB_DRIVER.state != USB_ACTIVE) {
             gpio_write_pin_low(LED_CAPS_LOCK_IND_PIN);
-            rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
+            gpio_write_pin_low(LED_MAC_IND_PIN);
         } else {
             gpio_write_pin(LED_CAPS_LOCK_IND_PIN, host_keyboard_led_state().caps_lock);
             if ((get_highest_layer(default_layer_state) == 2)) {
-                rgb_matrix_set_color(LED_MAC_OS_INDEX, 100, 100, 100);
+                gpio_write_pin_high(LED_MAC_IND_PIN);
             } else {
-                rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
+                gpio_write_pin_low(LED_MAC_IND_PIN);
             }
         }
     }
 }
 
-static uint8_t get_pvol_from_uart(void) {
-    uint8_t        uart_data_read[3] = {0};
-    uint8_t        uart_data_send[3] = {0};
-    static uint8_t soc               = 0;
+static void get_pvol_from_uart(void) {
+    uint8_t uart_data_read[3] = {0};
+    uint8_t uart_data_send[3] = {0};
 
     if (uart3_available()) {
         uart3_receive(uart_data_read, 3);
@@ -469,11 +378,8 @@ static uint8_t get_pvol_from_uart(void) {
 
         if (bts_info.bt_info.paired) uart_transmit(uart_data_send, 3);
 
-        soc  = uart_data_read[1];
-        pvol = soc;
+        pvol = uart_data_read[1];
     }
-
-    return soc;
 }
 
 static void low_power_indicator(void) {
@@ -486,18 +392,15 @@ static void low_power_indicator(void) {
             Low_power_time = timer_read32();
         }
         if (Low_power_bink) {
-            gpio_write_pin_high(LED_PWR_IND_PIN);
+            rgb_matrix_set_color(LED_PWR_INDEX, 100, 0, 0);
         } else {
-            gpio_write_pin_low(LED_PWR_IND_PIN);
+            rgb_matrix_set_color(LED_PWR_INDEX, 0, 0, 0);
         }
-    } else {
-        Low_power_bink = 0;
-        gpio_write_pin_low(LED_PWR_IND_PIN);
     }
 
     if (low_bat_vol_off) {
         low_vol_offed_sleep = true;
-        if (timer_elapsed32(get_key_press_time()) > 2000) {
+        if (timer_elapsed32(pressed_time) > 2000) {
             set_kb_sleep_flag(true);
         }
     }
@@ -576,7 +479,7 @@ void housekeeping_task_kb(void) {
 #    endif
 
                     gpio_write_pin_low(LED_CAPS_LOCK_IND_PIN);
-                    rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
+                    gpio_write_pin_low(LED_MAC_IND_PIN);
 
                     LCD_command_update(LCD_LIGHT_SLEEP);
                     if (!LCD_Sleep_Flag) {
@@ -627,7 +530,7 @@ void suspend_power_down_kb(void) {
     }
 
     gpio_write_pin_low(LED_CAPS_LOCK_IND_PIN);
-    rgb_matrix_set_color(LED_MAC_OS_INDEX, 0, 0, 0);
+    gpio_write_pin_low(LED_MAC_IND_PIN);
     // led_deconfig_all();
 }
 

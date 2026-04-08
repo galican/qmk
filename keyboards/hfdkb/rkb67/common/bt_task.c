@@ -710,10 +710,10 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
                     if (keymap_config.no_gui) {
                         keymap_config.no_gui = false;
                     }
-                    single_blink_index = KEY_A_LED_INDEX;
+                    single_blink_index = KEY_S_LED_INDEX;
                 } else if (get_highest_layer(default_layer_state) == 3) { // MAC_BASE
                     set_single_persistent_default_layer(0);
-                    single_blink_index = KEY_S_LED_INDEX;
+                    single_blink_index = KEY_A_LED_INDEX;
                 }
                 single_blink_cnt   = 6;
                 single_blink_color = (RGB){RGB_WHITE};
