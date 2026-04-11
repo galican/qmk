@@ -297,9 +297,9 @@ void set_led_state(void) {
     } else {
 #if defined(MM_CABLE_PIN)
 
-        static bool     charging_old_satus = false;
-        static bool     charging_now_satus = false;
-        static uint32_t entry_full_time    = 0;
+        static bool charging_old_satus = false;
+        static bool charging_now_satus = false;
+        // static uint32_t entry_full_time    = 0;
 
         if (!gpio_read_pin(MM_CABLE_PIN)) {
             charging_now_satus = 1;
@@ -308,20 +308,19 @@ void set_led_state(void) {
             low_bat_vol_off = false;
 
             if (!dev_info.ind_toggle) {
-                if (!gpio_read_pin(MM_CHARGE_PIN) && pvol < 100) {
-                    // if (!gpio_read_pin(MM_CHARGE_PIN)) {
-                    entry_full_time = timer_read32();
-                    rgb_matrix_set_color(LED_PWR_INDEX, 100, 0, 0);
+                if (gpio_read_pin(MM_CHARGE_PIN) && (pvol >= 100)) {
+                    // if (timer_elapsed32(entry_full_time) >= 2000) {
+                    rgb_matrix_set_color(LED_PWR_INDEX, 0, 100, 0);
+                    // }
                 } else {
-                    if (timer_elapsed32(entry_full_time) >= 2000) {
-                        rgb_matrix_set_color(LED_PWR_INDEX, 0, 100, 0);
-                    }
+                    // entry_full_time = timer_read32();
+                    rgb_matrix_set_color(LED_PWR_INDEX, 100, 0, 0);
                 }
             }
         } else {
             charging_now_satus = 0;
 
-            entry_full_time = timer_read32();
+            // entry_full_time = timer_read32();
 
             extern bool sys_start_timer;
             if (!sys_start_timer) {

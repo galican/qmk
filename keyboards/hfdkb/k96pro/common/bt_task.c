@@ -30,8 +30,8 @@ typedef struct {
     void (*event_cb)(uint16_t);
 } long_pressed_keys_t;
 
-uint32_t bt_init_time = 0;
-uint32_t wl_init_time = 0;
+uint32_t bt_init_time    = 0;
+uint32_t sys_start_timer = 0;
 
 dev_info_t dev_info = {0};
 bts_info_t bts_info = {
@@ -366,8 +366,8 @@ void bt_init(void) {
         gpio_write_pin_high(A14);
     }
 
-    bt_init_time = timer_read32();
-    wl_init_time = timer_read32();
+    bt_init_time    = timer_read32();
+    sys_start_timer = timer_read32();
 }
 
 /**
@@ -411,8 +411,8 @@ void bt_task(void) {
         }
     }
 
-    if ((wl_init_time != 0) && (timer_elapsed32(wl_init_time) >= 500)) {
-        wl_init_time = 0;
+    if ((sys_start_timer != 0) && (timer_elapsed32(sys_start_timer) >= 4000)) {
+        sys_start_timer = 0;
     }
 
     /* Execute every 1ms */
@@ -431,13 +431,8 @@ void bt_task(void) {
         }
     }
 
-    // if (bts_info.bt_info.low_vol) {
-    //     void blink_rgb_set(uint8_t, uint8_t);
-    //     blink_rgb_set(3, 0);
-    // }
-
     long_pressed_keys_hook();
-    if (!wl_init_time) bt_scan_mode();
+    bt_scan_mode();
 }
 
 uint32_t pressed_time = 0;
@@ -927,20 +922,20 @@ static void close_rgb(void) {
                 // }
 
                 // gpio_set_pin_output_push_pull(SD3_TX_PIN);
-                // gpio_set_pin_output_open_drain(SD3_TX_PIN);
-                // for (uint8_t i = 0; i < 5; i++) {
-                //     gpio_write_pin_low(SD3_TX_PIN);
-                //     wait_ms(5);
-                //     gpio_write_pin_high(SD3_TX_PIN);
-                //     wait_ms(5);
-                // }
+                gpio_set_pin_output_open_drain(SD3_TX_PIN);
+                for (uint8_t i = 0; i < 5; i++) {
+                    gpio_write_pin_low(SD3_TX_PIN);
+                    wait_ms(5);
+                    gpio_write_pin_high(SD3_TX_PIN);
+                    wait_ms(5);
+                }
 
                 LCD_start();
 
-                LCD_command_update(LCD_WEAKUP);
-
                 extern void open_rgb(void);
                 open_rgb();
+
+                LCD_command_update(LCD_WEAKUP);
             }
         }
     }
@@ -957,11 +952,11 @@ void open_rgb(void) {
         rgb_matrix_init();
 #endif
 
-        extern bool low_vol_offed_sleep;
-        low_vol_offed_sleep = false;
-        kb_sleep_flag       = false;
-
         if (bak_rgb_toggle) {
+            extern bool low_vol_offed_sleep;
+            low_vol_offed_sleep = false;
+            kb_sleep_flag       = false;
+
             rgb_matrix_enable_noeeprom();
         }
 
@@ -1037,7 +1032,7 @@ static void bat_vol_query(void) {
             extern bool low_bat_vol_off;
             extern bool low_bat_vol;
 
-            if (low_bat_vol && !low_bat_vol_off) {
+            if (low_bat_vol) {
                 if (timer_elapsed32(Low_power_time) >= 300) {
                     Low_power_bink = !Low_power_bink;
                     Low_power_time = timer_read32();
@@ -1211,7 +1206,7 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
 
     bat_vol_query();
 
-    if (!wl_init_time) devices_indicator();
+    devices_indicator();
 
     factory_reset();
 

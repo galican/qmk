@@ -169,8 +169,6 @@ void Charge_Chat(void) {
 }
 #endif
 
-static bool uart_off_flag = false;
-
 void led_config_all(void) {
     if (!led_inited) {
         gpio_set_pin_output(A14);
@@ -180,14 +178,12 @@ void led_config_all(void) {
             gpio_write_pin_high(A14);
         }
 
-        if (uart_off_flag) uart_off_flag = false;
         led_inited = true;
     }
 }
 
 void led_deconfig_all(void) {
     if (led_inited) {
-        if (!uart_off_flag) uart_off_flag = true;
         led_inited = false;
     }
 }
@@ -262,7 +258,7 @@ bool blink_led_advanced(void) {
     return true;
 }
 
-static uint8_t get_pvol_from_uart(void) {
+static void get_pvol_from_uart(void) {
     uint8_t uart_data_read[3] = {0};
     uint8_t uart_data_send[3] = {0};
 
@@ -274,14 +270,10 @@ static uint8_t get_pvol_from_uart(void) {
         uart_data_send[1] = uart_data_read[1];
         uart_data_send[2] = (uart_data_send[0] + uart_data_send[1]) & 0xFF;
 
-        if (bts_info.bt_info.paired) {
-            uart_transmit(uart_data_send, 3);
-        }
+        if (bts_info.bt_info.paired) uart_transmit(uart_data_send, 3);
 
-        return uart_data_read[1];
+        pvol = uart_data_read[1];
     }
-
-    return 94;
 }
 
 void set_led_state(void) {
@@ -335,7 +327,7 @@ void set_led_state(void) {
     if (timer_elapsed32(power_update_time) >= 4000) {
         power_update_time = timer_read32();
 
-        pvol = get_pvol_from_uart();
+        get_pvol_from_uart();
 
         LCD_charge_update();
         LCD_IND_update();
@@ -350,16 +342,14 @@ void set_led_state(void) {
             low_bat_vol     = false;
             low_bat_vol_off = false;
         } else {
-            if (pvol <= 10) {
-                low_bat_vol = true;
-            } else {
-                low_bat_vol = false;
-            }
-
-            if (pvol < 1) {
-                low_bat_vol_off = true;
-            } else {
-                low_bat_vol_off = false;
+            extern uint32_t sys_start_timer;
+            if (!sys_start_timer) {
+                if (pvol <= 10) {
+                    low_bat_vol = true;
+                }
+                if (pvol < 1) {
+                    low_bat_vol_off = true;
+                }
             }
 
             charging_now_satus = 0;
@@ -500,7 +490,7 @@ void matrix_scan_kb(void) {
 #ifdef BT_MODE_ENABLE
     bt_task();
 
-    if (((dev_info.devs != DEVS_USB) && !get_kb_sleep_flag() && !uart_off_flag) || ((dev_info.devs == DEVS_USB))) {
+    if (((dev_info.devs != DEVS_USB) && !get_kb_sleep_flag()) || (dev_info.devs == DEVS_USB)) {
         set_led_state();
     }
 
