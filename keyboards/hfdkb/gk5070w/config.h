@@ -37,6 +37,7 @@
 #define LED_OS_LINUX 25
 #define LED_CAPS_LOCK 62
 #define LED_WIN_LOCK 85
+#define LED_PWR_ALRM 0
 
 /* LED Indicator pin */
 #define LED_RED_PIN B13

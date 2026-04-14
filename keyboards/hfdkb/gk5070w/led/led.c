@@ -38,15 +38,15 @@ const uint8_t hsv_table[COLOR_COUNT][3] = {
 
 void SLed_task(void) {
     switch (dev_info.mode) {
-            case SLED_MODE_FLOW: {
-                uint8_t time = scale16by8(g_rgb_timer, qadd8(dev_info.speed / 4, 1));
-                for (uint8_t i = SLed_MIN; i < (SLed_MAX + 1); i++) {
-                    HSV hsv = {g_led_config.point[i].x - time, 255, dev_info.brightness};
-                    RGB rgb = hsv_to_rgb(hsv);
-                    rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
-                }
-                break;
-            }
+            // case SLED_MODE_FLOW: {
+            //     uint8_t time = scale16by8(g_rgb_timer, qadd8(dev_info.speed / 4, 1));
+            //     for (uint8_t i = SLed_MIN; i < (SLed_MAX + 1); i++) {
+            //         HSV hsv = {g_led_config.point[i].x - time, 255, dev_info.brightness};
+            //         RGB rgb = hsv_to_rgb(hsv);
+            //         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+            //     }
+            //     break;
+            // }
 
         case SLED_MODE_NEON: {
             uint8_t time = scale16by8(g_rgb_timer, qadd8(dev_info.speed / 8, 1));
@@ -100,7 +100,7 @@ void SLed_init(void) {}
 
 void eeconfig_init_user(void) {
     dev_info.LCD_PAGE   = 0;
-    dev_info.brightness = RGB_MATRIX_DEFAULT_VAL;
+    dev_info.brightness = SLED_BRIGHTNESS_STEP * 3;
     dev_info.speed      = RGB_MATRIX_DEFAULT_SPD;
     dev_info.color      = COLOR_RAINBOW;
     dev_info.mode       = SLED_MODE_SOLID_COLOUR;
