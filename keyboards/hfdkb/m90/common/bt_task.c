@@ -42,7 +42,6 @@ static void long_pressed_keys_cb(uint16_t keycode);
 static bool process_record_other(uint16_t keycode, keyrecord_t *record);
 static void bt_scan_mode(void);
 static void bt_used_pin_init(void);
-static void update_low_voltage_state(void);
 static void handle_factory_reset_display(void);
 static void handle_blink_effects(void);
 static void handle_layer_indication(void);
@@ -62,6 +61,9 @@ static bool is_current_mode_wireless_by_devs(uint8_t devs);
 static void open_rgb(void);
 static void close_rgb(void);
 #endif
+
+extern void function_multimedia_swap(void);
+extern void function_menu_swap(void);
 
 extern keymap_config_t keymap_config;
 
@@ -111,7 +113,7 @@ static charge_complete_warning_t charge_complete_warning = {0};
 
 static bool is_in_low_power_state  = false;
 static bool is_in_full_power_state = false;
-bool        low_vol_offed_sleep    = false;
+static bool show_chrg_full_wakeup  = false;
 
 uint32_t   bt_init_time = 0;
 dev_info_t dev_info     = {0};
@@ -136,6 +138,10 @@ long_pressed_keys_t long_pressed_keys[] = {
     {.keycode = KEYBOARD_RESET, .press_time = 0, .event_cb = long_pressed_keys_cb},
     {.keycode = BLE_RESET, .press_time = 0, .event_cb = long_pressed_keys_cb},
     {.keycode = RGB_TEST, .press_time = 0, .event_cb = long_pressed_keys_cb},
+    {.keycode = FN_FUN, .press_time = 0, .event_cb = long_pressed_keys_cb},
+    {.keycode = FN_MENU, .press_time = 0, .event_cb = long_pressed_keys_cb},
+    {.keycode = WIN_LOCK, .press_time = 0, .event_cb = long_pressed_keys_cb},
+    {.keycode = SW_OS, .press_time = 0, .event_cb = long_pressed_keys_cb},
 };
 // clang-format on
 // 指示器状态
@@ -160,16 +166,16 @@ static const uint8_t rgb_index_color_table[][3] = {
 };
 
 static const uint8_t rgb_test_color_table[][3] = {
-    {200, 0, 0},
-    {0, 200, 0},
-    {0, 0, 200},
+    {100, 0, 0},
+    {0, 100, 0},
+    {0, 0, 100},
     {100, 100, 100},
 };
 static uint8_t  rgb_test_index = 0;
 static bool     rgb_test_en    = false;
 static uint32_t rgb_test_time  = 0;
 
-static bool rgb_status_save = 1;
+// static bool rgb_status_save = 1;
 
 const uint32_t sleep_time_table[4] = {0, 10 * 60 * 1000, 30 * 60 * 1000, 60 * 60 * 1000};
 
@@ -195,8 +201,6 @@ uint32_t USB_switch_time;
 uint8_t  USB_blink_cnt;
 
 uint32_t last_total_time = 0;
-
-static bool is_charging = false;
 
 #include "command.h"
 #include "action.h"
@@ -454,16 +458,18 @@ void bt_init(void) {
     if (dev_info.devs != DEVS_USB) {
         usbDisconnectBus(&USB_DRIVER);
         usbStop(&USB_DRIVER);
+        // writePinHigh(A12);
     }
 
-    setPinOutput(A14);
+    gpio_set_pin_output(A14);
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
+        usb_device_state_set_leds(0);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
 
-    rgb_status_save = rgb_matrix_config.enable;
+    // rgb_status_save = rgb_matrix_config.enable;
 }
 
 // ===========================================
@@ -495,6 +501,7 @@ void bt_task(void) {
                 eeconfig_update_user(dev_info.raw);
                 break;
         }
+        bts_send_vendor(v_dis_sleep_bt);
     }
 
     if (timer_elapsed32(last_time) >= 1) {
@@ -516,9 +523,8 @@ void bt_task(void) {
     if (!bt_init_time) bt_scan_mode();
 }
 
-// ===========================================
-// 按键处理函数
-// ===========================================
+uint32_t pressed_time = 0;
+
 bool process_record_bt(uint16_t keycode, keyrecord_t *record) {
     bool retval = true;
 
@@ -537,11 +543,13 @@ bool process_record_bt(uint16_t keycode, keyrecord_t *record) {
                     \n pvol          = [%d]\n\n\n",
                       dev_info.devs, bts_info.bt_info.sleeped, bts_info.bt_info.low_vol, bts_info.bt_info.low_vol_offed, bts_info.bt_info.normal_vol, bts_info.bt_info.pairing, bts_info.bt_info.paired, bts_info.bt_info.come_back, bts_info.bt_info.come_back_err, bts_info.bt_info.mode_switched, bts_info.bt_info.pvol);
 
-        if (!rgb_matrix_config.enable) {
-            if (rgb_status_save) {
-                rgb_matrix_enable_noeeprom();
-            }
-        }
+        pressed_time = timer_read32();
+
+        // if (!rgb_matrix_config.enable) {
+        //     if (rgb_status_save) {
+        //         rgb_matrix_enable_noeeprom();
+        //     }
+        // }
     }
 
     retval = process_record_other(keycode, record);
@@ -577,6 +585,13 @@ bool process_record_bt(uint16_t keycode, keyrecord_t *record) {
                         bts_process_keys(KC_LGUI, record->event.pressed, dev_info.devs, keymap_config.no_gui, KEY_NUM);
                 }
                 retval = bts_process_keys(QK_MODS_GET_BASIC_KEYCODE(keycode), record->event.pressed, dev_info.devs, keymap_config.no_gui, KEY_NUM);
+            } else if (IS_BASIC_KEYCODE(keycode)) {
+                if (record->event.pressed) {
+                    register_code(keycode);
+                } else {
+                    unregister_code(keycode);
+                }
+                retval = false;
             } else {
                 retval = bts_process_keys(keycode, record->event.pressed, dev_info.devs, keymap_config.no_gui, KEY_NUM);
             }
@@ -594,11 +609,11 @@ bool process_record_bt(uint16_t keycode, keyrecord_t *record) {
 // 设备切换函数
 // ===========================================
 void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
-    if (!rgb_matrix_config.enable) {
-        if (rgb_status_save) {
-            rgb_matrix_enable_noeeprom();
-        }
-    }
+    // if (!rgb_matrix_config.enable) {
+    //     if (rgb_status_save) {
+    //         rgb_matrix_enable_noeeprom();
+    //     }
+    // }
 
     bool usb_sws = !!last_mode ? !now_mode : !!now_mode;
 
@@ -628,9 +643,10 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
     }
 
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
+        usb_device_state_set_leds(0);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
 
     // 重置蓝牙状态
@@ -641,7 +657,7 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
     bts_info.bt_info.mode_switched  = false;
     bts_info.bt_info.indictor_rgb_s = 0;
 
-    if (readPin(BT_MODE_SW_PIN)) eeconfig_update_user(dev_info.raw);
+    if (gpio_read_pin(BT_MODE_SW_PIN)) eeconfig_update_user(dev_info.raw);
 
     // Handle indicator status and send vendor commands
     // 发送相应的蓝牙命令
@@ -653,6 +669,8 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
             if (reset != false) {
                 indicator_status          = 1;
                 indicator_reset_last_time = true;
+                uint8_t vendor_names[]    = {DEVS_HOST1, DEVS_HOST2, DEVS_HOST3, DEVS_2_4G};
+                bts_send_name(vendor_names[dev_info.devs - 1]);
                 bts_send_vendor(v_pair);
             } else {
                 indicator_status          = 2;
@@ -713,32 +731,18 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
             }
         } break;
 
-        case BT_VOL: {
+        case BT_VOL:
             if (record->event.pressed) {
-                // bts_send_vendor(v_query_vol);
-                switch (get_battery_charge_state()) {
-                    case BATTERY_STATE_CHARGING:
-                        bts_send_vendor(v_query_vol_chrg);
-                        break;
-
-                    case BATTERY_STATE_CHARGED_FULL:
-                        bts_send_vendor(v_query_vol_full);
-                        break;
-
-                    case BATTERY_STATE_UNPLUGGED:
-                    default:
-                        bts_send_vendor(v_query_vol);
-                        break;
-                }
                 query_vol_flag = true;
             } else {
                 query_vol_flag = false;
             }
-        } break;
+            break;
 
         case NK_TOGG: {
             if (record->event.pressed) {
                 keymap_config.nkro = !keymap_config.nkro;
+                eeconfig_update_keymap(&keymap_config);
                 if (keymap_config.nkro) {
                     single_blink_cnt   = 6;
                     single_blink_index = 0;
@@ -746,27 +750,13 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
                 } else {
                     single_blink_cnt   = 6;
                     single_blink_index = 0;
-                    single_blink_color = (RGB){100, 100, 100};
+                    single_blink_color = (RGB){200, 200, 200};
                 }
                 single_blink_time = timer_read32();
             }
         } break;
 
         case SW_OS: {
-            if (record->event.pressed) {
-                if (get_highest_layer(default_layer_state) == 0) {
-                    set_single_persistent_default_layer(2);
-                    keymap_config.no_gui = 0;
-                    eeconfig_update_keymap(&keymap_config);
-                    single_blink_index = 69;
-                } else if (get_highest_layer(default_layer_state) == 2) {
-                    set_single_persistent_default_layer(0);
-                    single_blink_index = 68;
-                }
-                single_blink_time  = timer_read32();
-                single_blink_cnt   = 6;
-                single_blink_color = (RGB){100, 100, 100};
-            }
         } break;
 
         case RGB_TEST: {
@@ -781,6 +771,9 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
         case FACTORY_RESET:
         case KEYBOARD_RESET:
         case BLE_RESET:
+        case FN_FUN:
+        case FN_MENU:
+        case WIN_LOCK:
             break;
         default:
             return true;
@@ -811,7 +804,7 @@ static void long_pressed_keys_cb(uint16_t keycode) {
                 factory_reset_status    = (keycode == FACTORY_RESET) ? 1 : (keycode == KEYBOARD_RESET) ? 2 : 3;
                 factory_reset_press_cnt = 1;
                 rgb_matrix_enable_noeeprom();
-                rgb_status_save          = rgb_matrix_config.enable;
+                // rgb_status_save          = rgb_matrix_config.enable;
                 factory_reset_press_time = timer_read32();
             }
         } break;
@@ -822,6 +815,34 @@ static void long_pressed_keys_cb(uint16_t keycode) {
                 rgb_test_index = 1;
                 rgb_test_time  = timer_read32();
             }
+        } break;
+
+        case FN_FUN: {
+            function_multimedia_swap();
+        } break;
+
+        case FN_MENU: {
+            function_menu_swap();
+        } break;
+
+        case WIN_LOCK: {
+            keymap_config.no_gui = !keymap_config.no_gui;
+            eeconfig_update_keymap(&keymap_config);
+        } break;
+
+        case SW_OS: {
+            if (get_highest_layer(default_layer_state) == 0) {
+                set_single_persistent_default_layer(2);
+                keymap_config.no_gui = 0;
+                eeconfig_update_keymap(&keymap_config);
+                single_blink_index = 69;
+            } else if (get_highest_layer(default_layer_state) == 2) {
+                set_single_persistent_default_layer(0);
+                single_blink_index = 68;
+            }
+            single_blink_time  = timer_read32();
+            single_blink_cnt   = 6;
+            single_blink_color = (RGB){200, 200, 200};
         } break;
 
         default:
@@ -848,7 +869,7 @@ static void long_pressed_keys_hook(void) {
  */
 static bool is_switch_forcing_wired_mode(void) {
 #ifdef BT_MODE_SW_PIN
-    return !readPin(BT_MODE_SW_PIN); // Switch ON = false reading = force wired
+    return !gpio_read_pin(BT_MODE_SW_PIN); // Switch ON = false reading = force wired
 #else
     return false; // No switch = allow all modes
 #endif
@@ -885,25 +906,25 @@ static bool is_current_mode_wireless_by_devs(uint8_t devs) {
 // ===========================================
 static void bt_used_pin_init(void) {
 #ifdef BT_MODE_SW_PIN
-    setPinInputHigh(BT_MODE_SW_PIN);
+    gpio_set_pin_input_high(BT_MODE_SW_PIN);
 #endif
 
 #if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
-    setPinInput(BT_CABLE_PIN);
-    setPinInput(BT_CHARGE_PIN);
+    gpio_set_pin_input(BT_CABLE_PIN);
+    gpio_set_pin_input(BT_CHARGE_PIN);
 #endif
 
 #ifdef RGB_DRIVER_SDB_PIN
-    setPinOutputPushPull(RGB_DRIVER_SDB_PIN);
-    writePinHigh(RGB_DRIVER_SDB_PIN);
+    gpio_set_pin_output_open_drain(RGB_DRIVER_SDB_PIN);
+    gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #endif
 }
 
 static void bt_scan_mode(void) {
 #ifdef BT_MODE_SW_PIN
-    static bool last_switch_state = true; // Track previous switch state
+    static bool last_switch_state = false; // Track previous switch state
 
-    bool switch_state = readPin(BT_MODE_SW_PIN); // false = switch ON (force wired), true = switch OFF (allow all modes)
+    bool switch_state = gpio_read_pin(BT_MODE_SW_PIN); // false = switch ON (force wired), true = switch OFF (allow all modes)
 
     // Handle switch state changes
     if (last_switch_state != switch_state) {
@@ -944,24 +965,11 @@ static void bt_scan_mode(void) {
 }
 
 // ===========================================
-// 低电量管理函数
-// ===========================================
-static void update_low_voltage_state(void) {
-    if (bts_info.bt_info.low_vol) {
-        rgb_matrix_set_color_all(RGB_OFF);
-    }
-}
-
-// ===========================================
 // RGB控制函数
 // ===========================================
 static void close_rgb(void) {
     if (!key_press_time) {
         key_press_time = timer_read32();
-        return;
-    }
-
-    if (dev_info.devs == DEVS_USB) {
         return;
     }
 
@@ -972,8 +980,9 @@ static void close_rgb(void) {
             close_rgb_time = timer_read32();
             rgb_matrix_disable_noeeprom();
 #ifdef RGB_DRIVER_SDB_PIN
-            writePinLow(RGB_DRIVER_SDB_PIN);
+            gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
 #endif
+            i2cStop(&I2CD1);
         }
     } else {
         if (!rgb_matrix_config.enable) {
@@ -992,16 +1001,41 @@ static void close_rgb(void) {
 
 static void open_rgb(void) {
     key_press_time = timer_read32();
+
     if (!sober) {
 #ifdef RGB_DRIVER_SDB_PIN
-        writePinHigh(RGB_DRIVER_SDB_PIN);
+        gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
+        rgb_matrix_init();
+        extern uint8_t indicator_color_tab[][3];
+        extern uint8_t sat_tab[];
+        rgb_matrix_config.hsv.h = indicator_color_tab[dev_info.smd_color_index][0];
+        rgb_matrix_config.hsv.s = sat_tab[dev_info.smd_sat_index];
 #endif
+
+        // if (!readPin(BT_CABLE_PIN)) {
+        // if (readPin(BT_CHARGE_PIN)) {
+        if (bts_info.bt_info.pvol >= FULL_PVOL_THRESHOLD) {
+            is_in_full_power_state = false;
+            memset(&charge_complete_warning, 0, sizeof(charge_complete_warning_t));
+            show_chrg_full_wakeup = true;
+        }
+        // }
+        // }
+
+        low_battery_warning.triggered   = true;
+        low_battery_warning.blink_count = 0;
+        low_battery_warning.blink_time  = timer_read32();
+        low_battery_warning.blink_state = false;
+        low_battery_warning.completed   = false;
+
+        kb_sleep_flag = false;
+        extern bool low_vol_offed_sleep;
+        low_vol_offed_sleep = false;
+
         if (bak_rgb_toggle) {
-            extern bool low_vol_offed_sleep;
-            kb_sleep_flag       = false;
-            low_vol_offed_sleep = false;
             rgb_matrix_enable_noeeprom();
         }
+
         if (!led_inited) {
             led_config_all();
         }
@@ -1086,6 +1120,12 @@ static void handle_bt_indicate_led(void) {
                 rgb.g = rgb_index_color_table[dev_info.devs][1];
                 rgb.b = rgb_index_color_table[dev_info.devs][2];
             } else {
+                if (bts_info.bt_info.pvol >= FULL_PVOL_THRESHOLD) {
+                    is_in_full_power_state = false;
+                    memset(&charge_complete_warning, 0, sizeof(charge_complete_warning_t));
+                    show_chrg_full_wakeup = true;
+                }
+
                 low_battery_warning.triggered   = true;
                 low_battery_warning.blink_count = 0;
                 low_battery_warning.blink_time  = timer_read32();
@@ -1162,14 +1202,15 @@ static void handle_factory_reset_display(void) {
             switch (factory_reset_status) {
                 case 1: // factory reset
                     eeconfig_init();
+                    eeconfig_update_rgb_matrix_default();
                     keymap_config.nkro   = false;
                     keymap_config.no_gui = false;
                     bts_send_vendor(v_clear);
                     wait_ms(1000);
-                    if (readPin(BT_MODE_SW_PIN) && (dev_info.devs != DEVS_USB)) {
+                    if (gpio_read_pin(BT_MODE_SW_PIN) && (dev_info.devs != DEVS_USB)) {
                         bt_switch_mode(DEVS_HOST1, DEVS_USB, false);
                         last_total_time = timer_read32();
-                    } else if (!readPin(BT_MODE_SW_PIN)) {
+                    } else if (!gpio_read_pin(BT_MODE_SW_PIN)) {
                         dev_info.last_devs = DEVS_USB;
                         eeconfig_update_user(dev_info.raw);
                     }
@@ -1177,6 +1218,7 @@ static void handle_factory_reset_display(void) {
 
                 case 2: // keyboard reset
                     eeconfig_init();
+                    eeconfig_update_rgb_matrix_default();
                     keymap_config.no_gui = false;
                     keymap_config.nkro   = false;
                     break;
@@ -1184,10 +1226,10 @@ static void handle_factory_reset_display(void) {
                 case 3: // ble reset
                     bts_send_vendor(v_clear);
                     wait_ms(1000);
-                    if (readPin(BT_MODE_SW_PIN) && (dev_info.devs != DEVS_USB) && (dev_info.devs != DEVS_2_4G)) {
+                    if (gpio_read_pin(BT_MODE_SW_PIN) && (dev_info.devs != DEVS_USB) && (dev_info.devs != DEVS_2_4G)) {
                         bt_switch_mode(dev_info.devs, DEVS_HOST1, false);
                         last_total_time = timer_read32();
-                    } else if (!readPin(BT_MODE_SW_PIN)) {
+                    } else if (!gpio_read_pin(BT_MODE_SW_PIN)) {
                         dev_info.last_devs = DEVS_USB;
                         eeconfig_update_user(dev_info.raw);
                     } else if (dev_info.devs == DEVS_2_4G) {
@@ -1206,7 +1248,7 @@ static void handle_factory_reset_display(void) {
         rgb_matrix_set_color_all(0, 0, 0);
         uint8_t reset_leds[] = {26, 45, 44}; // factory, keyboard, ble
         if (factory_reset_status >= 1 && factory_reset_status <= 3) {
-            rgb_matrix_set_color(reset_leds[factory_reset_status - 1], 100, 0, 0);
+            rgb_matrix_set_color(reset_leds[factory_reset_status - 1], 200, 0, 0);
         }
     }
 }
@@ -1248,95 +1290,86 @@ static void handle_layer_indication(void) {
 }
 
 static void handle_charging_indication(void) {
-    // Debounced, hysteretic "first full" detector
-    // static uint8_t  prev_pvol               = 0;
-    static bool     first_reach_full        = false; // drives the blink once per cycle
-    static uint32_t full_candidate_since    = 0;
-    static bool     full_latched_this_cycle = false;
+    static bool show_chrg_full = false;
 
-    uint8_t pv      = bts_info.bt_info.pvol;
-    bool    plugged = (get_battery_charge_state() != BATTERY_STATE_UNPLUGGED);
+    extern bool charge_full;
 
-    if (dev_info.devs != DEVS_USB) {
-        // Detect and debounce first reach to FULL_PVOL_THRESHOLD
-        if (!full_latched_this_cycle) {
-            if (pv >= FULL_PVOL_THRESHOLD && plugged) {
-                if (full_candidate_since == 0) {
-                    full_candidate_since = timer_read32();
-                } else if (timer_elapsed32(full_candidate_since) >= FULL_DEBOUNCE_MS) {
-                    first_reach_full        = true; // trigger this cycle's indication
-                    full_latched_this_cycle = true; // prevent re-trigger until hysteresis clears
-                    full_candidate_since    = 0;    // reset candidate window
-                }
-            } else {
-                full_candidate_since = 0; // reset if we dip below threshold
-            }
-        } else {
-            // Re-arm for next cycle only after dropping below hysteresis or unplugging
-            if (pv <= FULL_HYSTERESIS_PVOL || !plugged) {
-                full_latched_this_cycle = false;
-                // Don't force first_reach_full here; it'll be set when we debounce next time
-            }
-        }
-    }
-
-    if (!readPin(BT_CABLE_PIN)) {
-        if (!readPin(BT_CHARGE_PIN)) {
+    if (!gpio_read_pin(BT_CABLE_PIN)) {
+        if (!gpio_read_pin(BT_CHARGE_PIN)) {
             charge_complete_warning.entry_full_time = timer_read32();
         } else {
-            if ((timer_elapsed32(charge_complete_warning.entry_full_time) > 2000) || first_reach_full) {
-                // 充满状态
-                if (!is_in_full_power_state) {
-                    is_in_full_power_state = true;
-                    if (!charge_complete_warning.triggered) {
-                        charge_complete_warning.triggered   = true;
-                        charge_complete_warning.blink_count = 0;
-                        charge_complete_warning.blink_time  = timer_read32();
-                        charge_complete_warning.blink_state = false;
-                        charge_complete_warning.completed   = false;
-                    }
-                }
-
-                // 只有在未完成闪烁且闪烁次数未达到5次时才显示充电指示
-                if (!charge_complete_warning.completed && charge_complete_warning.blink_count < 6) {
-                    if (timer_elapsed32(charge_complete_warning.blink_time) >= 1000) {
-                        charge_complete_warning.blink_time  = timer_read32();
-                        charge_complete_warning.blink_state = !charge_complete_warning.blink_state;
-
-                        if (charge_complete_warning.blink_state) {
-                            charge_complete_warning.blink_count++;
-                            if (charge_complete_warning.blink_count >= 6) {
-                                charge_complete_warning.completed   = true;
-                                charge_complete_warning.blink_state = false;
-                            }
-                        }
-                    }
-
-                    // 显示充电完成闪烁
-                    if (charge_complete_warning.blink_state) {
-                        for (uint8_t i = 84; i <= 86; i++) {
-                            rgb_matrix_set_color(i, 0, 100, 0);
-                        }
-                    } else {
-                        for (uint8_t i = 84; i <= 86; i++) {
-                            rgb_matrix_set_color(i, 0, 0, 0);
-                        }
-                    }
+            if (timer_elapsed32(charge_complete_warning.entry_full_time) > 2000) {
+                if (bts_info.bt_info.pvol >= FULL_PVOL_THRESHOLD) {
+                    show_chrg_full = true;
                 }
             }
         }
     } else {
-        // 充电线未接入，重置充电状态
-        if (is_in_full_power_state) {
-            is_in_full_power_state = false;
-            memset(&charge_complete_warning, 0, sizeof(charge_complete_warning_t));
+        show_chrg_full         = false;
+        show_chrg_full_wakeup  = false;
+        charge_full            = false;
+        is_in_full_power_state = false;
+        memset(&charge_complete_warning, 0, sizeof(charge_complete_warning_t));
+    }
+
+    if (show_chrg_full || show_chrg_full_wakeup) {
+        if (!is_in_full_power_state) {
+            is_in_full_power_state = true;
+            if (!charge_complete_warning.triggered) {
+                charge_complete_warning.triggered   = true;
+                charge_complete_warning.blink_count = 0;
+                charge_complete_warning.blink_time  = timer_read32();
+                charge_complete_warning.blink_state = false;
+                charge_complete_warning.completed   = false;
+                charge_full                         = true;
+            }
+        }
+
+        // 只有在未完成闪烁且闪烁次数未达到5次时才显示充电指示
+        if (!charge_complete_warning.completed && charge_complete_warning.blink_count < 6) {
+            if (timer_elapsed32(charge_complete_warning.blink_time) >= 1000) {
+                charge_complete_warning.blink_time  = timer_read32();
+                charge_complete_warning.blink_state = !charge_complete_warning.blink_state;
+
+                if (charge_complete_warning.blink_state) {
+                    charge_complete_warning.blink_count++;
+                    if (charge_complete_warning.blink_count >= 6) {
+                        charge_complete_warning.completed   = true;
+                        charge_complete_warning.blink_state = false;
+                        show_chrg_full_wakeup               = false;
+                        charge_full                         = false;
+                    }
+                }
+            }
+
+            // 显示充电完成闪烁
+            if (charge_complete_warning.blink_state) {
+                for (uint8_t i = 84; i <= 86; i++) {
+                    rgb_matrix_set_color(i, 0, 200, 0);
+                }
+            } else {
+                for (uint8_t i = 84; i <= 86; i++) {
+                    rgb_matrix_set_color(i, 0, 0, 0);
+                }
+            }
         }
     }
+    // else {
+    //     // 充电线未接入，重置充电状态
+    //     if (is_in_full_power_state) {
+    //         is_in_full_power_state = false;
+    //         memset(&charge_complete_warning, 0, sizeof(charge_complete_warning_t));
+    //     }
+    // }
 }
 
+bool low_vol_warning   = false;
+bool low_vol_shut_down = false;
+
 static void handle_low_battery_warning(void) {
-    // 低电量警告（电量≤20%）
-    if (bts_info.bt_info.pvol <= 20) {
+    if (bts_info.bt_info.low_vol) {
+        if (!low_vol_shut_down) low_vol_shut_down = true;
+
         if (!is_in_low_power_state) {
             is_in_low_power_state = true;
 
@@ -1367,7 +1400,7 @@ static void handle_low_battery_warning(void) {
             // 显示闪烁效果
             if (low_battery_warning.blink_state) {
                 for (uint8_t i = 84; i <= 86; i++) {
-                    rgb_matrix_set_color(i, 100, 0, 0);
+                    rgb_matrix_set_color(i, 200, 0, 0);
                 }
             } else {
                 for (uint8_t i = 84; i <= 86; i++) {
@@ -1377,18 +1410,20 @@ static void handle_low_battery_warning(void) {
         }
     }
 
-    if (bts_info.bt_info.pvol > 20) {
-        if (is_in_low_power_state) {
-            is_in_low_power_state = false;
-            memset(&low_battery_warning, 0, sizeof(low_battery_warning_t));
-        }
-    }
+    // if (bts_info.bt_info.pvol > 20) {
+    //     if (is_in_low_power_state) {
+    //         is_in_low_power_state = false;
+    //         memset(&low_battery_warning, 0, sizeof(low_battery_warning_t));
+    //     }
+    // }
 }
 
 static void handle_low_battery_shutdow(void) {
     extern bool low_vol_offed_sleep;
     if (bts_info.bt_info.low_vol_offed) {
-        kb_sleep_flag       = true;
+        if (timer_elapsed32(pressed_time) >= 2000) {
+            kb_sleep_flag = true;
+        }
         low_vol_offed_sleep = true;
     }
 }
@@ -1397,13 +1432,23 @@ static battery_charge_state_t get_battery_charge_state(void) {
 #if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
     static battery_charge_state_t stable_state = BATTERY_STATE_UNPLUGGED;
 
-    if (readPin(BT_CABLE_PIN)) {
-        stable_state = BATTERY_STATE_UNPLUGGED;
+    static uint32_t full_check_time = 0;
+    // static uint32_t chrg_check_time = 0;
+
+    if (gpio_read_pin(BT_CABLE_PIN)) {
+        full_check_time = 0;
+        stable_state    = BATTERY_STATE_UNPLUGGED;
     } else {
-        if (!readPin(BT_CHARGE_PIN)) {
+        if (!gpio_read_pin(BT_CHARGE_PIN)) {
+            full_check_time = timer_read32();
+            // if (timer_elapsed32(chrg_check_time) > 2000) {
             stable_state = BATTERY_STATE_CHARGING;
+            // }
         } else {
-            stable_state = BATTERY_STATE_CHARGED_FULL;
+            // chrg_check_time = timer_read32();
+            if (timer_elapsed32(full_check_time) > 2000) {
+                stable_state = BATTERY_STATE_CHARGED_FULL;
+            }
         }
     }
 
@@ -1418,7 +1463,7 @@ static void handle_battery_query(void) {
     static uint32_t query_vol_time = 0;
 
     // Check if we should query battery (avoid querying too frequently)
-    if (!kb_sleep_flag && timer_elapsed32(query_vol_time) > 10000) {
+    if (!kb_sleep_flag && timer_elapsed32(query_vol_time) > 4000) {
         query_vol_time = timer_read32();
 
         // Send appropriate query command based on charge state
@@ -1447,25 +1492,25 @@ static void handle_battery_query_display(void) {
         }
 
         // 电量显示LED
-        uint8_t query_index[10] = {14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
-        uint8_t pvol            = bts_info.bt_info.pvol;
+        // uint8_t query_index[10] = {14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
+        uint8_t pvol = bts_info.bt_info.pvol;
 
         // 计算LED数量（至少2个，最多10个）
-        uint8_t led_count = (pvol < 30) ? 2 : ((pvol / 10) > 10 ? 10 : (pvol / 10));
+        // uint8_t led_count = (pvol < 30) ? 2 : ((pvol / 10) > 10 ? 10 : (pvol / 10));
 
         // 根据电量确定颜色
         RGB color;
-        if (pvol < 30) {
+        if ((pvol < 21) || (bts_info.bt_info.low_vol)) {
             color = (RGB){100, 0, 0}; // 红色
-        } else if (pvol < 60) {
+        } else if (pvol < 90) {
             color = (RGB){100, 50, 0}; // 橙色
         } else {
             color = (RGB){0, 100, 0}; // 绿色
         }
 
         // 点亮LED
-        for (uint8_t i = 0; i < led_count; i++) {
-            rgb_matrix_set_color(query_index[i], color.r, color.g, color.b);
+        for (uint8_t i = 0; i < 84; i++) {
+            rgb_matrix_set_color(i, color.r, color.g, color.b);
         }
     }
 }
@@ -1474,11 +1519,6 @@ static void handle_battery_query_display(void) {
 // 主RGB指示器函数
 // ===========================================
 bool bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
-    if (dev_info.devs != DEVS_USB && (get_battery_charge_state() != BATTERY_STATE_UNPLUGGED)) {
-        // trurn off backlight when the voltage is low
-        update_low_voltage_state();
-    }
-
     // 工厂重置显示（最高优先级）
     if (factory_reset_status) {
         handle_factory_reset_display();
@@ -1500,15 +1540,21 @@ bool bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
     handle_battery_query_display();
     handle_charging_indication();
 
-// 充电状态指示
-#if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
-    is_charging = !readPin(BT_CABLE_PIN);
-#endif
-    if (!is_charging) {
+    // 充电状态指示
+    if (gpio_read_pin(BT_CABLE_PIN)) {
         // 非充电状态下的其他指示
-        if (dev_info.devs != DEVS_USB) {
+        if (!bt_init_time && (dev_info.devs != DEVS_USB)) {
             handle_low_battery_warning();
             handle_low_battery_shutdow();
+        }
+    } else {
+        if (low_vol_shut_down) {
+            low_vol_shut_down = false;
+        }
+
+        if (is_in_low_power_state) {
+            is_in_low_power_state = false;
+            memset(&low_battery_warning, 0, sizeof(low_battery_warning_t));
         }
     }
 

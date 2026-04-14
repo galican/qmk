@@ -5,6 +5,9 @@
 
 #include "quantum.h"
 
+bool is_charging(void);
+bool is_fully_charged(void);
+
 enum bt_keycodes {
     BT_HOST1 = QK_KB_0,
     BT_HOST2,
@@ -22,8 +25,20 @@ enum bt_keycodes {
     FN_FUN,
     FN_MENU,
     WIN_LOCK,
+    KC_MICT,
+    KC_LAPA,
     RGB_TEST,
-    MAC_Spotlight,
-    MAC_Dictation,
-    MAC_Do_Not_Disturb,
+    // MAC_Spotlight,
+    // MAC_Dictation,
+    // MAC_Do_Not_Disturb,
+    RGB_TOG,
+    RGB_MOD,
+    RGB_VAI,
+    RGB_VAD,
+    RGB_SAI,
+    RGB_SAD,
+    RGB_HUI,
+    RGB_HUD,
+    RGB_SPI,
+    RGB_SPD,
 };

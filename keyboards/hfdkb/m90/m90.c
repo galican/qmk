@@ -115,18 +115,18 @@ bool led_inited = false;
 
 void led_config_all(void) {
     if (!led_inited) {
-#ifdef RGB_DRIVER_SDB_PIN
-        writePinHigh(RGB_DRIVER_SDB_PIN);
-#endif
+// #ifdef RGB_DRIVER_SDB_PIN
+//         writePinHigh(RGB_DRIVER_SDB_PIN);
+// #endif
         led_inited = true;
     }
 }
 
 void led_deconfig_all(void) {
     if (led_inited) {
-#ifdef RGB_DRIVER_SDB_PIN
-        writePinLow(RGB_DRIVER_SDB_PIN);
-#endif
+// #ifdef RGB_DRIVER_SDB_PIN
+//         writePinLow(RGB_DRIVER_SDB_PIN);
+// #endif
         led_inited = false;
     }
 }
@@ -141,13 +141,24 @@ void suspend_wakeup_init_user(void) {
     led_config_all();
 }
 
+extern bool low_vol_offed_sleep;
+
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+    if (low_vol_offed_sleep) {
+        bts_process_keys(keycode, 0, dev_info.devs, keymap_config.no_gui, 6);
+        bts_task(dev_info.devs);
+        while (bts_is_busy()) {
+            wait_ms(1);
+        }
+        return false;
+    }
+
     if (process_record_user(keycode, record) != true) {
         return false;
     }
 
     switch (keycode) {
-        case QK_UNDERGLOW_TOGGLE:
+        case RGB_TOG:
             if (record->event.pressed) {
                 switch (rgb_matrix_get_flags()) {
                     case LED_FLAG_ALL: {
@@ -179,9 +190,11 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 void matrix_init_kb(void) {
 #ifdef BT_MODE_ENABLE
     bt_init(); // 使用新的初始化函数
-    led_config_all();
+    // led_config_all();
 #endif
 }
+
+static bool bak_rgb_toggle = false;
 
 void matrix_scan_kb(void) {
 #ifdef BT_MODE_ENABLE
@@ -191,47 +204,100 @@ void matrix_scan_kb(void) {
 #ifdef USB_SUSPEND_CHECK_ENABLE
     static uint32_t usb_suspend_timer = 0;
     static uint32_t usb_suspend       = false;
+    // static uint8_t  usb_was_connected     = false;
+    static bool usb_driver_was_active = false;
 
     if (dev_info.devs == DEVS_USB) {
-        if (USB_DRIVER.state != USB_ACTIVE || USB_DRIVER.state == USB_SUSPENDED) {
-            // USB挂起状态
+        if (usb_driver_was_active && USB_DRIVER.state != USB_ACTIVE) {
+            clear_keyboard();
+            layer_clear();
+        }
+        usb_driver_was_active = (USB_DRIVER.state == USB_ACTIVE);
+
+        if (usb_suspend) {
+            bool wakeup = false;
+            for (uint8_t r = 0; r < MATRIX_ROWS; r++) {
+                if (matrix_get_row(r)) {
+                    wakeup = true;
+                    // clear_keyboard();
+                    break;
+                }
+            }
+            if (wakeup) {
+                // usbWakeupHost(&USB_DRIVER);
+                // restart_usb_driver(&USB_DRIVER);
+                usb_suspend       = false;
+                usb_suspend_timer = 0;
+
+                if (bak_rgb_toggle) {
+                    rgb_matrix_enable_noeeprom();
+                }
+#    ifdef RGB_DRIVER_SDB_PIN
+                // writePinHigh(RGB_DRIVER_SDB_PIN);
+                // rgb_matrix_init();
+#    endif
+            }
+        }
+
+        if ((USB_DRIVER.state != USB_ACTIVE) || (USB_DRIVER.state == USB_SUSPENDED)) {
             if (!usb_suspend_timer) {
-                // 开始计时
                 usb_suspend_timer = timer_read32();
-                dprintf("USB suspended, starting 10s timer\n");
             } else if (timer_elapsed32(usb_suspend_timer) > 10000) {
-                // 挂起超过10秒，关闭背光
-                dprintf("USB suspended for 10s, turning off lights\n");
                 if (!usb_suspend) {
-                    // 如果之前没有进入挂起状态，执行挂起操作
                     usb_suspend = true;
-                    led_deconfig_all();
+
+                    bak_rgb_toggle = rgb_matrix_config.enable;
+                    rgb_matrix_disable_noeeprom();
+#    ifdef RGB_DRIVER_SDB_PIN
+                    // writePinLow(RGB_DRIVER_SDB_PIN);
+                    // i2c_stop();
+#    endif
                 }
                 usb_suspend_timer = 0;
             }
         } else {
-            // USB活跃状态，重置计时器
-            if (usb_suspend_timer) {
-                dprintf("USB resumed, canceling suspend timer\n");
+            if (usb_suspend) {
                 usb_suspend_timer = 0;
-                if (usb_suspend) {
-                    // 如果之前处于挂起状态，恢复背光
-                    usb_suspend = false;
-                    led_config_all();
+                usb_suspend       = false;
+
+#    ifdef RGB_DRIVER_SDB_PIN
+                // writePinHigh(RGB_DRIVER_SDB_PIN);
+                // rgb_matrix_init();
+                if (bak_rgb_toggle) {
+                    rgb_matrix_enable_noeeprom();
                 }
+#    endif
             }
         }
+        // usb_was_connected = true;
     } else {
+        // USB disconnected - clear all key states if we were previously connected
+        // if (usb_was_connected) {
+        //     clear_keyboard();
+        //     layer_clear();
+        //     usb_was_connected = false;
+        // }
+
         if (usb_suspend) {
             usb_suspend_timer = 0;
             usb_suspend       = false;
-            led_config_all();
+#    ifdef RGB_DRIVER_SDB_PIN
+            // writePinHigh(RGB_DRIVER_SDB_PIN);
+            // rgb_matrix_init();
+            if (bak_rgb_toggle) {
+                rgb_matrix_enable_noeeprom();
+            }
+#    endif
         }
     }
 #endif
+
+    matrix_scan_user();
 }
 
 void housekeeping_task_kb(void) {
+    static uint32_t chrg_check_time = 0;
+
 #ifdef BT_MODE_ENABLE
     extern void housekeeping_task_bt(void);
     housekeeping_task_bt();
@@ -250,11 +316,37 @@ void housekeeping_task_kb(void) {
         } while (nkro_mode != keymap_config.nkro);
     }
 #endif // NKRO_ENABLE
+
+    extern void Charge_Chat(void);
+    if (timer_elapsed32(chrg_check_time) >= 2) {
+        chrg_check_time = timer_read32();
+        Charge_Chat();
+    }
 }
+
+static bool backlight_shut_down = false;
+
+static uint32_t low_power_entry_time = 0;
+extern bool     low_vol_shut_down;
 
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     if (!rgb_matrix_get_flags()) {
         rgb_matrix_set_color_all(0x00, 0x00, 0x00);
+    }
+
+    if (low_vol_shut_down) {
+        if (!backlight_shut_down) {
+            backlight_shut_down  = true;
+            low_power_entry_time = timer_read32();
+        }
+
+        if (timer_elapsed32(low_power_entry_time) > 5000) {
+            rgb_matrix_set_color_all(0, 0, 0);
+        }
+    } else {
+        if (backlight_shut_down) {
+            backlight_shut_down = false;
+        }
     }
 
     if (rgb_matrix_indicators_advanced_user(led_min, led_max) != true) {
@@ -270,8 +362,49 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     return true;
 }
 
-void keyboard_post_init_kb(void) {
-    #include "snled27351.h"
-    snled27351_pwm_phase_delay_enable(0);
-    snled27351_pwm_phase_delay_enable(1);
+#if defined(BT_CABLE_PIN) && defined(BT_CABLE_PIN)
+static uint8_t  rChr_ChkBuf  = 0;
+static uint8_t  rChr_OldBuf  = 0;
+static uint16_t rChr_Cnt     = 0;
+static uint8_t  f_ChargeOn   = 0;
+static uint8_t  f_ChargeFull = 0;
+
+#    define CHR_DEBOUNCE 100
+
+void Charge_Chat(void) {
+    uint8_t i = 0;
+
+    if (USBLINK_Status == 0) i |= 0x01;
+    if (CHARGE_Status == 1 || (dev_info.devs != DEVS_USB && bts_info.bt_info.pvol >= 100)) i |= 0x02;
+
+    if (rChr_ChkBuf != i) {
+        rChr_Cnt    = CHR_DEBOUNCE;
+        rChr_ChkBuf = i;
+    } else {
+        if (rChr_Cnt != 0) {
+            rChr_Cnt--;
+            if (rChr_Cnt == 0) {
+                i = rChr_ChkBuf ^ rChr_OldBuf;
+
+                if (i != 0) {
+                    rChr_OldBuf = rChr_ChkBuf;
+
+                    if (i) {
+                        f_ChargeOn = (rChr_ChkBuf & 0x01) ? 1 : 0;
+
+                        f_ChargeFull = (rChr_ChkBuf & 0x02) ? 1 : 0;
+                    }
+                }
+            }
+        }
+    }
 }
+
+bool is_charging(void) {
+    return f_ChargeOn;
+}
+
+bool is_fully_charged(void) {
+    return f_ChargeFull;
+}
+#endif

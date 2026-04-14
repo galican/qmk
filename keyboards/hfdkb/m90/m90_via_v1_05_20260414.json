@@ -61,23 +61,151 @@
   ],
   "matrix": {"rows": 6, "cols": 18},
   "customKeycodes": [
-    {"name": "BT_1", "title": "BT_HOST1", "shortName": "BT_1"},
-    {"name": "BT_2", "title": "BT_HOST2", "shortName": "BT_2"},
-    {"name": "BT_3", "title": "BT_HOST3", "shortName": "BT_3"},
-    {"name": "2.4G", "title": "2.4G", "shortName": "2.4G"},
-    {"name": "USB", "title": "USB", "shortName": "USB"},
-    {"name": "Batt. Check", "title": "Query the voltage of battery", "shortName": "Batt.Check"},
-    {"name": "Mac Mode", "title": "Switch os between window and ios", "shortName": "Mac Mode"},
-    {"name": "IND_ Color", "title": "Change the color of LED indicator", "shortName": "IND_Color"},
-    {"name": "IND_ Bright", "title": "Increase the brightness level of LED indicator", "shortName": "IND_Bright"},
-    {"name": "ECO MODE", "title": "Toggle the ON/OFF state of LED indicator", "shortName": "ECO_MODE"},
-    {"name": "Reset_ All", "title": "Reset the PCB setting", "shortName": "Reset_All"},
-    {"name": "Reset_ Keymap", "title": "Reset the keyboard resetting", "shortName": "Reset_Keymap"},
-    {"name": "Reset_ BT", "title": "Reset the Bluetooth setting", "shortName": "Reset_BT"},
-    {"name": "FN_ Func tion", "title": "Swap the function keys", "shortName": "FN_Function"},
-    {"name": "FN_ MENU", "title": "Swap the menu and alt", "shortName": "FN_MENU"},
-    {"name": "Sleep Mode", "title": "Switch the sleep level", "shortName": "Sleep Mode"},
-    {"name": "WIN_ LOCK", "title": "WIN key lock", "shortName": "WIN_LOCK"}
+    {
+        "name": "BT_1",
+        "title": "BT_HOST1",
+        "shortName": "BT_1"
+    },
+    {
+        "name": "BT_2",
+        "title": "BT_HOST2",
+        "shortName": "BT_2"
+    },
+    {
+        "name": "BT_3",
+        "title": "BT_HOST3",
+        "shortName": "BT_3"
+    },
+    {
+        "name": "2.4G",
+        "title": "2.4G",
+        "shortName": "2.4G"
+    },
+    {
+        "name": "USB",
+        "title": "USB",
+        "shortName": "USB"
+    },
+    {
+        "name": "Batt. Check",
+        "title": "Query the voltage of battery",
+        "shortName": "Batt.Check"
+    },
+    {
+        "name": "OS_ Toggle",
+        "title": "Switch os between window and ios",
+        "shortName": "Mac Mode"
+    },
+    {
+        "name": "IND_ Color",
+        "title": "Change the color of LED indicator",
+        "shortName": "IND_Color"
+    },
+    {
+        "name": "IND_ Bright",
+        "title": "Increase the brightness level of LED indicator",
+        "shortName": "IND_Bright"
+    },
+    {
+        "name": "ECO MODE",
+        "title": "Toggle the ON/OFF state of LED indicator",
+        "shortName": "ECO_MODE"
+    },
+    {
+        "name": "Reset_ All",
+        "title": "Reset the PCB setting",
+        "shortName": "Reset_All"
+    },
+    {
+        "name": "Reset_ Key map",
+        "title": "Reset the keyboard resetting",
+        "shortName": "Reset_Keymap"
+    },
+    {
+        "name": "Reset_ BT",
+        "title": "Reset the Bluetooth setting",
+        "shortName": "Reset_BT"
+    },
+    {
+        "name": "FN_ Func tion",
+        "title": "Swap the function keys",
+        "shortName": "FN_Function"
+    },
+    {
+        "name": "FN_ MENU",
+        "title": "Swap the menu and alt",
+        "shortName": "FN_MENU"
+    },
+    {
+        "name": "WIN_ LOCK",
+        "title": "WIN key lock",
+        "shortName": "WIN_LOCK"
+    },
+    {
+        "name": "Mission Ctrl",
+        "title": "Mission Control in macOS",
+        "shortName": "MCtrl"
+    },
+    {
+        "name": "Launch pad",
+        "title": "Launchpad in macOS",
+        "shortName": "Lpad"
+    },
+    {
+        "name": "RGB Test Key",
+        "title": "Mission Control in macOS",
+        "shortName": "RGB Test Key"
+    },
+    {
+        "name": "RGB_ Toggle",
+        "title": "Toggle RGB lighting",
+        "shortName": "RGB_Toggle"
+    },
+    {
+        "name": "RGB_ Pattern",
+        "title": "Cycle RGB lighting modes",
+        "shortName": "RGB_Pattern"
+    },
+    {
+        "name": "RGB_ Bright Up",
+        "title": "Increase RGB brightness",
+        "shortName": "RGB_Bright_UP"
+    },
+    {
+        "name": "RGB_ Bright Down",
+        "title": "Decrease RGB brightness",
+        "shortName": "RGB_Bright_Down"
+    },
+    {
+        "name": "RGB_ Sat Up",
+        "title": "Increase RGB saturation",
+        "shortName": "RGB_Sat_Up"
+    },
+    {
+        "name": "RGB_ Sat Down",
+        "title": "Decrease RGB saturation",
+        "shortName": "RGB_Sat_Down"
+    },
+    {
+        "name": "RGB_ Hue Up",
+        "title": "Increase RGB hue",
+        "shortName": "RGB_Hue_Up"
+    },
+    {
+        "name": "RGB_ Hue Down",
+        "title": "Decrease RGB hue",
+        "shortName": "RGB_Hue_Down"
+    },
+    {
+        "name": "RGB_ Speed Up",
+        "title": "Increase RGB effect speed",
+        "shortName": "RGB_Speed_UP"
+    },
+    {
+        "name": "RGB_ Speed Down",
+        "title": "Decrease RGB effect speed",
+        "shortName": "RGB_Speed_Down"
+    }
   ],
   "layouts": {
     "keymap": [
