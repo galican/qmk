@@ -188,7 +188,7 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     if (dev_info.rgb_test_en) {
         uint8_t brightness = rgb_matrix_get_val();
         for (uint8_t i = 0; i <= 83; i++) {
-            rgb_matrix_set_color(i, brightness, brightness, brightness);
+            rgb_matrix_set_color(i, brightness / 2, brightness, brightness);
         }
     }
 
