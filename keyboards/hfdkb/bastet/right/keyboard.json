@@ -2,7 +2,7 @@
     "keyboard_name": "Bastet Split R",
     "usb": {
         "pid": "0x0171",
-        "device_version": "1.0.0"
+        "device_version": "1.0.1"
     },
     "matrix_pins": {
         "cols": ["C1","C2","C3","A0","A1","A2","A3","A4","A5"]
@@ -28,8 +28,8 @@
             { "flags": 4, "matrix": [3,8], "x": 117, "y": 48 }, // 15
 
             { "flags": 4, "matrix": [2,8], "x": 117, "y": 32},
+            { "flags": 4, "x": 88, "y": 32},
             { "flags": 4, "matrix": [2,7], "x": 90, "y": 24},
-            { "flags": 4, "matrix": [2,7], "x": 88, "y": 32},
             { "flags": 4, "matrix": [2,6], "x": 84, "y": 32},
             { "flags": 4, "matrix": [2,5], "x": 70, "y": 32},
             { "flags": 4, "matrix": [2,4], "x": 56, "y": 32},
@@ -88,7 +88,8 @@
                 { "matrix": [2,3], "x": 3.75, "y": 2 },
                 { "matrix": [2,4], "x": 4.75, "y": 2 },
                 { "matrix": [2,5], "x": 5.75, "y": 2 },
-                { "matrix": [2,7], "x": 6.75, "y": 2,"w": 2.25 },
+                { "matrix": [2,6], "x": 6.75, "y": 2 },
+                { "matrix": [2,7], "x": 7.75, "y": 2,"w": 1.25 },
                 { "matrix": [2,8], "x": 9, "y": 2 },
 
                 { "matrix": [3,0], "x": 0.25, "y": 3 },

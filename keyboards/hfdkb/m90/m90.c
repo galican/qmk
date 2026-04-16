@@ -24,8 +24,8 @@ const snled27351_led_t PROGMEM g_snled27351_leds[SNLED27351_LED_COUNT] = {
     {1, CB1_CA9,   CB2_CA9,   CB3_CA9},
     {1, CB1_CA10,  CB2_CA10,  CB3_CA10},
     {1, CB1_CA11,  CB2_CA11,  CB3_CA11},
-    {1, CB1_CA12,  CB2_CA12,  CB3_CA12},
-    {1, CB1_CA13,  CB2_CA13,  CB3_CA13},
+    {1, CB4_CA11,  CB5_CA11,  CB6_CA11},
+    {1, CB4_CA14,  CB5_CA14,  CB6_CA14},
     {1, CB1_CA14,  CB2_CA14,  CB3_CA14},
 
     {0, CB1_CA1,   CB2_CA1,   CB3_CA1},
@@ -104,8 +104,8 @@ const snled27351_led_t PROGMEM g_snled27351_leds[SNLED27351_LED_COUNT] = {
     {1, CB10_CA5,  CB11_CA5,  CB12_CA5},
     {1, CB10_CA6,  CB11_CA6,  CB12_CA6},
 
-    {1, CB4_CA11,  CB5_CA11,  CB6_CA11},
-    {1, CB4_CA14,  CB5_CA14,  CB6_CA14},
+    {1, CB1_CA12,  CB2_CA12,  CB3_CA12},
+    {1, CB1_CA13,  CB2_CA13,  CB3_CA13},
     {1, CB4_CA15,  CB5_CA15,  CB6_CA15},
 };
 #endif
@@ -115,18 +115,18 @@ bool led_inited = false;
 
 void led_config_all(void) {
     if (!led_inited) {
-// #ifdef RGB_DRIVER_SDB_PIN
-//         writePinHigh(RGB_DRIVER_SDB_PIN);
-// #endif
+        // #ifdef RGB_DRIVER_SDB_PIN
+        //         writePinHigh(RGB_DRIVER_SDB_PIN);
+        // #endif
         led_inited = true;
     }
 }
 
 void led_deconfig_all(void) {
     if (led_inited) {
-// #ifdef RGB_DRIVER_SDB_PIN
-//         writePinLow(RGB_DRIVER_SDB_PIN);
-// #endif
+        // #ifdef RGB_DRIVER_SDB_PIN
+        //         writePinLow(RGB_DRIVER_SDB_PIN);
+        // #endif
         led_inited = false;
     }
 }

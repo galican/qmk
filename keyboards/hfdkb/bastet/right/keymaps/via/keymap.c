@@ -35,28 +35,28 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [WIN_B] = LAYOUT( /* Base */
         KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_BSPC, KC_DEL,
         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC, KC_BSLS, KC_PGUP,
-        KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,          KC_ENT,  KC_PGDN,
+        KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, KC_NUHS, KC_ENT,  KC_PGDN,
         KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT, KC_UP,   KC_END,
                  KC_SPC,           KC_RALT, MO(1),   KC_RCTL, KC_LEFT, KC_DOWN, KC_RGHT),
 
     [WIN_FN] = LAYOUT( /* FN */
         _______, KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  _______, EE_CLR,  _______,
         BT_1,    BT_2,    BT_3,    BT_4,    BT_USB,  BT_VOL,  RM_TOGG, _______, _______,
-        SW_OS1,  _______, _______, _______, _______, _______,          _______, _______,
+        SW_OS1,  _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, LOGO_MOD, RM_NEXT, RM_VALU, _______,
                  CHG_TOG,          RM_HUED, _______, RM_HUEU, RM_SPDU, RM_VALD, RM_SPDD),
 
     [MAC_B] = LAYOUT( /* Base */
         KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_BSPC, KC_DEL,
         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC, KC_BSLS, KC_PGUP,
-        KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,          KC_ENT,  KC_PGDN,
+        KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, KC_NUHS, KC_ENT,  KC_PGDN,
         KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT, KC_UP,   KC_END,
                  KC_SPC,           KC_RCMD, MO(3),   KC_RCTL, KC_LEFT, KC_DOWN, KC_RGHT),
 
     [MAC_FN] = LAYOUT( /* FN */
         RM_VALU, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, EE_CLR,  _______,
         BT_1,    BT_2,    BT_3,    BT_4,    BT_USB,  BT_VOL,  RM_TOGG, _______, _______,
-        SW_OS1,  _______, _______, _______, _______, _______,          _______, _______,
+        SW_OS1,  _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, LOGO_MOD, RM_NEXT, RM_VALU, _______,
                  CHG_TOG,          RM_HUED, _______, RM_HUEU, RM_SPDU, RM_VALD, RM_SPDD),
 
