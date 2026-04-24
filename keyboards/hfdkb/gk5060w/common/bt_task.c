@@ -386,14 +386,14 @@ void bt_init(void) {
     if (dev_info.devs != DEVS_USB) {
         usbDisconnectBus(&USB_DRIVER);
         usbStop(&USB_DRIVER);
-        writePinHigh(A12);
+        gpio_write_pin_high(A12);
     }
 
-    setPinOutput(A14);
+    gpio_set_pin_output(A14);
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
 
     bt_init_time = timer_read32();
@@ -579,7 +579,7 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
         if (!!now_mode) {
             usbDisconnectBus(&USB_DRIVER);
             usbStop(&USB_DRIVER);
-            writePinHigh(A12);
+            gpio_write_pin_high(A12);
         } else {
             init_usb_driver(&USB_DRIVER);
         }
@@ -592,11 +592,11 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
     }
 
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
         USB_switch_time = timer_read32();
         USB_blink_cnt   = 0;
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
         last_total_time = timer_read32();
     }
 
@@ -693,7 +693,7 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
             return true;
         case BT_HOST1: {
             if (record->event.pressed) {
-                if (dev_info.devs != DEVS_HOST1 && !readPin(BT_MODE_SW_PIN)) {
+                if (dev_info.devs != DEVS_HOST1 && !gpio_read_pin(BT_MODE_SW_PIN)) {
                     // if ((dev_info.devs != DEVS_HOST1) && (dev_info.devs != DEVS_USB) && (dev_info.devs != DEVS_2_4G)) {
                     bt_switch_mode(dev_info.devs, DEVS_HOST1, false);
                     // }
@@ -702,7 +702,7 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
         } break;
         case BT_HOST2: {
             if (record->event.pressed) {
-                if (dev_info.devs != DEVS_HOST2 && !readPin(BT_MODE_SW_PIN)) {
+                if (dev_info.devs != DEVS_HOST2 && !gpio_read_pin(BT_MODE_SW_PIN)) {
                     // if ((dev_info.devs != DEVS_HOST2) && (dev_info.devs != DEVS_USB) && (dev_info.devs != DEVS_2_4G)) {
                     bt_switch_mode(dev_info.devs, DEVS_HOST2, false);
                 }
@@ -710,7 +710,7 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
         } break;
         case BT_HOST3: {
             if (record->event.pressed) {
-                if (dev_info.devs != DEVS_HOST3 && !readPin(BT_MODE_SW_PIN)) {
+                if (dev_info.devs != DEVS_HOST3 && !gpio_read_pin(BT_MODE_SW_PIN)) {
                     // if ((dev_info.devs != DEVS_HOST3) && (dev_info.devs != DEVS_USB) && (dev_info.devs != DEVS_2_4G)) {
                     bt_switch_mode(dev_info.devs, DEVS_HOST3, false);
                 }
@@ -718,7 +718,7 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
         } break;
         case BT_2_4G: {
             if (record->event.pressed) {
-                if (dev_info.devs != DEVS_2_4G && !readPin(RF_MODE_SW_PIN)) {
+                if (dev_info.devs != DEVS_2_4G && !gpio_read_pin(RF_MODE_SW_PIN)) {
                     bt_switch_mode(dev_info.devs, DEVS_2_4G, false);
                 }
             }
@@ -804,18 +804,18 @@ static void long_pressed_keys_hook(void) {
 
 static void bt_used_pin_init(void) {
 #ifdef BT_MODE_SW_PIN
-    setPinInputHigh(BT_MODE_SW_PIN);
-    setPinInputHigh(RF_MODE_SW_PIN);
+    gpio_set_pin_input_high(BT_MODE_SW_PIN);
+    gpio_set_pin_input_high(RF_MODE_SW_PIN);
 #endif
 
 #if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
-    setPinInputHigh(BT_CABLE_PIN);
-    setPinInput(BT_CHARGE_PIN);
+    gpio_set_pin_input_high(BT_CABLE_PIN);
+    gpio_set_pin_input(BT_CHARGE_PIN);
 #endif
 
 #ifdef RGB_DRIVER_SDB_PIN
-    setPinOutputPushPull(RGB_DRIVER_SDB_PIN);
-    writePinHigh(RGB_DRIVER_SDB_PIN);
+    gpio_set_pin_output_push_pull(RGB_DRIVER_SDB_PIN);
+    gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #endif
 }
 
@@ -826,13 +826,13 @@ static void bt_used_pin_init(void) {
  */
 static void bt_scan_mode(void) {
 #ifdef BT_MODE_SW_PIN
-    if (readPin(RF_MODE_SW_PIN) && !readPin(BT_MODE_SW_PIN)) {
+    if (gpio_read_pin(RF_MODE_SW_PIN) && !gpio_read_pin(BT_MODE_SW_PIN)) {
         if ((dev_info.devs == DEVS_USB) || (dev_info.devs == DEVS_2_4G)) bt_switch_mode(dev_info.devs, dev_info.last_devs, false); // BT mode
     }
-    if (readPin(BT_MODE_SW_PIN) && !readPin(RF_MODE_SW_PIN)) {
+    if (gpio_read_pin(BT_MODE_SW_PIN) && !gpio_read_pin(RF_MODE_SW_PIN)) {
         if (dev_info.devs != DEVS_2_4G) bt_switch_mode(dev_info.devs, DEVS_2_4G, false); // 2_4G mode
     }
-    if (readPin(BT_MODE_SW_PIN) && readPin(RF_MODE_SW_PIN)) {
+    if (gpio_read_pin(BT_MODE_SW_PIN) && gpio_read_pin(RF_MODE_SW_PIN)) {
         if (dev_info.devs != DEVS_USB) bt_switch_mode(dev_info.devs, DEVS_USB, false); // usb mode
     }
 #endif
@@ -868,7 +868,7 @@ static void close_rgb(void) {
             rgb_matrix_disable_noeeprom();
 
 #ifdef RGB_DRIVER_SDB_PIN
-            writePinLow(RGB_DRIVER_SDB_PIN);
+            gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
 #endif
         }
     } else {
@@ -900,7 +900,7 @@ void open_rgb(void) {
 
     if (!sober) {
 #ifdef RGB_DRIVER_SDB_PIN
-        writePinHigh(RGB_DRIVER_SDB_PIN);
+        gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #endif
 
         if (bak_rgb_toggle) {
@@ -956,7 +956,7 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
             cw_update_data();
             soc = cw_bat.capacity;
 
-            if (cw_bat.capacity < 1 && readPin(BT_CABLE_PIN)) {
+            if (cw_bat.capacity < 1 && gpio_read_pin(BT_CABLE_PIN)) {
                 shut_down = true;
             } else {
                 shut_down = false;
@@ -981,7 +981,7 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
         // }
         // Use cw_bat.capacity instead of local soc to check persisted value
         // if ((cw_bat.capacity <= 10) && (cw_bat.capacity > 0) && !Low_power) {
-        if ((cw_bat.capacity <= 10) && readPin(BT_CABLE_PIN)) {
+        if ((cw_bat.capacity <= 10) && gpio_read_pin(BT_CABLE_PIN)) {
             Low_power = true;
         } else {
             Low_power = false;
@@ -1014,8 +1014,8 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
         static uint32_t charging_time = 0;
         static uint32_t full_time     = 0;
 
-        if (!readPin(BT_CABLE_PIN)) {
-            if (!readPin(BT_CHARGE_PIN)) {
+        if (!gpio_read_pin(BT_CABLE_PIN)) {
+            if (!gpio_read_pin(BT_CHARGE_PIN)) {
                 full_time = timer_read32();
                 if (timer_elapsed32(charging_time) >= 2000) {
                     HSV hsv;

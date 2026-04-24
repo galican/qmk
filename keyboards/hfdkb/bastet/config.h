@@ -23,6 +23,8 @@
 #    define BT_BLINK_USB_COLOR {5, 55, 100}
 
 #    define USB_CHECK_SUSPEND_STATE
+
+#    define WL_KEY_NUM 6
 #endif
 
 /* RGB Matrix */

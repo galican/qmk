@@ -940,30 +940,31 @@ static void bt_indicator_led(void) {
         }
 
         if (indicator_status) rgb_matrix_set_color(rgb_index, rgb.r, rgb.g, rgb.b);
-    } else {
-        static uint32_t USB_blink_time = 0;
-        static bool     USB_blink      = false;
-
-        if ((USB_DRIVER.state != USB_ACTIVE)) {
-            if (USB_blink_cnt <= 18) {
-                if (timer_elapsed32(USB_blink_time) >= 500) {
-                    USB_blink_cnt++;
-                    USB_blink      = !USB_blink;
-                    USB_blink_time = timer_read32();
-                }
-                if (USB_blink) {
-                    rgb_matrix_set_color(rgb_index_table[DEVS_USB], rgb_index_color_table[DEVS_USB][0], rgb_index_color_table[DEVS_USB][1], rgb_index_color_table[DEVS_USB][2]);
-                } else {
-                    rgb_matrix_set_color(rgb_index_table[DEVS_USB], RGB_BLACK);
-                }
-            }
-            USB_switch_time = timer_read32();
-        } else {
-            if (timer_elapsed32(USB_switch_time) < (2 * 1000)) {
-                rgb_matrix_set_color(rgb_index_table[DEVS_USB], rgb_index_color_table[DEVS_USB][0], rgb_index_color_table[DEVS_USB][1], rgb_index_color_table[DEVS_USB][2]);
-            }
-        }
     }
+    // else {
+    //     static uint32_t USB_blink_time = 0;
+    //     static bool     USB_blink      = false;
+
+    //     if ((USB_DRIVER.state != USB_ACTIVE)) {
+    //         if (USB_blink_cnt <= 18) {
+    //             if (timer_elapsed32(USB_blink_time) >= 500) {
+    //                 USB_blink_cnt++;
+    //                 USB_blink      = !USB_blink;
+    //                 USB_blink_time = timer_read32();
+    //             }
+    //             if (USB_blink) {
+    //                 rgb_matrix_set_color(rgb_index_table[DEVS_USB], rgb_index_color_table[DEVS_USB][0], rgb_index_color_table[DEVS_USB][1], rgb_index_color_table[DEVS_USB][2]);
+    //             } else {
+    //                 rgb_matrix_set_color(rgb_index_table[DEVS_USB], RGB_BLACK);
+    //             }
+    //         }
+    //         USB_switch_time = timer_read32();
+    //     } else {
+    //         if (timer_elapsed32(USB_switch_time) < (2 * 1000)) {
+    //             rgb_matrix_set_color(rgb_index_table[DEVS_USB], rgb_index_color_table[DEVS_USB][0], rgb_index_color_table[DEVS_USB][1], rgb_index_color_table[DEVS_USB][2]);
+    //         }
+    //     }
+    // }
 }
 
 static void factory_reset_ind(void) {
@@ -1012,24 +1013,20 @@ static void bat_voltage_check(void) {
     if (query_vol_flag) {
         uint8_t pvol = bts_info.bt_info.pvol;
 
-        for (uint8_t i = 68; i <= 74; i++) {
+        for (uint8_t i = 69; i < 74; i++) {
             rgb_matrix_set_color(i, 0, 0, 0);
         }
 
-        uint8_t query_index[] = {74, 73, 72, 71, 70, 69, 68};
+        uint8_t query_index[] = {73, 72, 71, 70, 69};
         uint8_t led_count     = 0;
 
-        if (pvol >= 95)
-            led_count = 7;
-        else if (pvol >= 80)
-            led_count = 6;
-        else if (pvol >= 60)
+        if (pvol >= 80)
             led_count = 5;
-        else if (pvol >= 40)
+        else if (pvol >= 60)
             led_count = 4;
-        else if (pvol >= 20)
+        else if (pvol >= 40)
             led_count = 3;
-        else if (pvol > 10)
+        else if (pvol >= 20)
             led_count = 2;
         else if (pvol > 0)
             led_count = 1;
@@ -1056,7 +1053,7 @@ static void bat_low_level_check(void) {
             }
 
             if (bts_info.bt_info.low_vol) {
-                rgb_matrix_set_color_all(0, 0, 0);
+                // rgb_matrix_set_color_all(0, 0, 0);
 
                 HSV     hsv        = {0, 255, 0};
                 uint8_t time       = scale16by8(g_rgb_timer, qadd8(128 / 4, 1));
@@ -1064,7 +1061,7 @@ static void bat_low_level_check(void) {
                 hsv.v              = brightness;
                 RGB rgb            = hsv_to_rgb(hsv);
 
-                rgb_matrix_set_color(74, rgb.r, rgb.g, rgb.b);
+                rgb_matrix_set_color(73, rgb.r, rgb.g, rgb.b);
             }
         }
     }
@@ -1083,7 +1080,7 @@ bool bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
 
     bat_voltage_check();
 
-    devices_state_ind();
+    if (dev_info.devs != DEVS_USB) devices_state_ind();
 
     bt_indicator_led();
 

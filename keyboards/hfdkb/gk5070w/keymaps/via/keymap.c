@@ -60,7 +60,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [WIN_F] = LAYOUT_87_ansi( /* FN */
         EE_CLR,           KC_BRID, KC_BRIU, KC_CALC, KC_MYCM, KC_TASK, KC_PRJT, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, _______, _______, _______,
-        _______, BT_1,    BT_2,    BT_3,    WL_2_4,  _______, SW_OS2,  SW_OS3,  _______, _______, _______, RM_NEXT, RM_HUEU, KC_DEL,  _______, _______, SLED_TOG,
+        _______, BT_1,    BT_2,    BT_3,    WL_2_4,  _______, SW_OS2,  SW_OS3,  _______, _______, _______, RM_NEXT, RM_HUEU, KC_DEL,  SLED_HUI, _______, SLED_TOG,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PSCR, KC_SCRL, KC_PAUS, _______, _______, _______, SLED_MOD,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_INS,           _______, _______,
         _______,          _______, RM_TOGG, _______, _______, _______, _______, _______, LCD_LEFT,LCD_RIGHT,_______,         _______,          RM_VALU,
@@ -69,10 +69,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [WIN_F2] = LAYOUT_87_ansi( /* FN */
         KC_ESC,           KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_PSCR,  KC_SCRL, KC_PAUS,
         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_BSPC, KC_INS,   KC_HOME, KC_PGUP,
-        KC_TAB,  KC_Q,   SLED_VAI,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC,  _______, KC_DEL,   KC_END,  KC_PGDN,
+        KC_TAB,  KC_Q,   SLED_VAI,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC,  KC_BSLS, KC_DEL,   KC_END,  KC_PGDN,
         KC_CAPS, SLED_SPD, SLED_VAD, SLED_SPI,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,          KC_ENT,  KC_MUTE,
-        KC_LSFT,          KC_Z,    KC_X,    KC_C,    SLED_HUI,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,          KC_RSFT,           _______,
-        KC_LCTL, KC_LWIN, KC_LALT,                            KC_SPC,                             KC_RALT, MO(1),   KC_APP,  KC_RCTL, _______,  _______, _______),
+        KC_LSFT,          KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,          KC_RSFT,           KC_UP,
+        KC_LCTL, KC_LWIN, KC_LALT,                            KC_SPC,                             KC_RALT, MO(1),   KC_APP,  KC_RCTL, KC_LEFT,  KC_DOWN, KC_RGHT),
 
     [MAC_B] = LAYOUT_87_ansi( /* Base */
         KC_ESC,           KC_BRID, KC_BRIU, KC_MCTL, KC_SEAR, KC_SIRI, KC_SNAP, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, KC_PSCR,  KC_SCRL, KC_PAUS,
@@ -84,8 +84,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [MAC_F] = LAYOUT_87_ansi( /* FN */
         EE_CLR,           KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  _______, _______, _______,
-        _______, BT_1,    BT_2,    BT_3,    WL_2_4,  SW_OS1, _______,  SW_OS3,  _______, _______, _______, RM_NEXT, RM_HUEU, KC_DEL,  _______, _______, SLED_TOG,
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RM_NEXT, _______, _______, SLED_MOD,
+        _______, BT_1,    BT_2,    BT_3,    WL_2_4,  SW_OS1, _______,  SW_OS3,  _______, _______, _______, RM_NEXT, RM_HUEU, KC_DEL,  SLED_HUI, _______, SLED_TOG,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, SLED_MOD,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______,
         _______,          _______, RM_TOGG, _______, _______, _______, _______, _______, LCD_LEFT,LCD_RIGHT,_______,         _______,          RM_VALU,
         _______, _______, _______,                            _______,                            MO(5),   _______, _______, _______, RM_SPDD, RM_VALD, RM_SPDU),
@@ -93,10 +93,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [MAC_F2] = LAYOUT_87_ansi( /* FN */
         KC_ESC,           KC_BRID, KC_BRIU, KC_MCTL, KC_SEAR, KC_SIRI, KC_SNAP, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, KC_PSCR,  KC_SCRL, KC_PAUS,
         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_BSPC, KC_INS,   KC_HOME, KC_PGUP,
-        KC_TAB,  KC_Q,   SLED_VAI,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC,  _______, KC_DEL,   KC_END,  KC_PGDN,
+        KC_TAB,  KC_Q,   SLED_VAI,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC,  KC_BSLS, KC_DEL,   KC_END,  KC_PGDN,
         KC_CAPS, SLED_SPD, SLED_VAD, SLED_SPI,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,          KC_ENT,  KC_MUTE,
-        KC_LSFT,          KC_Z,    KC_X,    KC_C,    SLED_HUI,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,          KC_RSFT,           _______,
-        KC_LCTL, KC_LOPT, KC_LCMD,                            KC_SPC,                             KC_RCMD, MO(4),   KC_APP,  KC_RCTL, _______,  _______, _______),
+        KC_LSFT,          KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,          KC_RSFT,           KC_UP,
+        KC_LCTL, KC_LOPT, KC_LCMD,                            KC_SPC,                             KC_RCMD, MO(4),   KC_APP,  KC_RCTL, KC_LEFT,  KC_DOWN, KC_RGHT),
 
     [LINUX_B] = LAYOUT_87_ansi( /* FN */
         KC_ESC,           KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_PSCR,  KC_SCRL, KC_PAUS,
@@ -108,8 +108,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [LINUX_F] = LAYOUT_87_ansi( /* FN */
         EE_CLR,           KC_BRID, KC_BRIU, KC_CALC, KC_MYCM, KC_TASK, KC_PRJT, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, _______, _______, _______,
-        _______, BT_1,    BT_2,    BT_3,    WL_2_4,  SW_OS1,  SW_OS2,  _______, _______, _______, _______, RM_NEXT, RM_HUEU, KC_DEL,  _______, _______, SLED_TOG,
-        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PSCR, KC_SCRL, KC_PAUS, RM_NEXT, _______, _______, SLED_MOD,
+        _______, BT_1,    BT_2,    BT_3,    WL_2_4,  SW_OS1,  SW_OS2,  _______, _______, _______, _______, RM_NEXT, RM_HUEU, KC_DEL,  SLED_HUI, _______, SLED_TOG,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PSCR, KC_SCRL, KC_PAUS, _______, _______, _______, SLED_MOD,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_INS,           _______, _______,
         _______,          _______, RM_TOGG, _______, _______, _______, _______, _______, LCD_LEFT,LCD_RIGHT,_______,         _______,          RM_VALU,
         _______, GU_TOGG, _______,                            _______,                            MO(8),   _______, _______, _______, RM_SPDD, RM_VALD, RM_SPDU),
@@ -117,10 +117,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [LINUX_F2] = LAYOUT_87_ansi( /* FN */
         KC_ESC,           KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_PSCR,  KC_SCRL, KC_PAUS,
         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_BSPC, KC_INS,   KC_HOME, KC_PGUP,
-        KC_TAB,  KC_Q,    SLED_VAI,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC, _______, KC_DEL,   KC_END,  KC_PGDN,
+        KC_TAB,  KC_Q,    SLED_VAI,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC, KC_BSLS, KC_DEL,   KC_END,  KC_PGDN,
         KC_CAPS, SLED_SPD, SLED_VAD, SLED_SPI,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,          KC_ENT,  KC_MUTE,
-        KC_LSFT,          KC_Z,    KC_X,    KC_C,    SLED_HUI,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,          KC_RSFT,           _______,
-        KC_LCTL, KC_LWIN, KC_LALT,                            KC_SPC,                             KC_RALT, MO(7),   KC_APP,  KC_RCTL, _______,  _______, _______),
+        KC_LSFT,          KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,          KC_RSFT,           KC_UP,
+        KC_LCTL, KC_LWIN, KC_LALT,                            KC_SPC,                             KC_RALT, MO(7),   KC_APP,  KC_RCTL, KC_LEFT,  KC_DOWN, KC_RGHT),
 
 };
 

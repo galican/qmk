@@ -91,25 +91,25 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
         return false;
     }
 
-    if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
+    if ((rgb_matrix_get_flags() == LED_FLAG_NONE) || bts_info.bt_info.low_vol) {
         rgb_matrix_set_color_all(0, 0, 0);
-    } else {
-        // Logo led effect
-        uint8_t time = scale16by8(g_rgb_timer, qadd8(rgb_matrix_get_speed() / 4, 1));
-        for (uint8_t i = 68; i <= 74; i++) {
-            HSV hsv = {g_led_config.point[i].x - time, 255, rgb_matrix_get_val() / 3};
-            RGB rgb = hsv_to_rgb(hsv);
-            rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
-        }
+    }
 
-        extern bool get_kb_sleep_flag(void);
-        if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !get_kb_sleep_flag()) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state == USB_ACTIVE)))) {
-            rgb_matrix_set_color(LED_CAPS_LOCK_INDEX, 0x77, 0x77, 0x77);
-        }
+    // Logo led effect
+    uint8_t time = scale16by8(g_rgb_timer, qadd8(rgb_matrix_get_speed() / 4, 1));
+    for (uint8_t i = 69; i < 74; i++) {
+        HSV hsv = {g_led_config.point[i].x - time, 255, rgb_matrix_get_val() / 3};
+        RGB rgb = hsv_to_rgb(hsv);
+        rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+    }
 
-        if (keymap_config.no_gui) {
-            rgb_matrix_set_color(LED_GUI_LOCK_INDEX, 0x77, 0x77, 0x77);
-        }
+    extern bool get_kb_sleep_flag(void);
+    if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !get_kb_sleep_flag()) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state == USB_ACTIVE)))) {
+        rgb_matrix_set_color(LED_CAPS_LOCK_INDEX, 0x77, 0x77, 0x77);
+    }
+
+    if (keymap_config.no_gui) {
+        rgb_matrix_set_color(LED_GUI_LOCK_INDEX, 0x77, 0x77, 0x77);
     }
 
     if (bt_indicator_rgb(led_min, led_max) != true) {

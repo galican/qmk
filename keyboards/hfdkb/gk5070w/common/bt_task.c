@@ -965,7 +965,7 @@ static void close_rgb(void) {
     // }
     /*************************************************************************************/
     if (sober) {
-        if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= ((3 * 60 - 34) * 1000))) {
+        if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= ((3 * 60 - 38) * 1000))) {
             bak_rgb_toggle = rgb_matrix_config.enable;
             sober          = false;
             close_rgb_time = timer_read32();
@@ -1231,8 +1231,8 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
             rgb_matrix_set_color(LED_PWR_ALRM, 100, 0, 0);
             charg_full_time = timer_read32();
         } else {
-            if (timer_elapsed32(charg_full_time) > 500) {
-                if (timer_elapsed32(charg_full_time) < 3500) {
+            if (timer_elapsed32(charg_full_time) > 2000) {
+                if (timer_elapsed32(charg_full_time) < 5000) {
                     // for (uint8_t i = 87; i <= 142; i++) {
                     //     rgb_matrix_set_color(i, 0, 100, 0);
                     // }

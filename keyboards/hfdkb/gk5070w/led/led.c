@@ -80,7 +80,8 @@ void SLed_task(void) {
 
         case SLED_MODE_SOLID_COLOUR: {
             for (uint8_t i = SLed_MIN; i < (SLed_MAX + 1); i++) {
-                rgb_matrix_set_color(i, 255, 140, 60);
+                // rgb_matrix_set_color(i, 255, 140, 60);
+                rgb_matrix_set_color(i, 51, 28, 12);
             }
             break;
         }

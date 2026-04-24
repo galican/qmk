@@ -167,12 +167,12 @@ bool low_vol_offed_sleep;
 static void exti_init(void) {
     if (!low_vol_offed_sleep) {
         for (int col = 0; col < MATRIX_COLS; col++) {
-            setPinOutputOpenDrain(col_pins[col]);
-            writePinLow(col_pins[col]);
+            gpio_set_pin_output_open_drain(col_pins[col]);
+            gpio_write_pin_low(col_pins[col]);
         }
 
         for (int row = 0; row < MATRIX_ROWS; row++) {
-            setPinInputHigh(row_pins[row]);
+            gpio_set_pin_input_high(row_pins[row]);
             waitInputPinDelay();
             _pal_lld_enablepadevent(PAL_PORT(row_pins[row]), PAL_PAD(row_pins[row]), PAL_EVENT_MODE_BOTH_EDGES);
             pad_enbale_interrupt(PAL_PAD(row_pins[row]));
@@ -180,7 +180,7 @@ static void exti_init(void) {
 
     } else {
 #    ifdef BT_CABLE_PIN
-        setPinInputHigh(BT_CABLE_PIN);
+        gpio_set_pin_input_high(BT_CABLE_PIN);
         _pal_lld_enablepadevent(PAL_PORT(BT_CABLE_PIN), PAL_PAD(BT_CABLE_PIN), PAL_EVENT_MODE_BOTH_EDGES);
         pad_enbale_interrupt(PAL_PAD(BT_CABLE_PIN));
 #    endif

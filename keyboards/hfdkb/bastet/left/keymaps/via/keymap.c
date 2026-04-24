@@ -58,7 +58,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, BT_VOL,  BT_1,    BT_2,    BT_3,    BT_4,    BT_USB,
         _______, _______, RM_TOGG, RM_VALU, RM_VALD, RM_SPDU, RM_SPDD, SW_OS1,
         _______, _______, RM_NEXT, _______, _______, _______, _______, _______,
-        _______, _______, RM_HUEU, RM_HUED,          _______,          CHG_TOG),
+        _______, _______, RM_HUEU, _______,          RM_HUED,          CHG_TOG),
 
 };
 // clang-format on
@@ -74,14 +74,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case G(KC_TAB):
             if (dev_info.devs) {
-                bts_process_keys(KC_LGUI, record->event.pressed, dev_info.devs, keymap_config.no_gui);
-                bts_process_keys(KC_TAB, record->event.pressed, dev_info.devs, keymap_config.no_gui);
+                bts_process_keys(KC_LGUI, record->event.pressed, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
+                bts_process_keys(KC_TAB, record->event.pressed, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
             }
             return true; // Skip all further processing of this key
         case C(KC_UP):
             if (dev_info.devs) {
-                bts_process_keys(KC_LCTL, record->event.pressed, dev_info.devs, keymap_config.no_gui);
-                bts_process_keys(KC_UP, record->event.pressed, dev_info.devs, keymap_config.no_gui);
+                bts_process_keys(KC_LCTL, record->event.pressed, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
+                bts_process_keys(KC_UP, record->event.pressed, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
             }
             return true; // Skip all further processing of this key
 
@@ -96,7 +96,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_W:
             if (W2UP_flag) {
                 if (dev_info.devs) {
-                    bts_process_keys(KC_UP, record->event.pressed, dev_info.devs, keymap_config.no_gui);
+                    bts_process_keys(KC_UP, record->event.pressed, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
                 } else {
                     if (record->event.pressed) {
                         register_code(KC_UP);
@@ -110,7 +110,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_A:
             if (W2UP_flag) {
                 if (dev_info.devs) {
-                    bts_process_keys(KC_LEFT, record->event.pressed, dev_info.devs, keymap_config.no_gui);
+                    bts_process_keys(KC_LEFT, record->event.pressed, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
                 } else {
                     if (record->event.pressed) {
                         register_code(KC_LEFT);
@@ -124,7 +124,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_S:
             if (W2UP_flag) {
                 if (dev_info.devs) {
-                    bts_process_keys(KC_DOWN, record->event.pressed, dev_info.devs, keymap_config.no_gui);
+                    bts_process_keys(KC_DOWN, record->event.pressed, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
                 } else {
                     if (record->event.pressed) {
                         register_code(KC_DOWN);
@@ -138,7 +138,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_D:
             if (W2UP_flag) {
                 if (dev_info.devs) {
-                    bts_process_keys(KC_RGHT, record->event.pressed, dev_info.devs, keymap_config.no_gui);
+                    bts_process_keys(KC_RGHT, record->event.pressed, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
                 } else {
                     if (record->event.pressed) {
                         register_code(KC_RGHT);
@@ -152,7 +152,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_UP:
             if (W2UP_flag) {
                 if (dev_info.devs) {
-                    bts_process_keys(KC_W, record->event.pressed, dev_info.devs, keymap_config.no_gui);
+                    bts_process_keys(KC_W, record->event.pressed, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
                 } else {
                     if (record->event.pressed) {
                         register_code(KC_W);
@@ -166,7 +166,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_LEFT:
             if (W2UP_flag) {
                 if (dev_info.devs) {
-                    bts_process_keys(KC_A, record->event.pressed, dev_info.devs, keymap_config.no_gui);
+                    bts_process_keys(KC_A, record->event.pressed, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
                 } else {
                     if (record->event.pressed) {
                         register_code(KC_A);
@@ -180,7 +180,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_DOWN:
             if (W2UP_flag) {
                 if (dev_info.devs) {
-                    bts_process_keys(KC_S, record->event.pressed, dev_info.devs, keymap_config.no_gui);
+                    bts_process_keys(KC_S, record->event.pressed, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
                 } else {
                     if (record->event.pressed) {
                         register_code(KC_S);
@@ -194,7 +194,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_RGHT:
             if (W2UP_flag) {
                 if (dev_info.devs) {
-                    bts_process_keys(KC_D, record->event.pressed, dev_info.devs, keymap_config.no_gui);
+                    bts_process_keys(KC_D, record->event.pressed, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
                 } else {
                     if (record->event.pressed) {
                         register_code(KC_D);
