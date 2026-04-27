@@ -24,6 +24,10 @@
 #    define BT_CHARGE_PIN B9
 #    define BT_MODE_SW_PIN C13
 #    define RF_MODE_SW_PIN C14
+
+#    define KEY_NUM 6
+
+#    define USB_SUSPEND_CHECK_ENABLE
 #endif
 
 /* LED Indicate index */
@@ -58,5 +62,3 @@
 
 /* EC11 encoder config */
 #define ENCODER_DEFAULT_POS 0x0
-
-#define USB_SUSPEND_CHECK_ENABLE

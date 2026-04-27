@@ -23,8 +23,7 @@ static const uint32_t pre_lp_code[] = {553863175u, 554459777u, 1208378049u, 4026
 static const uint32_t post_lp_code[] = {553863177u, 554459777u, 1208509121u, 51443856u, 4026550535u, 1745485839u, 3489677954u, 536895496u, 673389632u, 1198578684u, 1073807360u, 536866816u, 1073808388u};
 #    define POST_LP() ((void (*)(void))((unsigned int)(post_lp_code) | 0x01))()
 
-void lp_recovery_hook(void);
-
+void        lp_recovery_hook(void);
 static void stop_mode_entry(void);
 static void exti_init(void);
 #    ifdef WAKEUP_RESET
@@ -163,10 +162,10 @@ static void pad_enbale_interrupt(ioline_t pin) {
     }
 }
 
-bool low_vol_offed_sleep;
+bool low_vol_offed_sleep = false;
 
 static void exti_init(void) {
-    static ioline_t exit_pins[] = {B2, B10, B11, RF_MODE_SW_PIN};
+    // static ioline_t exit_pins[] = {B2, B10, B11, RF_MODE_SW_PIN};
 
     if (!low_vol_offed_sleep) {
         for (int col = 0; col < MATRIX_COLS; col++) {
@@ -180,17 +179,16 @@ static void exti_init(void) {
             pad_enbale_interrupt(PAL_PAD(row_pins[row]));
         }
         // setPinInputHigh(RF_MODE_SW_PIN);
-        for (int i = 0; i < sizeof(exit_pins) / sizeof(exit_pins[0]); i++) {
-            gpio_set_pin_input_high(exit_pins[i]);
-            _pal_lld_enablepadevent(PAL_PORT(exit_pins[i]), PAL_PAD(exit_pins[i]), PAL_EVENT_MODE_BOTH_EDGES);
-            // _pal_lld_enablepadevent(PAL_PORT(B14), PAL_PAD(B14), PAL_EVENT_MODE_BOTH_EDGES);
-            pad_enbale_interrupt(PAL_PAD(exit_pins[i]));
-        }
+        // for (int i = 0; i < sizeof(exit_pins) / sizeof(exit_pins[0]); i++) {
+        //     gpio_set_pin_input_high(exit_pins[i]);
+        //     _pal_lld_enablepadevent(PAL_PORT(exit_pins[i]), PAL_PAD(exit_pins[i]), PAL_EVENT_MODE_BOTH_EDGES);
+        //     // _pal_lld_enablepadevent(PAL_PORT(B14), PAL_PAD(B14), PAL_EVENT_MODE_BOTH_EDGES);
+        //     pad_enbale_interrupt(PAL_PAD(exit_pins[i]));
+        // }
 
-        gpio_set_pin_input_high(B14);
-        _pal_lld_enablepadevent(PAL_PORT(B14), PAL_PAD(B14), PAL_EVENT_MODE_BOTH_EDGES);
-        // _pal_lld_enablepadevent(PAL_PORT(B14), PAL_PAD(B14), PAL_EVENT_MODE_BOTH_EDGES);
-        pad_enbale_interrupt(PAL_PAD(B14));
+        // gpio_set_pin_input_high(RF_MODE_SW_PIN);
+        // _pal_lld_enablepadevent(PAL_PORT(RF_MODE_SW_PIN), PAL_PAD(RF_MODE_SW_PIN), PAL_EVENT_MODE_BOTH_EDGES);
+        // pad_enbale_interrupt(PAL_PAD(RF_MODE_SW_PIN));
     } else {
         gpio_set_pin_input_high(BT_CABLE_PIN);
         _pal_lld_enablepadevent(PAL_PORT(BT_CABLE_PIN), PAL_PAD(BT_CABLE_PIN), PAL_EVENT_MODE_BOTH_EDGES);

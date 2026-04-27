@@ -43,7 +43,7 @@ uint8_t  uart_resend_times    = 0;
 
 static bool LCD_Sleep_Flag = false;
 
-void uart_resend_task(void) {
+void LCD_wakeup_resend_task(void) {
     if (uart_resend_times) {
         if (timer_elapsed32(uart_resend_interval) > 50) {
             uart_resend_interval = timer_read32();
@@ -55,7 +55,7 @@ void uart_resend_task(void) {
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     if (low_battery_vol_off) {
-        bts_process_keys(keycode, 0, dev_info.devs, keymap_config.no_gui);
+        bts_process_keys(keycode, 0, dev_info.devs, keymap_config.no_gui, KEY_NUM);
         bts_task(dev_info.devs);
         while (bts_is_busy()) {
             wait_ms(1);
@@ -462,7 +462,7 @@ void housekeeping_task_kb(void) {
     debug_enable = true;
 #endif
 
-    uart_resend_task();
+    LCD_wakeup_resend_task();
 
 #ifdef USB_SUSPEND_CHECK_ENABLE
     static uint32_t usb_suspend_timer = 0;
@@ -642,5 +642,6 @@ void suspend_wakeup_init_user(void) {
     if (LCD_Sleep_Flag) {
         LCD_Sleep_Flag = false;
         LCD_command_update(LCD_LIGHT_WAKEUP);
+        uart_resend_times = 3;
     }
 }
