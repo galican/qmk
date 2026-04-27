@@ -631,28 +631,28 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case KC_BT1: {
             if (record->event.pressed) {
-                if (dev_info.devs != DEVS_HOST1) {
+                if ((dev_info.devs != DEVS_HOST1) && !gpio_read_pin(WL_BT_SW_PIN)) {
                     bt_switch_mode(dev_info.devs, DEVS_HOST1, false);
                 }
             }
         } break;
         case KC_BT2: {
             if (record->event.pressed) {
-                if (dev_info.devs != DEVS_HOST2) {
+                if ((dev_info.devs != DEVS_HOST2) && !gpio_read_pin(WL_BT_SW_PIN)) {
                     bt_switch_mode(dev_info.devs, DEVS_HOST2, false);
                 }
             }
         } break;
         case KC_BT3: {
             if (record->event.pressed) {
-                if (dev_info.devs != DEVS_HOST3) {
+                if ((dev_info.devs != DEVS_HOST3) && !gpio_read_pin(WL_BT_SW_PIN)) {
                     bt_switch_mode(dev_info.devs, DEVS_HOST3, false);
                 }
             }
         } break;
         case KC_2G4: {
             if (record->event.pressed) {
-                if (dev_info.devs != DEVS_2_4G) {
+                if ((dev_info.devs != DEVS_2_4G) && !gpio_read_pin(WL_BT_SW_PIN)) {
                     bt_switch_mode(dev_info.devs, DEVS_2_4G, false);
                 }
             }

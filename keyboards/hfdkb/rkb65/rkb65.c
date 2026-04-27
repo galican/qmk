@@ -92,7 +92,9 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     }
 
     if ((rgb_matrix_get_flags() == LED_FLAG_NONE) || bts_info.bt_info.low_vol) {
-        rgb_matrix_set_color_all(0, 0, 0);
+        for (uint8_t i = led_min; i < 69; i++) {
+            rgb_matrix_set_color(i, 0, 0, 0);
+        }
     }
 
     // Logo led effect

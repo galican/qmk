@@ -76,7 +76,9 @@
         {"name":"IND LIGHT OFF","title":"Indicator light off","shortName":"IND_LIGHT_OFF"},
         {"name":"LCD HOME","title":"Switch to home page in LCD screen","shortName":"LCD_HOME"},
         {"name":"LCD PAGE","title":"Switch to animation page in LCD screen","shortName":"LCD_PAGE"},
-        {"name":"LED WHITE","title":"All leds bright white","shortName":"LED_WHITE"}
+        {"name":"LED WHITE","title":"All leds bright white","shortName":"LED_WHITE"},
+        {"name":"LCD TOGG","title":"Toggle LCD backlight","shortName":"LCD_TOG"},
+        {"name":"LCD TIME","title":"Switch 12H/24H","shortName":"LCD_TIME"}
     ],
     "layouts": {
       "keymap":[
@@ -194,21 +196,18 @@
             "w": 2.25,
             "c": "#777777"
           },
-          "3,13",
-          {
-            "c": "#aaaaaa",
-            "x": 0.5
-          },
-          "3,14"
+          "3,13"
         ],
         [
           {
-            "w": 2.25
+            "w": 2.25,
+            "c": "#aaaaaa"
           },
           "4,0",
           {
             "c": "#cccccc"
           },
+          "4,1",
           "4,2",
           "4,3",
           "4,4",
@@ -226,19 +225,15 @@
           {
             "y": 0.25,
             "c": "#777777",
-            "x": 1.25
-          },
-          "4,13",
-          {
-            "y": -0.25,
-            "c": "#aaaaaa",
             "x": 0.25
           },
-          "4,14"
+          "4,13"
         ],
         [
           {
-            "w": 1.25
+            "y": -0.25,
+            "w": 1.25,
+            "c": "#aaaaaa"
           },
           "5,0",
           {
