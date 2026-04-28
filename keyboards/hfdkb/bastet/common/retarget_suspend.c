@@ -19,6 +19,10 @@
 #    include "quantum.h"
 #    include "common/bt_task.h"
 
+#    include "report.h"
+
+report_mouse_t mouse_report;
+
 // void restart_usb_driver(USBDriver *usbp) {}
 
 void housekeeping_task_bt(void) {

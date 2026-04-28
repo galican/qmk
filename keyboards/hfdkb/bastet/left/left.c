@@ -11,12 +11,12 @@ bool led_inited = false;
 void led_config_all(void) {
     if (!led_inited) {
         // Set our LED pins as output
-        gpio_set_pin_output(A14);
-        if (dev_info.devs == DEVS_USB) {
-            gpio_write_pin_low(A14);
-        } else {
-            gpio_write_pin_high(A14);
-        }
+        // gpio_set_pin_output(A14);
+        // if (dev_info.devs == DEVS_USB) {
+        //     gpio_write_pin_low(A14);
+        // } else {
+        //     gpio_write_pin_high(A14);
+        // }
 
         led_inited = true;
     }
@@ -29,7 +29,19 @@ void led_deconfig_all(void) {
     }
 }
 
+extern bool low_vol_offed_sleep;
+extern bool low_bat_level;
+
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+    if (low_vol_offed_sleep) {
+        bts_process_keys(keycode, 0, dev_info.devs, keymap_config.no_gui, WL_KEY_NUM);
+        bts_task(dev_info.devs);
+        while (bts_is_busy()) {
+            wait_ms(1);
+        }
+        return false;
+    }
+
     if (process_record_user(keycode, record) != true) {
         return false;
     }
@@ -166,7 +178,7 @@ static const uint8_t rgb_test_color_table[][3] = {
 };
 
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
-    if (!rgb_matrix_get_flags() || bts_info.bt_info.low_vol) rgb_matrix_set_color_all(0, 0, 0);
+    if (!rgb_matrix_get_flags() || low_bat_level) rgb_matrix_set_color_all(0, 0, 0);
 
     if (rgb_test_en) {
         if (timer_elapsed32(rgb_test_time) > 3000 * (rgb_test_index + 1)) {

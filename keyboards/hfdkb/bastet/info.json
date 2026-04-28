@@ -43,7 +43,7 @@
         "speed_steps": 64,
         "center_point": [56, 16],
         "default": {
-            "speed": 191,
+            "speed": 127,
             "animation": "cycle_all"
         },
         "animations": {
