@@ -33,15 +33,11 @@
 #    define LED_HOST_BT1_INDEX 1
 #    define LED_HOST_BT2_INDEX 2
 #    define LED_HOST_BT3_INDEX 3
-#    define LED_HOST_BT4_INDEX 255
-#    define LED_HOST_BT5_INDEX 255
 #    define LED_HOST_2G4_INDEX 0
-#    define LED_HOST_USB_INDEX 29
+#    define LED_HOST_USB_INDEX 30
 #    define LED_HOST_BT1_COLOR {0, 0, 0x77}
 #    define LED_HOST_BT2_COLOR {0, 0, 0x77}
 #    define LED_HOST_BT3_COLOR {0, 0, 0x77}
-#    define LED_HOST_BT4_COLOR {0, 0, 0}
-#    define LED_HOST_BT5_COLOR {0, 0, 0}
 #    define LED_HOST_2G4_COLOR {0, 0x77, 0}
 #    define LED_HOST_USB_COLOR {0x77, 0x77, 0x77}
 #endif
@@ -50,9 +46,13 @@
 #define LED_POWER_EN_PIN B7
 
 /* RGB Indicator index */
-#define LED_CAPS_LOCK_INDEX 30
-#define LED_GUI_LOCK_INDEX 59
-#define LED_LEFT_CTRL_INDEX 58
+#define LED_CAPS_LOCK_INDEX 31
+#define LED_GUI_LOCK_INDEX 62
+#define LED_LEFT_CTRL_INDEX 61
+
+#define SLED_START_INDEX 71
+#define SLED_END_INDEX 77
+#define BAT_VOL_LED_INDEX {77, 76, 75, 74, 73, 72, 71}
 
 /* FLASH */
 /* SPI Config for spi flash*/

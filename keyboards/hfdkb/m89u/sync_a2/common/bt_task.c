@@ -1,11 +1,17 @@
-/**
- * @file bt_task.c
- * @brief
- * @author JoyLee
- * @version 2.0.0
- * @date 2023-04-06
+/* Copyright (C) 2023 Westberry Technology (ChangZhou) Corp., Ltd
  *
- * @copyright Copyright (c) 2023 Westberry Technology Corp., Ltd
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include QMK_KEYBOARD_H
@@ -651,11 +657,11 @@ void bt_init(void) {
         usbStop(&USB_DRIVER);
     }
 
-    setPinOutput(A14);
+    gpio_set_pin_output(A14);
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
 }
 
@@ -866,9 +872,9 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
     }
 
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
 
     // 重置蓝牙状态
@@ -879,7 +885,7 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
     bts_info.bt_info.mode_switched  = false;
     bts_info.bt_info.indictor_rgb_s = 0;
 
-    if (readPin(MM_MODE_SW_PIN)) eeconfig_update_user(dev_info.raw);
+    if (gpio_read_pin(MM_MODE_SW_PIN)) eeconfig_update_user(dev_info.raw);
 
     // 发送相应的蓝牙命令
     switch (dev_info.devs) {
@@ -1103,7 +1109,7 @@ static void long_pressed_keys_hook(void) {
  */
 static bool is_switch_forcing_wired_mode(void) {
 #ifdef MM_MODE_SW_PIN
-    return !readPin(MM_MODE_SW_PIN); // Switch ON = false reading = force wired
+    return !gpio_read_pin(MM_MODE_SW_PIN); // Switch ON = false reading = force wired
 #else
     return false; // No switch = allow all modes
 #endif
@@ -1140,17 +1146,17 @@ static bool is_current_mode_wireless_by_devs(uint8_t devs) {
 // ===========================================
 static void bt_used_pin_init(void) {
 #ifdef MM_MODE_SW_PIN
-    setPinInputHigh(MM_MODE_SW_PIN);
+    gpio_set_pin_input_high(MM_MODE_SW_PIN);
 #endif
 
 #if defined(MM_CABLE_PIN) && defined(MM_CHARGE_PIN)
-    setPinInputHigh(MM_CABLE_PIN);
-    setPinInput(MM_CHARGE_PIN);
+    gpio_set_pin_input_high(MM_CABLE_PIN);
+    gpio_set_pin_input(MM_CHARGE_PIN);
 #endif
 
 #ifdef RGB_DRIVER_SDB_PIN
-    setPinOutputPushPull(RGB_DRIVER_SDB_PIN);
-    writePinHigh(RGB_DRIVER_SDB_PIN);
+    gpio_set_pin_output_push_pull(RGB_DRIVER_SDB_PIN);
+    gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #endif
 }
 
@@ -1158,7 +1164,7 @@ static void bt_scan_mode(void) {
 #ifdef MM_MODE_SW_PIN
     static bool last_switch_state = false; // Track previous switch state
 
-    bool switch_state = readPin(MM_MODE_SW_PIN);
+    bool switch_state = gpio_read_pin(MM_MODE_SW_PIN);
 
     // Handle switch state changes
     if (last_switch_state != switch_state) {
@@ -1205,7 +1211,7 @@ void led_config_all(void) {
     if (!led_inited) {
 #ifdef RGB_DRIVER_SDB_PIN
         // setPinOutputPushPull(RGB_DRIVER_SDB_PIN);
-        writePinHigh(RGB_DRIVER_SDB_PIN);
+        gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #endif
         led_inited = true;
     }
@@ -1215,7 +1221,7 @@ void led_deconfig_all(void) {
     if (led_inited) {
 #ifdef RGB_DRIVER_SDB_PIN
         // setPinOutputPushPull(RGB_DRIVER_SDB_PIN);
-        writePinLow(RGB_DRIVER_SDB_PIN);
+        gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
 #endif
         led_inited = false;
     }
@@ -1234,7 +1240,7 @@ static void close_rgb(void) {
             close_rgb_time = timer_read32();
             rgb_matrix_disable_noeeprom();
 #ifdef RGB_DRIVER_SDB_PIN
-            writePinLow(RGB_DRIVER_SDB_PIN);
+            gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
 #endif
         }
     } else {
@@ -1259,7 +1265,7 @@ static void open_rgb(void) {
     key_press_time = timer_read32();
     if (!sober) {
 #ifdef RGB_DRIVER_SDB_PIN
-        writePinHigh(RGB_DRIVER_SDB_PIN);
+        gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #endif
 
         if (bts_info.bt_info.pvol >= FULL_PVOL_THRESHOLD) {
@@ -1449,10 +1455,10 @@ static void execute_factory_reset(void) {
             dip_switch_read(true);
             bts_send_vendor(v_clear);
             wait_ms(1000);
-            if (readPin(MM_MODE_SW_PIN) && dev_info.devs != DEVS_USB) {
+            if (gpio_read_pin(MM_MODE_SW_PIN) && dev_info.devs != DEVS_USB) {
                 bt_switch_mode(DEVS_HOST1, DEVS_USB, false);
                 last_total_time = timer_read32();
-            } else if (!readPin(MM_MODE_SW_PIN)) {
+            } else if (!gpio_read_pin(MM_MODE_SW_PIN)) {
                 dev_info.last_devs = DEVS_USB;
                 eeconfig_update_user(dev_info.raw);
             }
@@ -1467,10 +1473,10 @@ static void execute_factory_reset(void) {
         case _BLE: // BLE reset
             bts_send_vendor(v_clear);
             wait_ms(1000);
-            if (readPin(MM_MODE_SW_PIN) && (dev_info.devs != DEVS_USB) && (dev_info.devs != DEVS_2_4G)) {
+            if (gpio_read_pin(MM_MODE_SW_PIN) && (dev_info.devs != DEVS_USB) && (dev_info.devs != DEVS_2_4G)) {
                 bt_switch_mode(dev_info.devs, DEVS_HOST1, false);
                 last_total_time = timer_read32();
-            } else if (!readPin(MM_MODE_SW_PIN)) {
+            } else if (!gpio_read_pin(MM_MODE_SW_PIN)) {
                 dev_info.last_devs = DEVS_USB;
                 eeconfig_update_user(dev_info.raw);
             } else if (dev_info.devs == DEVS_2_4G) {
@@ -1588,8 +1594,8 @@ static void charging_indicate(void) {
 
     static bool show_chrg_full = false;
 
-    if (!readPin(MM_CABLE_PIN)) {
-        if (!readPin(MM_CHARGE_PIN)) {
+    if (!gpio_read_pin(MM_CABLE_PIN)) {
+        if (!gpio_read_pin(MM_CHARGE_PIN)) {
             charge_complete_warning.entry_full_time = timer_read32();
         } else {
             charge_complete_warning.entry_chrg_time = timer_read32();
@@ -1730,11 +1736,11 @@ static battery_charge_state_t get_battery_charge_state(void) {
 
     static uint32_t full_check_time = 0;
 
-    if (readPin(MM_CABLE_PIN)) {
+    if (gpio_read_pin(MM_CABLE_PIN)) {
         full_check_time = 0;
         stable_state    = BATTERY_STATE_UNPLUGGED;
     } else {
-        if (!readPin(MM_CHARGE_PIN)) {
+        if (!gpio_read_pin(MM_CHARGE_PIN)) {
             full_check_time = timer_read32();
             stable_state    = BATTERY_STATE_CHARGING;
         } else {
@@ -1785,7 +1791,7 @@ static void bt_bat_level_display(void) {
         }
 
         // 电量显示LED
-        uint8_t pvol = (readPin(MM_CHARGE_PIN) && !readPin(MM_CABLE_PIN)) ? 100 : bts_info.bt_info.pvol;
+        uint8_t pvol = (gpio_read_pin(MM_CHARGE_PIN) && !gpio_read_pin(MM_CABLE_PIN)) ? 100 : bts_info.bt_info.pvol;
 
         // 计算LED数量（至少2个，最多10个）
         // uint8_t led_count = (pvol < 30) ? 2 : ((pvol / 10) >= 10 ? 10 : (pvol / 10));
@@ -1811,12 +1817,12 @@ static void bt_bat_level_display(void) {
 // 主RGB指示器函数
 // ===========================================
 bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max) {
-    if ((dev_info.devs != DEVS_USB) && readPin(MM_CABLE_PIN)) {
+    if ((dev_info.devs != DEVS_USB) && gpio_read_pin(MM_CABLE_PIN)) {
         bt_bat_low_level_warning();
         bt_bat_low_level_shutdown();
     }
 
-    if (!readPin(MM_CABLE_PIN)) {
+    if (!gpio_read_pin(MM_CABLE_PIN)) {
         if (low_vol_shut_down) {
             low_vol_shut_down = false;
 
@@ -1893,7 +1899,7 @@ void matrix_scan_kb(void) {
                     // 如果之前没有进入挂起状态，执行挂起操作
                     usb_suspend = true;
 #    ifdef RGB_DRIVER_SDB_PIN
-                    writePinLow(RGB_DRIVER_SDB_PIN);
+                    gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
 #    endif
 
                     // clear_keyboard();
@@ -1909,7 +1915,7 @@ void matrix_scan_kb(void) {
                     // 如果之前处于挂起状态，恢复背光
                     usb_suspend = false;
 #    ifdef RGB_DRIVER_SDB_PIN
-                    writePinHigh(RGB_DRIVER_SDB_PIN);
+                    gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #    endif
 
                     clear_keyboard();
@@ -1922,7 +1928,7 @@ void matrix_scan_kb(void) {
             usb_suspend_timer = 0;
             usb_suspend       = false;
 #    ifdef RGB_DRIVER_SDB_PIN
-            writePinHigh(RGB_DRIVER_SDB_PIN);
+            gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #    endif
         }
     }

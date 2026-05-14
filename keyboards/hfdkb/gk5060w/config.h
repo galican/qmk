@@ -24,19 +24,15 @@
 #    define BT_HOST1_INDEX 3
 #    define BT_HOST2_INDEX 2
 #    define BT_HOST3_INDEX 1
-#    define BT_HOST4_INDEX 0xFF
-#    define BT_HOST5_INDEX 0xFF
 #    define BT_2G4_INDEX 0
 #    define BT_USB_INDEX 5
 
 /* Indicator color of mm device */
-#    define BT_HOST1_COLOR RGB_BLUE    // Host1 color
-#    define BT_HOST2_COLOR RGB_CYAN    // Host2 color
-#    define BT_HOST3_COLOR RGB_MAGENTA // Host3 color
-#    define BT_HOST4_COLOR RGB_BLACK   // Host4 color
-#    define BT_HOST5_COLOR RGB_BLACK   // Host5 color
-#    define BT_2G4_COLOR RGB_WHITE     // 2.4G color
-#    define BT_USB_COLOR RGB_WHITE     // USB color
+// #    define BT_HOST1_COLOR RGB_BLUE    // Host1 color
+// #    define BT_HOST2_COLOR RGB_CYAN    // Host2 color
+// #    define BT_HOST3_COLOR RGB_MAGENTA // Host3 color
+// #    define BT_2G4_COLOR RGB_WHITE     // 2.4G color
+// #    define BT_USB_COLOR RGB_WHITE     // USB color
 
 /* Others */
 #    define KEY_NUM 6

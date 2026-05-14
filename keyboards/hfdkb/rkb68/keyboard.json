@@ -8,7 +8,7 @@
     "usb": {
         "vid": "0xFFFE",
         "pid": "0x006C",
-        "device_version": "1.0.6",
+        "device_version": "1.0.8",
         "suspend_wakeup_delay": 1000
     },
     "diode_direction": "ROW2COL",
@@ -112,7 +112,8 @@
             { "flags": 4, "matrix": [0, 10], "x": 149, "y": 0 },
             { "flags": 4, "matrix": [0, 11], "x": 164, "y": 0 },
             { "flags": 4, "matrix": [0, 12], "x": 179, "y": 0 },
-            { "flags": 4, "matrix": [0, 14], "x": 202, "y": 0 },
+            { "flags": 4, "matrix": [0, 13], "x": 194, "y": 0 },
+            { "flags": 4, "matrix": [0, 14], "x": 209, "y": 0 },
             { "flags": 4, "matrix": [0, 15], "x": 224, "y": 0 },
 
             { "flags": 4, "matrix": [1, 15], "x": 224, "y": 16},
@@ -143,6 +144,7 @@
             { "flags": 4, "matrix": [2, 9],  "x": 146, "y": 32},
             { "flags": 4, "matrix": [2, 10], "x": 161, "y": 32},
             { "flags": 4, "matrix": [2, 11], "x": 175, "y": 32},
+            { "flags": 4, "matrix": [2, 12], "x": 188, "y": 32},
             { "flags": 4, "matrix": [2, 13], "x": 200, "y": 32},
             { "flags": 4, "matrix": [2, 15], "x": 224, "y": 32},
 
@@ -159,7 +161,8 @@
             { "flags": 4, "matrix": [3, 4],  "x":  63, "y": 48},
             { "flags": 4, "matrix": [3, 3],  "x":  49, "y": 48},
             { "flags": 4, "matrix": [3, 2],  "x":  34, "y": 48},
-            { "flags": 1, "matrix": [3, 0],  "x":  10, "y": 48},
+            { "flags": 4, "matrix": [3, 1],  "x":  19, "y": 48},
+            { "flags": 1, "matrix": [3, 0],  "x":  2, "y": 48},
 
             { "flags": 1, "matrix": [4, 0],  "x":   2, "y": 64},
             { "flags": 1, "matrix": [4, 1],  "x":  21, "y": 64},
@@ -197,7 +200,8 @@
                 {"label": ")0", "matrix": [0, 10], "x": 10.0, "y": 0.0},
                 {"label": "_-", "matrix": [0, 11], "x": 11.0, "y": 0.0},
                 {"label": "+=", "matrix": [0, 12], "x": 12.0, "y": 0.0},
-                {"label": "Backspace", "matrix": [0, 14], "x": 13.0, "y": 0.0, "w": 2.0},
+                {"label": "|\\", "matrix": [0, 13], "x": 13.0, "y": 0.0},
+                {"label": "Backspace", "matrix": [0, 14], "x": 14.0, "y": 0.0},
                 {"label": "Delete", "matrix": [0, 15], "x": 15.0, "y": 0.0},
 
                 {"label": "Tab", "matrix": [1, 0], "x": 0.0, "y": 1.0, "w": 1.5},
@@ -228,10 +232,12 @@
                 {"label": "L", "matrix": [2, 9], "x": 9.75, "y": 2.0},
                 {"label": ":;", "matrix": [2, 10], "x": 10.75, "y": 2.0},
                 {"label": "\"'", "matrix": [2, 11], "x": 11.75, "y": 2.0},
-                {"label": "Enter", "matrix": [2, 13], "x": 12.75, "y": 2.0, "w": 2.25},
+                {"label": "@'", "matrix": [2, 12], "x": 12.75, "y": 2.0},
+                {"label": "Enter", "matrix": [2, 13], "x": 13.75, "y": 2.0, "w": 1.25, "h": 2},
                 {"label": "pgup", "matrix": [2, 15], "x": 15.0, "y": 2.0},
 
-                {"label": "Shift", "matrix": [3, 0], "x": 0.0, "y": 3.0, "w": 2.25},
+                {"label": "Shift", "matrix": [3, 0], "x": 0.0, "y": 3.0, "w": 1.25},
+                {"label": "£¬", "matrix": [3, 1], "x": 1.25, "y": 3.0},
                 {"label": "Z", "matrix": [3, 2], "x": 2.25, "y": 3.0},
                 {"label": "X", "matrix": [3, 3], "x": 3.25, "y": 3.0},
                 {"label": "C", "matrix": [3, 4], "x": 4.25, "y": 3.0},

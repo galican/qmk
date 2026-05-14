@@ -1,5 +1,18 @@
-// Copyright 2023 JoyLee (@itarze)
-// SPDX-License-Identifier: GPL-2.0-or-later
+/* Copyright (C) 2023 Westberry Technology (ChangZhou) Corp., Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifdef NO_USB_STARTUP_CHECK
 
@@ -26,7 +39,7 @@ void housekeeping_task_bt(void) {
         if ((USB_DRIVER.state == USB_SUSPENDED) && (USB_DRIVER.saved_state == USB_ACTIVE)) {
             print("[s]");
             while (USB_DRIVER.state == USB_SUSPENDED) {
-                if (readPin(MM_CABLE_PIN)) break;
+                if (gpio_read_pin(MM_CABLE_PIN)) break;
                 /* Do this in the suspended state */
                 suspend_power_down(); // on AVR this deep sleeps for 15ms
                 /* Remote wakeup */

@@ -1,11 +1,17 @@
-/**
- * @file low_power.c
- * @brief
- * @author Joy chang.li@westberrytech.com
- * @version 1.0.0
- * @date 2022-09-16
+/* Copyright (C) 2023 Westberry Technology (ChangZhou) Corp., Ltd
  *
- * @copyright Copyright (c) 2022 Westberry Technology (ChangZhou) Corp., Ltd
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifdef ENTRY_STOP_MODE
@@ -130,12 +136,12 @@ bool        low_vol_offed_sleep;
 static void exti_init(void) {
     if (!low_vol_offed_sleep) {
         for (int col = 0; col < MATRIX_COLS; col++) {
-            setPinOutputOpenDrain(col_pins[col]);
-            writePinLow(col_pins[col]);
+            gpio_set_pin_output_open_drain(col_pins[col]);
+            gpio_write_pin_low(col_pins[col]);
         }
 
         for (int row = 0; row < MATRIX_ROWS; row++) {
-            setPinInputHigh(row_pins[row]);
+            gpio_set_pin_input_high(row_pins[row]);
             _pal_lld_enablepadevent(PAL_PORT(row_pins[row]), PAL_PAD(row_pins[row]), PAL_EVENT_MODE_BOTH_EDGES);
             switch (PAL_PAD(row_pins[row])) {
                 case 0:
@@ -171,7 +177,7 @@ static void exti_init(void) {
             }
         }
     } else {
-        setPinInputHigh(MM_CABLE_PIN);
+        gpio_set_pin_input_high(MM_CABLE_PIN);
         _pal_lld_enablepadevent(PAL_PORT(MM_CABLE_PIN), PAL_PAD(MM_CABLE_PIN), PAL_EVENT_MODE_BOTH_EDGES);
         switch (PAL_PAD(MM_CABLE_PIN)) {
             case 0:

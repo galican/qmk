@@ -652,7 +652,7 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
         } break;
         case KC_2G4: {
             if (record->event.pressed) {
-                if ((dev_info.devs != DEVS_2_4G) && !gpio_read_pin(WL_BT_SW_PIN)) {
+                if ((dev_info.devs != DEVS_2_4G) && !gpio_read_pin(WL_RF_SW_PIN)) {
                     bt_switch_mode(dev_info.devs, DEVS_2_4G, false);
                 }
             }
@@ -1041,6 +1041,8 @@ static void bat_voltage_check(void) {
     }
 }
 
+bool bat_low_level = false;
+
 static void bat_low_level_check(void) {
     if (dev_info.devs != DEVS_USB) {
         if (gpio_read_pin(BT_CABLE_PIN)) {
@@ -1053,8 +1055,10 @@ static void bat_low_level_check(void) {
             }
 
             if (bts_info.bt_info.low_vol) {
-                // rgb_matrix_set_color_all(0, 0, 0);
-
+                bat_low_level = true;
+            }
+            // rgb_matrix_set_color_all(0, 0, 0);
+            if (bat_low_level) {
                 HSV     hsv        = {0, 255, 0};
                 uint8_t time       = scale16by8(g_rgb_timer, qadd8(128 / 4, 1));
                 uint8_t brightness = scale8(abs8(sin8(time / 2) - 128) * 2, RGB_MATRIX_DEFAULT_VAL / 2);
@@ -1063,6 +1067,8 @@ static void bat_low_level_check(void) {
 
                 rgb_matrix_set_color(73, rgb.r, rgb.g, rgb.b);
             }
+        } else {
+            bat_low_level = false;
         }
     }
 }

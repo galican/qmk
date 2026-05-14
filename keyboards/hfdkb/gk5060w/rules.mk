@@ -18,7 +18,6 @@ OPT_DEFS += -DBT_MODE_ENABLE
 OPT_DEFS += -DENTRY_STOP_MODE
 OPT_DEFS += -DNO_USB_STARTUP_CHECK
 
-# include keyboards/hfdkb/gk5060w/common/common.mk
 LDFLAGS += -L $(TOP_DIR)/keyboards/hfdkb/gk5060w/common -l_bts
 
 VPATH += $(TOP_DIR)/keyboards/hfdkb/gk5060w/common

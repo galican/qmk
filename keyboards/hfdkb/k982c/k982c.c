@@ -364,20 +364,49 @@ void set_led_state(void) {
 }
 
 static void get_pvol_from_uart(void) {
-    uint8_t uart_data_read[3] = {0};
-    uint8_t uart_data_send[3] = {0};
+    // uint8_t        uart_data_read[3] = {0};
+    uint8_t        uart_data_send[3] = {0};
+    static uint8_t lcd_rx_state      = 0;
+    static uint8_t lcd_rx_soc        = 0;
 
-    if (uart3_available()) {
-        uart3_receive(uart_data_read, 3);
-    }
-    if ((uart_data_read[0] == 0xA7) && (uart_data_read[2] == ((uart_data_read[0] + uart_data_read[1]) & 0xFF))) {
-        uart_data_send[0] = uart_data_read[0];
-        uart_data_send[1] = uart_data_read[1];
-        uart_data_send[2] = (uart_data_send[0] + uart_data_send[1]) & 0xFF;
+    // if (uart3_available()) {
+    //     uart3_receive(uart_data_read, 3);
+    // }
+    // if ((uart_data_read[0] == 0xA7) && (uart_data_read[2] == ((uart_data_read[0] + uart_data_read[1]) & 0xFF))) {
+    //     uart_data_send[0] = uart_data_read[0];
+    //     uart_data_send[1] = uart_data_read[1];
+    //     uart_data_send[2] = (uart_data_send[0] + uart_data_send[1]) & 0xFF;
 
-        if (bts_info.bt_info.paired) uart_transmit(uart_data_send, 3);
+    //     if (bts_info.bt_info.paired) uart_transmit(uart_data_send, 3);
 
-        pvol = uart_data_read[1];
+    //     pvol = uart_data_read[1];
+    // }
+    for (uint8_t i = 0; (i < 12) && uart3_available(); i++) {
+        uint8_t rx = uart3_read();
+        switch (lcd_rx_state) {
+            case 0:
+                if (rx == 0xA7) {
+                    lcd_rx_state = 1;
+                }
+                break;
+            case 1:
+                lcd_rx_soc   = rx;
+                lcd_rx_state = 2;
+                break;
+            case 2:
+                if (rx == ((uint8_t)(0xA7 + lcd_rx_soc))) {
+                    pvol              = lcd_rx_soc;
+                    uart_data_send[0] = 0xA7;
+                    uart_data_send[1] = lcd_rx_soc;
+                    uart_data_send[2] = (uart_data_send[0] + uart_data_send[1]) & 0xFF;
+                    if (bts_info.bt_info.paired) uart_transmit(uart_data_send, 3);
+                }
+                lcd_rx_state = 0;
+                break;
+            default:
+                lcd_rx_state = 0;
+                break;
+        }
     }
 }
 

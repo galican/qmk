@@ -86,30 +86,35 @@ void matrix_scan_kb(void) {
     matrix_scan_user();
 }
 
+extern bool bat_low_level;
+extern bool get_kb_sleep_flag(void);
+
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
-    if (rgb_matrix_indicators_advanced_user(led_min, led_max) != true) {
-        return false;
+    if ((rgb_matrix_get_flags() == LED_FLAG_NONE) || bat_low_level) {
+        rgb_matrix_set_color_all(0, 0, 0);
     }
 
-    if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
-        rgb_matrix_set_color_all(0, 0, 0);
-    } else {
-        // Logo led effect
+    if (rgb_matrix_get_flags() != LED_FLAG_NONE) {
+        if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !get_kb_sleep_flag()) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state == USB_ACTIVE)))) {
+            rgb_matrix_set_color(LED_CAPS_LOCK_INDEX, 0x77, 0x77, 0x77);
+        }
+        if (keymap_config.no_gui) {
+            rgb_matrix_set_color(LED_GUI_LOCK_INDEX, 0x77, 0x77, 0x77);
+        }
+    }
+
+    // Logo led effect
+    if (!bat_low_level) {
         uint8_t time = scale16by8(g_rgb_timer, qadd8(rgb_matrix_get_speed() / 4, 1));
-        for (uint8_t i = 68; i <= 74; i++) {
+        for (uint8_t i = SLED_START_INDEX; i <= SLED_END_INDEX; i++) {
             HSV hsv = {g_led_config.point[i].x - time, 255, rgb_matrix_get_val() / 3};
             RGB rgb = hsv_to_rgb(hsv);
             rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
         }
+    }
 
-        extern bool get_kb_sleep_flag(void);
-        if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !get_kb_sleep_flag()) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state == USB_ACTIVE)))) {
-            rgb_matrix_set_color(LED_CAPS_LOCK_INDEX, 0x77, 0x77, 0x77);
-        }
-
-        if (keymap_config.no_gui) {
-            rgb_matrix_set_color(LED_GUI_LOCK_INDEX, 0x77, 0x77, 0x77);
-        }
+    if (rgb_matrix_indicators_advanced_user(led_min, led_max) != true) {
+        return false;
     }
 
     if (bt_indicator_rgb(led_min, led_max) != true) {

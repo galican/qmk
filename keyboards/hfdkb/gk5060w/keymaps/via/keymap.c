@@ -33,12 +33,17 @@ enum __layers {
 #define KC_WSOS WIN_SW_OS
 
 #define KC_TASK G(KC_TAB)
-#define KC_COPY G(KC_C)
-#define KC_PASTE G(KC_V)
-#define WIN_SW_INPUT S(KC_LCTL)
-#define KC_WSIN WIN_SW_INPUT
-#define MAC_SW_INPUT C(KC_SPC)
-#define KC_MSIN MAC_SW_INPUT
+
+#define WIN_SWIN S(KC_LCTL)
+#define MAC_SWIN C(KC_SPC)
+
+#define WIN_COPY C(KC_C)
+#define WIN_PASTE C(KC_V)
+#define MAC_COPY G(KC_C)
+#define MAC_PASTE G(KC_V)
+
+#define WIN_DIC G(A(KC_K))
+#define NOTIFY G(KC_A)
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -51,10 +56,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         MO(MAC_FN), KC_LCTL, KC_LOPT, KC_LCMD,                   KC_SPC,                    KC_RCMD, KC_ROPT, KC_LEFT, KC_DOWN, KC_RGHT),
 
     [MAC_FN] = LAYOUT_ansi_64( /* FN */
-        KC_GRV,     KC_COPY, KC_PASTE,KC_MCTL, KC_MSIN, KC_DITN, KC_DNDB, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, KC_DEL,
+        KC_GRV,     MAC_COPY, MAC_PASTE,KC_MCTL, MAC_SWIN, KC_DITN, KC_DNDB, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, KC_DEL,
         _______,    BT_HOST1,BT_HOST2,BT_HOST3,BT_2_4G, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         _______,    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,
-        _______,             _______, _______, _______, _______, _______, KC_MSOS,  KC_WSOS, _______, _______, _______, KC_PGUP, _______,
+        _______,             _______, _______, _______, _______, _______, KC_WSOS,  KC_MSOS, _______, _______, _______, KC_PGUP, _______,
         _______,    _______, MO(MAC_EX), _______,                MO(MAC_EX),                _______, MO(MAC_EX), KC_HOME, KC_PGDN, KC_END),
 
     [MAC_EX] = LAYOUT_ansi_64( /* FN */
@@ -72,10 +77,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         MO(WIN_FN), KC_LCTL, KC_LWIN, KC_LALT,                   KC_SPC,                    KC_RALT, KC_RWIN, KC_LEFT, KC_DOWN, KC_RGHT),
 
     [WIN_FN] = LAYOUT_ansi_64( /* FN */
-        KC_GRV,     KC_COPY, KC_PASTE,KC_TASK, KC_WSIN, _______, _______, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, KC_DEL,
+        KC_GRV,     WIN_COPY, WIN_PASTE,KC_TASK, WIN_SWIN, WIN_DIC, NOTIFY, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, KC_DEL,
         _______,    BT_HOST1,BT_HOST2,BT_HOST3,BT_2_4G, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         _______,    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,
-        _______,             _______, _______, _______, _______, _______, KC_MSOS,  KC_WSOS,  _______, _______, _______, KC_PGUP, _______,
+        _______,             _______, _______, _______, _______, _______, KC_WSOS,  KC_MSOS,  _______, _______, _______, KC_PGUP, _______,
         _______,    _______, MO(WIN_EX), _______,                MO(WIN_EX),                _______, MO(WIN_EX), KC_HOME, KC_PGDN, KC_END),
 
     [WIN_EX] = LAYOUT_ansi_64( /* FN */

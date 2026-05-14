@@ -164,7 +164,22 @@ static void pad_enbale_interrupt(ioline_t pin) {
 
 bool low_vol_offed_sleep;
 
+/** When true, stop mode wakes only from mode switch pins (simulated power off). */
+bool lp_switch_only_stop_wake;
+
 static void exti_init(void) {
+#    if defined(BT_MODE_SW_PIN) && defined(RF_MODE_SW_PIN)
+    if (lp_switch_only_stop_wake) {
+        gpio_set_pin_input_high(BT_MODE_SW_PIN);
+        gpio_set_pin_input_high(RF_MODE_SW_PIN);
+        _pal_lld_enablepadevent(PAL_PORT(BT_MODE_SW_PIN), PAL_PAD(BT_MODE_SW_PIN), PAL_EVENT_MODE_BOTH_EDGES);
+        pad_enbale_interrupt(PAL_PAD(BT_MODE_SW_PIN));
+        _pal_lld_enablepadevent(PAL_PORT(RF_MODE_SW_PIN), PAL_PAD(RF_MODE_SW_PIN), PAL_EVENT_MODE_BOTH_EDGES);
+        pad_enbale_interrupt(PAL_PAD(RF_MODE_SW_PIN));
+        return;
+    }
+#    endif
+
     if (!low_vol_offed_sleep) {
         for (int col = 0; col < MATRIX_COLS; col++) {
             gpio_set_pin_output_open_drain(col_pins[col]);

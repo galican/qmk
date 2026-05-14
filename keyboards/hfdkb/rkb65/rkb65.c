@@ -86,23 +86,27 @@ void matrix_scan_kb(void) {
     matrix_scan_user();
 }
 
+extern bool bat_low_level;
+
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     if (rgb_matrix_indicators_advanced_user(led_min, led_max) != true) {
         return false;
     }
 
-    if ((rgb_matrix_get_flags() == LED_FLAG_NONE) || bts_info.bt_info.low_vol) {
-        for (uint8_t i = led_min; i < 69; i++) {
+    if ((rgb_matrix_get_flags() == LED_FLAG_NONE) || bat_low_level) {
+        for (uint8_t i = led_min; i < 74; i++) {
             rgb_matrix_set_color(i, 0, 0, 0);
         }
     }
 
     // Logo led effect
-    uint8_t time = scale16by8(g_rgb_timer, qadd8(rgb_matrix_get_speed() / 4, 1));
-    for (uint8_t i = 69; i < 74; i++) {
-        HSV hsv = {g_led_config.point[i].x - time, 255, rgb_matrix_get_val() / 3};
-        RGB rgb = hsv_to_rgb(hsv);
-        rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+    if (!bat_low_level) {
+        uint8_t time = scale16by8(g_rgb_timer, qadd8(rgb_matrix_get_speed() / 4, 1));
+        for (uint8_t i = 69; i < 74; i++) {
+            HSV hsv = {g_led_config.point[i].x - time, 255, rgb_matrix_get_val() / 3};
+            RGB rgb = hsv_to_rgb(hsv);
+            rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+        }
     }
 
     extern bool get_kb_sleep_flag(void);

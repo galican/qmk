@@ -29,9 +29,12 @@ void led_deconfig_all(void) {
     }
 }
 
-static bool grave_esc_was_shifted = false;
+// static bool grave_esc_was_shifted = false;
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+    const uint8_t mods    = get_mods() | get_weak_mods() | get_oneshot_mods();
+    uint8_t       shifted = ((mods & MOD_MASK_SHIFT) && ((mods & MOD_MASK_CTRL) == 0)) ? 1 : 0;
+
     if (get_low_vol_off()) {
         bts_process_keys(keycode, 0, dev_info.devs, keymap_config.no_gui, KEY_NUM);
         bts_task(dev_info.devs);
@@ -88,48 +91,57 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
 
+        case KC_LCTL:
+            if (dev_info.devs) {
+                if (record->event.pressed) {
+                    add_mods(MOD_BIT(KC_LCTL));
+                } else {
+                    del_mods(MOD_BIT(KC_LCTL));
+                }
+            }
+            break;
+        case KC_RCTL:
+            if (dev_info.devs) {
+                if (record->event.pressed) {
+                    add_mods(MOD_BIT(KC_RCTL));
+                } else {
+                    del_mods(MOD_BIT(KC_RCTL));
+                }
+            }
+            break;
         case KC_LSFT:
             if (dev_info.devs) {
                 if (record->event.pressed) {
-                    add_mods(KC_LSFT);
+                    add_mods(MOD_BIT(KC_LSFT));
                 } else {
-                    del_mods(KC_LSFT);
+                    del_mods(MOD_BIT(KC_LSFT));
                 }
             }
             break;
         case KC_RSFT:
             if (dev_info.devs) {
                 if (record->event.pressed) {
-                    add_mods(KC_RSFT);
+                    add_mods(MOD_BIT(KC_RSFT));
                 } else {
-                    del_mods(KC_RSFT);
+                    del_mods(MOD_BIT(KC_RSFT));
                 }
             }
             break;
         case QK_GESC:
-            if (dev_info.devs) {
-                const uint8_t mods = get_mods();
-
-                uint8_t shifted = mods & MOD_MASK_SG;
-
+            if (shifted == 1) {
                 if (record->event.pressed) {
-                    grave_esc_was_shifted = shifted;
-                    // if ((get_mods() & MOD_MASK_SG)) {
-                    if (shifted) {
-                        bts_process_keys(KC_GRAVE, record->event.pressed, dev_info.devs, keymap_config.no_gui, KEY_NUM);
-                    } else {
-                        bts_process_keys(KC_ESCAPE, record->event.pressed, dev_info.devs, keymap_config.no_gui, KEY_NUM);
-                    }
+                    register_code(KC_GRAVE);
                 } else {
-                    if (shifted) {
-                        bts_process_keys(KC_GRAVE, record->event.pressed, dev_info.devs, keymap_config.no_gui, KEY_NUM);
-                    } else {
-                        bts_process_keys(KC_ESCAPE, record->event.pressed, dev_info.devs, keymap_config.no_gui, KEY_NUM);
-                    }
+                    unregister_code(KC_GRAVE);
+                }
+            } else {
+                if (record->event.pressed) {
+                    register_code(KC_ESC);
+                } else {
+                    unregister_code(KC_ESC);
                 }
             }
-            break;
-
+            return false;
         default:
             break;
     }

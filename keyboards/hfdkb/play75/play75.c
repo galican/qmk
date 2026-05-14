@@ -157,6 +157,8 @@ uint8_t get_battery_soc(void) {
 void set_led_state(void) {
     static uint8_t now_led_stuts = 0;
     static uint8_t old_led_stuts = 0;
+    static uint8_t lcd_rx_state  = 0;
+    static uint8_t lcd_rx_soc    = 0;
 
     uint8_t IND_data[5] = {0};
 
@@ -234,20 +236,35 @@ void set_led_state(void) {
         power_update_time = timer_read();
         // bts_send_vendor(v_query_vol);
 
-        uint8_t uart_data_read[3] = {0};
         uint8_t uart_data_send[3] = {0};
 
-        if (uart3_available()) {
-            uart3_receive(uart_data_read, 3);
-        }
-        if ((uart_data_read[0] == 0xA7) && (uart_data_read[2] == ((uart_data_read[0] + uart_data_read[1]) & 0xFF))) {
-            soc = uart_data_read[1];
-
-            uart_data_send[0] = uart_data_read[0];
-            uart_data_send[1] = uart_data_read[1];
-            uart_data_send[2] = (uart_data_send[0] + uart_data_send[1]) & 0xFF;
-
-            uart_transmit(uart_data_send, 3);
+        // Parse LCD UART data without blocking matrix scan.
+        for (uint8_t i = 0; (i < 12) && uart3_available(); i++) {
+            uint8_t rx = uart3_read();
+            switch (lcd_rx_state) {
+                case 0:
+                    if (rx == 0xA7) {
+                        lcd_rx_state = 1;
+                    }
+                    break;
+                case 1:
+                    lcd_rx_soc   = rx;
+                    lcd_rx_state = 2;
+                    break;
+                case 2:
+                    if (rx == ((uint8_t)(0xA7 + lcd_rx_soc))) {
+                        soc = lcd_rx_soc;
+                        uart_data_send[0] = 0xA7;
+                        uart_data_send[1] = soc;
+                        uart_data_send[2] = (uart_data_send[0] + uart_data_send[1]) & 0xFF;
+                        uart_transmit(uart_data_send, 3);
+                    }
+                    lcd_rx_state = 0;
+                    break;
+                default:
+                    lcd_rx_state = 0;
+                    break;
+            }
         }
 
         LCD_IND_update();
