@@ -42,7 +42,7 @@ uint32_t bt_init_time = 0;
 
 dev_info_t dev_info = {0};
 bts_info_t bts_info = {
-    .bt_name        = {"K67-$", "K67-$", "K67-$"},
+    .bt_name        = {"K67Pro-$", "K67Pro-$", "K67Pro-$"},
     .uart_init      = uart_init,
     .uart_read      = uart_read,
     .uart_transmit  = uart_transmit,
@@ -667,6 +667,15 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
             }
         } break;
 
+        case KC_PGDN: {
+            if (record->event.pressed) {
+                if (rgb_test_en) {
+                    rgb_test_en = false;
+                    return false;
+                }
+            }
+            return true;
+        }
         case KC_DOWN: {
             if (record->event.pressed) {
                 if (rgb_test_en) {
@@ -674,21 +683,10 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
                     if (rgb_test_index > 4) rgb_test_index = 1;
                     return false;
                 } else {
-                    return true;
                 }
             }
-        } break;
-
-        case KC_PGDN: {
-            if (record->event.pressed) {
-                if (rgb_test_en) {
-                    rgb_test_en = false;
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-        } break;
+            return true;
+        }
 
         case RGB_TEST: {
         } break;
@@ -735,7 +733,6 @@ static void long_pressed_keys_cb(uint16_t keycode) {
 
         case RGB_TEST: {
             if (rgb_test_en != true) {
-                rgb_matrix_enable_noeeprom();
                 rgb_test_en    = true;
                 rgb_test_index = 1;
             }
@@ -878,7 +875,7 @@ static void indicator_factory_reset(void) {
 
         uint8_t brightness = (EE_CLR_press_cnt % 2) ? 100 : 0;
 
-        rgb_matrix_set_color_all(brightness, brightness, brightness);
+        rgb_matrix_set_color_all(brightness, 0, 0);
     }
 }
 

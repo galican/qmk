@@ -29,48 +29,71 @@ enum __layers {
 #define BT2 BT_HOST2
 #define BT3 BT_HOST3
 #define BT4 BT_2_4G
-#define KC_TASK G(KC_TAB)
 
+#define SL_MODE SLED_MODE_NEXT
+#define AL_MODE ALED_MODE_NEXT
+
+// clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [WIN_B] = LAYOUT_ansi_67( /* Base */
-        KC_ESC,  KC_1,     KC_2,     KC_3,     KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,    KC_EQL,  KC_BSPC, RM_NEXT,
+        KC_ESC,  KC_1,     KC_2,     KC_3,     KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,    KC_EQL,  KC_BSPC, KC_HOME,
         KC_TAB,  KC_Q,     KC_W,     KC_E,     KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC,    KC_RBRC, KC_BSLS, KC_DEL,
         KC_CAPS, KC_A,     KC_S,     KC_D,     KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,             KC_ENT,  KC_PGUP,
         KC_LSFT,           KC_Z,     KC_X,     KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,    KC_RSFT, KC_UP,   KC_PGDN,
         KC_LCTL, KC_LWIN,  KC_LALT,                              KC_SPC,                             KC_RALT, MO(WIN_FN), KC_LEFT, KC_DOWN, KC_RGHT ),
 
     [WIN_FN] = LAYOUT_ansi_67( /* FN */
-        EE_CLR,  KC_BRID,  KC_BRIU,  KC_WSCH,  KC_TASK, RM_VALD, RM_VALU, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD,    KC_VOLU, _______, _______,
-        RM_HUEU, BT1,      BT2,      BT3,      BT4,     _______, _______, _______, _______, _______, _______, _______,    _______, _______, _______,
-        _______, _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,             _______, MO(WIN_EX),
-        _______,           _______,  _______,  _______, _______, _______,  _______, _______, _______, _______, _______,    _______, RM_VALU, _______,
-        _______, _______,  _______,                              _______,                             _______, _______,    RM_SPDD, RM_VALD, RM_SPDU),
+        KC_GRV,  KC_F1,    KC_F2,    KC_F3,    KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,     KC_F12,  RM_TOGG, KC_INS,
+        RM_HUEU, KC_MSEL,  KC_VOLD,  KC_VOLU,  KC_MUTE, KC_MSTP, KC_MPRV, KC_MPLY, KC_MNXT, KC_MAIL, KC_WHOM, KC_LOCK,    KC_CALC, RM_NEXT, KC_END,
+        _______, _______,  OS_SW,    _______,  _______, _______, _______, _______, _______, _______, _______, _______,             _______, KC_PSCR,
+        _______,           BT1,      BT2,      BT3,     BT4,     _______, _______, _______, AL_MODE, _______, _______,    _______, RM_VALU, KC_PAUS,
+        SL_MODE, GU_TOGG,  _______,                              EE_CLR,                            _______, _______,    RM_SPDD, RM_VALD, RM_SPDU),
 
     [WIN_EX] = LAYOUT_ansi_67( /* FN */
         _______, _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,    _______, _______, _______,
         _______, _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,    _______, _______, _______,
         _______, _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,             _______, _______,
-        _______,           _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,    _______, _______, RGB_TEST,
-        _______, _______,  _______,                              _______,                            _______, _______,    _______, _______, _______),
+        _______,           _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,    _______, _______, _______,
+        _______, _______,  _______,                              _______,                             _______, _______,    _______, _______, _______),
 
     [MAC_B] = LAYOUT_ansi_67( /* Base */
-        KC_ESC,  KC_1,     KC_2,     KC_3,     KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,    KC_EQL,  KC_BSPC, RM_NEXT,
+        KC_ESC,  KC_1,     KC_2,     KC_3,     KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,    KC_EQL,  KC_BSPC, KC_HOME,
         KC_TAB,  KC_Q,     KC_W,     KC_E,     KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC,    KC_RBRC, KC_BSLS, KC_DEL,
         KC_CAPS, KC_A,     KC_S,     KC_D,     KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,             KC_ENT,  KC_PGUP,
         KC_LSFT,           KC_Z,     KC_X,     KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,    KC_RSFT, KC_UP,   KC_PGDN,
         KC_LCTL, KC_LOPT,  KC_LCMD,                              KC_SPC,                             KC_RCMD, MO(MAC_FN), KC_LEFT, KC_DOWN, KC_RGHT ),
 
     [MAC_FN] = LAYOUT_ansi_67( /* FN */
-        EE_CLR,  KC_BRID,  KC_BRIU,  KC_MCTL,  KC_LPAD, RM_VALD, RM_VALU, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD,    KC_VOLU, _______, _______,
-        RM_HUEU, BT1,      BT2,      BT3,      BT4,     _______, _______, _______, _______, _______, _______, _______,    _______, _______, _______,
-        _______, _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,             _______, MO(MAC_EX),
-        _______,           _______,  _______,  _______, _______, _______,  _______, _______, _______, _______, _______,    _______, RM_VALU, _______,
-        _______, _______,  _______,                              _______,                             _______, _______,    RM_SPDD, RM_VALD, RM_SPDU),
+        KC_GRV,  KC_F1,    KC_F2,    KC_F3,    KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,     KC_F12,  RM_TOGG, KC_INS,
+        RM_HUEU, KC_BRID,  KC_BRIU,  KC_MCTL,  KC_LPAD, RM_VALD, RM_VALU, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD,    KC_VOLU, RM_NEXT, KC_END,
+        _______, OS_SW,    _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,             _______, KC_PSCR,
+        _______,           BT1,      BT2,      BT3,     BT4,     _______, _______, _______, AL_MODE, _______, _______,    _______, RM_VALU, KC_PAUS,
+        SL_MODE, _______,  _______,                              EE_CLR,                            _______, _______,    RM_SPDD, RM_VALD, RM_SPDU),
 
     [MAC_EX] = LAYOUT_ansi_67( /* FN */
         _______, _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,    _______, _______, _______,
         _______, _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,    _______, _______, _______,
         _______, _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,             _______, _______,
-        _______,           _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,    _______, _______, RGB_TEST,
-        _______, _______,  _______,                              _______,                            _______, _______,    _______, _______, _______),
+        _______,           _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,    _______, _______, _______,
+        _______, _______,  _______,                              _______,                             _______, _______,    _______, _______, _______),
 };
+
+// clang-format on
+
+bool KEY_LOCK_flag = false;
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case KC_LOCK:
+            if (record->event.pressed) {
+                KEY_LOCK_flag = !KEY_LOCK_flag;
+            }
+        case MO(WIN_FN):
+        case MO(MAC_FN):
+            return true;
+        default:
+            if (KEY_LOCK_flag) return false;
+            break;
+    }
+    return true;
+}

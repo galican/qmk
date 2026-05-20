@@ -19,89 +19,10 @@
 #    include "common/bt_task.h"
 #    include "usb_main.h"
 #endif
-// clang-format off
-#ifdef RGB_MATRIX_ENABLE
-const snled27351_led_t PROGMEM g_snled27351_leds[SNLED27351_LED_COUNT] = {
-/* Refer to IS31 manual for these locations
- *   driver
- *   |  R location
- *   |  |      G location
- *   |  |      |      B location
- *   |  |      |      | */
-    {1, CB1_CA1,   CB2_CA1,   CB3_CA1},
-    {1, CB1_CA2,   CB2_CA2,   CB3_CA2},
-    {1, CB1_CA3,   CB2_CA3,   CB3_CA3},
-    {1, CB1_CA4,   CB2_CA4,   CB3_CA4},
-    {1, CB1_CA5,   CB2_CA5,   CB3_CA5},
-    {1, CB1_CA6,   CB2_CA6,   CB3_CA6},
-    {1, CB1_CA7,   CB2_CA7,   CB3_CA7},
-    {1, CB1_CA8,   CB2_CA8,   CB3_CA8},
-    {1, CB1_CA9,   CB2_CA9,   CB3_CA9},
-    {1, CB1_CA10,  CB2_CA10,  CB3_CA10},
-    {1, CB1_CA11,  CB2_CA11,  CB3_CA11},
-    {1, CB1_CA12,  CB2_CA12,  CB3_CA12},
-    {1, CB1_CA13,  CB2_CA13,  CB3_CA13},
-    {1, CB1_CA14,  CB2_CA14,  CB3_CA14},
-    {1, CB1_CA15,  CB2_CA15,  CB3_CA15},
+#include "lib/lib8tion/lib8tion.h"
 
-    {1, CB4_CA1,   CB5_CA1,   CB6_CA1},
-    {1, CB4_CA2,   CB5_CA2,   CB6_CA2},
-    {1, CB4_CA3,   CB5_CA3,   CB6_CA3},
-    {1, CB4_CA4,   CB5_CA4,   CB6_CA4},
-    {1, CB4_CA5,   CB5_CA5,   CB6_CA5},
-    {1, CB4_CA6,   CB5_CA6,   CB6_CA6},
-    {1, CB4_CA7,   CB5_CA7,   CB6_CA7},
-    {1, CB4_CA8,   CB5_CA8,   CB6_CA8},
-    {1, CB4_CA9,   CB5_CA9,   CB6_CA9},
-    {1, CB4_CA10,  CB5_CA10,  CB6_CA10},
-    {1, CB4_CA11,  CB5_CA11,  CB6_CA11},
-    {1, CB4_CA12,  CB5_CA12,  CB6_CA12},
-    {1, CB4_CA13,  CB5_CA13,  CB6_CA13},
-    {1, CB4_CA14,  CB5_CA14,  CB6_CA14},
-    {1, CB4_CA15,  CB5_CA15,  CB6_CA15},
+void RGB_effect_user(uint8_t effect, uint8_t color, uint8_t led_start_index, uint8_t led_end_index);
 
-    {1, CB7_CA1,   CB8_CA1,   CB9_CA1},
-    {1, CB7_CA2,   CB8_CA2,   CB9_CA2},
-    {1, CB7_CA3,   CB8_CA3,   CB9_CA3},
-    {1, CB7_CA4,   CB8_CA4,   CB9_CA4},
-    {0, CB1_CA5,   CB2_CA5,   CB3_CA5},
-    {0, CB1_CA6,   CB2_CA6,   CB3_CA6},
-    {0, CB1_CA7,   CB2_CA7,   CB3_CA7},
-    {0, CB1_CA8,   CB2_CA8,   CB3_CA8},
-    {0, CB1_CA9,   CB2_CA9,   CB3_CA9},
-    {0, CB1_CA10,  CB2_CA10,  CB3_CA10},
-    {0, CB1_CA11,  CB2_CA11,  CB3_CA11},
-    {0, CB1_CA12,  CB2_CA12,  CB3_CA12},
-    {0, CB1_CA14,  CB2_CA14,  CB3_CA14},
-    {0, CB1_CA15,  CB2_CA15,  CB3_CA15},
-
-    {0, CB4_CA1,   CB5_CA1,   CB6_CA1},
-    {0, CB4_CA2,   CB5_CA2,   CB6_CA2},
-    {0, CB4_CA3,   CB5_CA3,   CB6_CA3},
-    {0, CB4_CA4,   CB5_CA4,   CB6_CA4},
-    {0, CB4_CA5,   CB5_CA5,   CB6_CA5},
-    {0, CB4_CA6,   CB5_CA6,   CB6_CA6},
-    {0, CB4_CA7,   CB5_CA7,   CB6_CA7},
-    {0, CB4_CA8,   CB5_CA8,   CB6_CA8},
-    {0, CB4_CA9,   CB5_CA9,   CB6_CA9},
-    {0, CB4_CA10,  CB5_CA10,  CB6_CA10},
-    {0, CB4_CA11,  CB5_CA11,  CB6_CA11},
-    {0, CB4_CA13,  CB5_CA13,  CB6_CA13},
-    {0, CB4_CA14,  CB5_CA14,  CB6_CA14},
-    {0, CB4_CA15,  CB5_CA15,  CB6_CA15},
-
-    {0, CB7_CA1,   CB8_CA1,   CB9_CA1},
-    {0, CB7_CA2,   CB8_CA2,   CB9_CA2},
-    {0, CB7_CA3,   CB8_CA3,   CB9_CA3},
-    {0, CB7_CA7,   CB8_CA7,   CB9_CA7},
-    {0, CB7_CA11,  CB8_CA11,  CB9_CA11},
-    {0, CB7_CA12,  CB8_CA12,  CB9_CA12},
-    {0, CB7_CA13,  CB8_CA13,  CB9_CA13},
-    {0, CB7_CA14,  CB8_CA14,  CB9_CA14},
-    {0, CB7_CA15,  CB8_CA15,  CB9_CA15},
-};
-#endif
-// clang-format on
 #ifdef DIP_SWITCH_ENABLE
 bool dip_switch_update_kb(uint8_t index, bool active) {
     if (!dip_switch_update_user(index, active)) {
@@ -119,6 +40,10 @@ bool dip_switch_update_kb(uint8_t index, bool active) {
 #endif
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+    if (process_record_user(keycode, record) != true) {
+        return false;
+    }
+
     extern bool low_vol_offed_sleep;
     if (low_vol_offed_sleep) {
         bts_process_keys(keycode, 0, dev_info.devs, keymap_config.no_gui, KEY_NUM);
@@ -126,10 +51,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         while (bts_is_busy()) {
             wait_ms(1);
         }
-        return false;
-    }
-
-    if (process_record_user(keycode, record) != true) {
         return false;
     }
 
@@ -157,6 +78,27 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 rgb_matrix_enable();
             }
             return false;
+
+        case SLED_MODE_NEXT:
+            if (record->event.pressed) {
+                dev_info.sled_mode++;
+                if (dev_info.sled_mode > 4) {
+                    dev_info.sled_mode = 0;
+                }
+                eeconfig_update_user(dev_info.raw);
+            }
+            return false;
+
+        case ALED_MODE_NEXT:
+            if (record->event.pressed) {
+                dev_info.aled_mode++;
+                if (dev_info.aled_mode > 4) {
+                    dev_info.aled_mode = 0;
+                }
+                eeconfig_update_user(dev_info.raw);
+            }
+            return false;
+
         default:
             break;
     }
@@ -252,6 +194,9 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
         return false;
     }
 
+    RGB_effect_user(dev_info.sled_mode, dev_info.sled_color, SLED_START_INDEX, SLED_END_INDEX);
+    RGB_effect_user(dev_info.aled_mode, dev_info.aled_color, ALED_START_INDEX, ALED_END_INDEX);
+
 #    ifdef BT_MODE_ENABLE
     if (bt_indicator_rgb(led_min, led_max) != true) {
         return false;
@@ -261,9 +206,104 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     // caps lock red
     extern bool kb_sleep_flag;
     if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !kb_sleep_flag) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state != USB_SUSPENDED)))) {
-        rgb_matrix_set_color(CAPS_LOCK_LED_INDEX, 100, 0, 0);
+        gpio_write_pin_high(CAPS_LOCK_LED_PIN);
+    } else {
+        gpio_write_pin_low(CAPS_LOCK_LED_PIN);
+    }
+    // GUI lock red
+    if (keymap_config.no_gui) {
+        gpio_write_pin_high(GUI_LOCK_LED_PIN);
+    } else {
+        gpio_write_pin_low(GUI_LOCK_LED_PIN);
+    }
+    // all key lock red
+    extern bool KEY_LOCK_flag;
+    if (KEY_LOCK_flag) {
+        gpio_write_pin_high(ALL_KEY_LOCK_PIN);
+    } else {
+        gpio_write_pin_low(ALL_KEY_LOCK_PIN);
     }
 
     return true;
 }
 #endif
+
+uint8_t color_table[] = {
+    0, 32, 64, 96, 128, 160, 192,
+};
+
+#define NEON_EFFCT_CONSTANT(TIME)         \
+    (HSV) {                               \
+        TIME, 255, RGB_MATRIX_DEFAULT_VAL \
+    }
+
+void RGB_neon_effect_user(uint8_t led_start_index, uint8_t led_end_index) {
+    uint8_t time = scale16by8(g_rgb_timer, qadd8((UINT8_MAX / 2) / 8, 1));
+    for (uint8_t i = led_start_index; i <= led_end_index; i++) {
+        rgb_matrix_set_color(i, hsv_to_rgb(NEON_EFFCT_CONSTANT(time)).r, hsv_to_rgb(NEON_EFFCT_CONSTANT(time)).g, hsv_to_rgb(NEON_EFFCT_CONSTANT(time)).b);
+    }
+}
+
+void RGB_off_effect_user(uint8_t led_start_index, uint8_t led_end_index) {
+    for (uint8_t i = led_start_index; i <= led_end_index; i++) {
+        rgb_matrix_set_color(i, 0, 0, 0); /* code */
+    }
+}
+
+#define FLOWING_EFFCT_CONSTANT(TIME, i)                                        \
+    (HSV) {                                                                    \
+        (uint8_t)(g_led_config.point[i].y - TIME), 255, RGB_MATRIX_DEFAULT_VAL \
+    }
+
+void RGB_flowing_effect_user(uint8_t led_start_index, uint8_t led_end_index) {
+    uint8_t time = scale16by8(g_rgb_timer, qadd8((UINT8_MAX / 2) / 4, 1));
+    for (uint8_t i = led_start_index; i <= led_end_index; i++) {
+        rgb_matrix_set_color(i, hsv_to_rgb(FLOWING_EFFCT_CONSTANT(time, i)).r, hsv_to_rgb(FLOWING_EFFCT_CONSTANT(time, i)).g, hsv_to_rgb(FLOWING_EFFCT_CONSTANT(time, i)).b);
+    }
+}
+
+#define BREATH_EFFCT_CONSTANT(TIME, BRIGHTNESS)                                                               \
+    (HSV) {                                                                                                   \
+        color_table[RGB_MATRIX_DEFAULT_HUE], 255, (uint8_t)scale8(abs8(sin8(TIME / 2) - 128) * 2, BRIGHTNESS) \
+    }
+
+void RGB_breath_effect_user(uint8_t color_mode, uint8_t led_start_index, uint8_t led_end_index) {
+    uint16_t time       = scale16by8(g_rgb_timer, (UINT8_MAX / 2) / 8);
+    uint8_t  brightness = scale8(abs8(sin8(time) - 128) * 2, RGB_MATRIX_DEFAULT_VAL);
+    for (uint8_t i = led_start_index; i <= led_end_index; i++) {
+        rgb_matrix_set_color(i, hsv_to_rgb(BREATH_EFFCT_CONSTANT(time, brightness)).r, hsv_to_rgb(BREATH_EFFCT_CONSTANT(time, brightness)).g, hsv_to_rgb(BREATH_EFFCT_CONSTANT(time, brightness)).b); /* code */
+    }
+}
+
+#define SOLID_EFFCT_CONSTANT                                             \
+    (HSV) {                                                              \
+        color_table[RGB_MATRIX_DEFAULT_HUE], 255, RGB_MATRIX_DEFAULT_VAL \
+    }
+
+void RGB_solid_effect_user(uint8_t color_mode, uint8_t led_start_index, uint8_t led_end_index) {
+    for (uint8_t i = led_start_index; i <= led_end_index; i++) {
+        rgb_matrix_set_color(i, hsv_to_rgb(SOLID_EFFCT_CONSTANT).r, hsv_to_rgb(SOLID_EFFCT_CONSTANT).g, hsv_to_rgb(SOLID_EFFCT_CONSTANT).b); /* code */
+    }
+}
+
+void RGB_effect_user(uint8_t effect_mode, uint8_t color_mode, uint8_t led_start_index, uint8_t led_end_index) {
+    switch (effect_mode) {
+        case 0:
+            RGB_flowing_effect_user(led_start_index, led_end_index);
+            break;
+        case 1:
+            RGB_neon_effect_user(led_start_index, led_end_index);
+            break;
+        case 2:
+            RGB_solid_effect_user(color_mode, led_start_index, led_end_index);
+            break;
+        case 3:
+            RGB_breath_effect_user(color_mode, led_start_index, led_end_index);
+            break;
+        case 4:
+            RGB_off_effect_user(led_start_index, led_end_index);
+            break;
+        default:
+            break;
+    }
+}
