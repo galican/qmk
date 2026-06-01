@@ -26,6 +26,7 @@ enum bt_keycodes {
     BT_VOL,
     KC_LOCK,
     OS_SW,
+    KC_N2FN,
 
     SLED_MODE_NEXT,
     ALED_MODE_NEXT,

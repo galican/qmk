@@ -111,7 +111,7 @@ bool dip_switch_update_kb(uint8_t index, bool active) {
         default_layer_set(1UL << (active ? 3 : 0));
     }
     if (active) {
-        keymap_config.no_gui = 0;
+        keymap_config.no_gui = false;
         eeconfig_update_keymap(&keymap_config);
     }
     return true;
@@ -243,8 +243,10 @@ void housekeeping_task_kb(void) {
 }
 
 #ifdef RGB_MATRIX_ENABLE
+extern bool battery_low_warning_flag;
+
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
-    if (!rgb_matrix_get_flags() || bts_info.bt_info.low_vol) {
+    if (!rgb_matrix_get_flags() || battery_low_warning_flag) {
         rgb_matrix_set_color_all(0, 0, 0);
     }
 
@@ -262,6 +264,10 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
     extern bool kb_sleep_flag;
     if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !kb_sleep_flag) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state != USB_SUSPENDED)))) {
         rgb_matrix_set_color(CAPS_LOCK_LED_INDEX, 100, 0, 0);
+    }
+    // GUI lock red
+    if (keymap_config.no_gui) {
+        rgb_matrix_set_color(GUI_LOCK_LED_INDEX, 100, 0, 0);
     }
 
     return true;

@@ -1,6 +1,6 @@
 {
-    "manufacturer": "ESWN",
-    "keyboard_name": "K67PRO",
+    "manufacturer": "hfdic",
+    "keyboard_name": "K67Pro",
     "maintainer": "jonylee@hfd",
     "url": "https://github.com/jonylee1986/qmk_firmware_master/tree/hfdkb_playground",
     "processor": "WB32FQ95",
@@ -8,7 +8,7 @@
     "usb": {
         "vid": "0xFFFE",
         "pid": "0x00C2",
-        "device_version": "1.0.2",
+        "device_version": "1.0.3",
         "suspend_wakeup_delay": 1000
     },
     "host": {

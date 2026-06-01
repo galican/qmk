@@ -82,6 +82,8 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 #define MODE_ROW 3
 #define MODE_COLUMN 18
 
+bool no_local_rgb_effect = false;
+
 // uint8_t sled_mode_before_charge = SLED_MODE_VOL;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -180,6 +182,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         }
+
+        case RM_NEXT:
+        case RM_PREV:
+        case RM_HUEU:
+        case RM_HUED:
+        case RM_VALU:
+        case RM_VALD:
+        case RM_SPDU:
+        case RM_SPDD:
+        case RM_SATU:
+        case RM_SATD:
+            if (no_local_rgb_effect) {
+                return false;
+            }
+            break;
 
         default:
             break;
@@ -387,5 +404,19 @@ bool is_charging(void) {
 
 bool is_fully_charged(void) {
     return f_ChargeFull;
+}
+#endif
+
+#ifdef VIA_ENABLE
+bool via_command_user(uint8_t *data, uint8_t length) {
+    uint8_t *command_id = &(data[0]);
+
+    if (command_id[0] == 0x24) {
+        no_local_rgb_effect = true;
+    } else {
+        no_local_rgb_effect = false;
+    }
+
+    return false;
 }
 #endif

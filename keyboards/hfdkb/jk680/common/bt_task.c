@@ -123,16 +123,21 @@ bool led_inited = false;
 void led_config_all(void) {
     if (!led_inited) {
 #ifdef CAPS_LOCK_LED_PIN
-        gpio_set_pin_output_push_pull(CAPS_LOCK_LED_PIN);
+        // gpio_set_pin_output_push_pull(CAPS_LOCK_LED_PIN);
 #endif
 
 #ifdef GUI_LOCK_LED_PIN
-        gpio_set_pin_output_push_pull(GUI_LOCK_LED_PIN);
+        // gpio_set_pin_output_push_pull(GUI_LOCK_LED_PIN);
 #endif
 
 #ifdef ALL_KEY_LOCK_PIN
-        gpio_set_pin_output_push_pull(ALL_KEY_LOCK_PIN);
+        // gpio_set_pin_output_push_pull(ALL_KEY_LOCK_PIN);
 #endif
+
+#ifdef NUM_2_FN_PIN
+        // gpio_set_pin_output_push_pull(NUM_2_FN_PIN);
+#endif
+
         led_inited = true;
     }
 }
@@ -147,9 +152,14 @@ void led_deconfig_all(void) {
         gpio_write_pin_low(GUI_LOCK_LED_PIN);
 #endif
 
-#ifdef ALL_KEY_LOCK_PIN
-        gpio_write_pin_low(ALL_KEY_LOCK_PIN);
+        // #ifdef ALL_KEY_LOCK_PIN
+        //         gpio_write_pin_low(ALL_KEY_LOCK_PIN);
+        // #endif
+
+#ifdef NUM_2_FN_PIN
+        gpio_write_pin_low(NUM_2_FN_PIN);
 #endif
+
         led_inited = false;
     }
 }
@@ -796,9 +806,14 @@ static void bt_used_pin_init(void) {
     gpio_write_pin_low(GUI_LOCK_LED_PIN);
 #endif
 
-#ifdef ALL_KEY_LOCK_PIN
-    gpio_set_pin_output_push_pull(ALL_KEY_LOCK_PIN);
-    gpio_write_pin_low(ALL_KEY_LOCK_PIN);
+    // #ifdef ALL_KEY_LOCK_PIN
+    //     gpio_set_pin_output_push_pull(ALL_KEY_LOCK_PIN);
+    //     gpio_write_pin_low(ALL_KEY_LOCK_PIN);
+    // #endif
+
+#ifdef NUM_2_FN_PIN
+    gpio_set_pin_output_push_pull(NUM_2_FN_PIN);
+    gpio_write_pin_low(NUM_2_FN_PIN);
 #endif
 }
 
@@ -832,7 +847,7 @@ static void close_rgb(void) {
     }
 
     if (sober) {
-        if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= (5 * 60 * 1000))) {
+        if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= ((5 * 60 - 47) * 1000))) {
             bak_rgb_toggle = rgb_matrix_config.enable;
             sober          = false;
             close_rgb_time = timer_read32();
@@ -851,6 +866,8 @@ static void close_rgb(void) {
 #ifdef ENTRY_STOP_MODE
                 lp_system_sleep();
 #endif
+                extern bool KEY_LOCK_flag;
+                if (KEY_LOCK_flag) bts_send_vendor(v_query_vol);
                 extern void open_rgb(void);
                 open_rgb();
             }
@@ -905,8 +922,8 @@ static void indicator_factory_reset(void) {
 
             eeconfig_init();
 
-            dev_info.sled_mode = 0;
-            dev_info.aled_mode = 0;
+            dev_info.sled_mode  = 0;
+            dev_info.aled_mode  = 0;
             dev_info.sled_color = 0;
             dev_info.aled_color = 0;
             eeconfig_update_user(dev_info.raw);
@@ -915,8 +932,15 @@ static void indicator_factory_reset(void) {
                 keymap_config.no_gui = false;
             }
 
-            if (indicator_status != 0) {
-                last_total_time = timer_read32();
+            extern bool NUM_2_FN_flag;
+            NUM_2_FN_flag = false;
+
+            if ((dev_info.devs != DEVS_USB) && !bts_info.bt_info.paired) {
+                if (dev_info.devs == DEVS_2_4G) {
+                    bt_switch_mode(dev_info.last_devs, DEVS_2_4G, false);
+                } else {
+                    bt_switch_mode(dev_info.last_devs, dev_info.devs, false);
+                }
             }
         }
 
@@ -951,17 +975,24 @@ static void battery_voltage_display(void) {
     }
 }
 
+bool low_battery_warning_flag = false;
+
 // Low battery breathing effect & long press to sleep
 static void battery_low_warning(void) {
     if (!gpio_read_pin(BT_CABLE_PIN)) {
         if (!gpio_read_pin(BT_CHARGE_PIN)) {
             rgb_matrix_set_color(PWR_LED_INDEX, 100, 0, 0);
         }
+        low_battery_warning_flag = false;
     } else {
         static bool     Low_power_blink = false;
         static uint32_t Low_power_time  = 0;
 
         if (bts_info.bt_info.low_vol) {
+            low_battery_warning_flag = true;
+        }
+
+        if (low_battery_warning_flag) {
             if (timer_elapsed32(Low_power_time) >= 1000) {
                 Low_power_blink = !Low_power_blink;
                 Low_power_time  = timer_read32();
@@ -1079,7 +1110,7 @@ static void indicator_bluetooth_connection(void) {
                     break;
                 }
 
-                if (timer_elapsed32(last_total_time) >= (60 * 1000)) {
+                if (timer_elapsed32(last_total_time) >= ((60 - 10) * 1000)) {
                     indicator_status = 0;
                     kb_sleep_flag    = true;
                 }
@@ -1098,7 +1129,7 @@ static void indicator_bluetooth_connection(void) {
                     break;
                 }
 
-                if (timer_elapsed32(last_total_time) >= (10 * 1000)) {
+                if (timer_elapsed32(last_total_time) >= ((10 - 2) * 1000)) {
                     indicator_status = 0;
                     kb_sleep_flag    = true;
                 }

@@ -69,12 +69,14 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
 // clang-format on
 
 // bool     ENC_FUN_flag   = 0;
-uint16_t       ENC_press_time = 0;
-bool           OS_blink       = 0;
-uint16_t       OS_blink_time  = 0;
-uint32_t       OS_press_time  = 0;
-static uint8_t OS_blink_index = 100;
-bool           process_record_user(uint16_t keycode, keyrecord_t *record) {
+uint16_t       ENC_press_time      = 0;
+bool           OS_blink            = 0;
+uint16_t       OS_blink_time       = 0;
+uint32_t       OS_press_time       = 0;
+static uint8_t OS_blink_index      = 100;
+bool           no_local_rgb_effect = false;
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // if (!process_record_keychron(keycode, record)) {
     //     return false;
     // }
@@ -90,6 +92,7 @@ bool           process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
                 dev_info.ENC_FUN_flag = !dev_info.ENC_FUN_flag;
             }
+            return false;
         }
         case ENC_CMSI: { // 顺时针
             if (!dev_info.ENC_FUN_flag) {
@@ -112,7 +115,7 @@ bool           process_record_user(uint16_t keycode, keyrecord_t *record) {
                     }
                 }
             }
-            break;
+            return false;
         }
         case ENC_CMSD: { // 逆时针
             if (!dev_info.ENC_FUN_flag) {
@@ -135,7 +138,7 @@ bool           process_record_user(uint16_t keycode, keyrecord_t *record) {
                     }
                 }
             }
-            break;
+            return false;
         }
         case SW_OS1:
             if (record->event.pressed) {
@@ -152,20 +155,26 @@ bool           process_record_user(uint16_t keycode, keyrecord_t *record) {
                     OS_blink_index = 55;
                 }
             }
-            break;
+            return false;
         case RGB_WHI:
             if (record->event.pressed) {
+                if (no_local_rgb_effect) {
+                    return false;
+                }
                 dev_info.rgb_white_light = !dev_info.rgb_white_light;
                 eeconfig_update_user(dev_info.raw);
             }
-            break;
+            return false;
         case BLED_MOD:
             if (record->event.pressed) {
+                if (no_local_rgb_effect) {
+                    return false;
+                }
                 dev_info.enc_led_effect = (dev_info.enc_led_effect + 1) % 3; // 0→1→2→0...
                 // rgb_matrix_update_pwm_buffers();
                 eeconfig_update_user(dev_info.raw);
-                return false; // 跳过默认处理
             }
+            return false; // 跳过默认处理
 
         case G(KC_TAB):
             if (keymap_config.no_gui) {
@@ -183,17 +192,36 @@ bool           process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
                 return false;
             }
-            return true;
+            break;
 
         case RM_NEXT:
             if (record->event.pressed) {
+                if (no_local_rgb_effect) {
+                    return false;
+                }
                 dev_info.rgb_white_light = 0; // 切灯效就关闭白光
+                eeconfig_update_user(dev_info.raw);
             }
-            return true; // 继续处理其他
+            break;
+            ; // 继续处理其他
+
+        case RM_HUEU:
+        case RM_HUED:
+        case RM_VALU:
+        case RM_VALD:
+        case RM_SPDU:
+        case RM_SPDD:
+        case RM_SATU:
+        case RM_SATD:
+            if (no_local_rgb_effect) {
+                return false;
+            }
+            break;
+
         default:
             return true;
     }
-    return false;
+    return true;
 }
 uint16_t ENC_FUN_blink_time;
 uint8_t  ENC_FUN_blink_cnt;
@@ -247,7 +275,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             // rgb_matrix_set_color(73, 0, 0, 0);
         }
     }
-    if (keymap_config.no_gui) {
+    if (keymap_config.no_gui && !no_local_rgb_effect) {
         rgb_matrix_set_color(88, 100, 100, 100);
     }
 
@@ -257,3 +285,33 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
     return true;
 }
+
+#ifdef VIA_ENABLE
+// bool via_command_kb(uint8_t *data, uint8_t length) {
+//     uint8_t *command_id = &(data[0]);
+//     switch (*command_id) {
+//         case 0x07: {
+//             if (data[1] == 0x03 && data[2] == 0x02 && data[3] == 0x00) {
+//                 extern bool rgb_status_save;
+//                 rgb_status_save = 0;
+//             }
+//             return false;
+//         }
+//         default:
+//             break;
+//     }
+//     return false;
+// }
+
+bool via_command_user(uint8_t *data, uint8_t length) {
+    uint8_t *command_id = &(data[0]);
+
+    if (command_id[0] == 0x24) {
+        no_local_rgb_effect = true;
+    } else {
+        no_local_rgb_effect = false;
+    }
+
+    return false;
+}
+#endif

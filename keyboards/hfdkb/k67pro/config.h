@@ -55,6 +55,8 @@
 
 /* Enable CapsLock LED */
 #define CAPS_LOCK_LED_INDEX 30
+/* Enable GUI Lock LED */
+#define GUI_LOCK_LED_INDEX 59
 
 /* I2C Config for LED Driver */
 #define SNLED27351_DRIVER_COUNT 2

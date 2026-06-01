@@ -113,11 +113,67 @@ void matrix_init_kb(void) {
     matrix_init_user();
 }
 
+void set_led_state(void) {
+    // caps lock rd
+    if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired) || (dev_info.devs == DEVS_USB))) {
+        gpio_write_pin_high(CAPS_LOCK_LED_PIN);
+    } else {
+        gpio_write_pin_low(CAPS_LOCK_LED_PIN);
+    }
+    // GUI lock
+    if (keymap_config.no_gui) {
+        gpio_write_pin_high(GUI_LOCK_LED_PIN);
+    } else {
+        gpio_write_pin_low(GUI_LOCK_LED_PIN);
+    }
+    // all key lock
+    // extern bool KEY_LOCK_flag;
+    // if (KEY_LOCK_flag) {
+    //     gpio_write_pin_high(ALL_KEY_LOCK_PIN);
+    // } else {
+    //     gpio_write_pin_low(ALL_KEY_LOCK_PIN);
+    // }
+    // num 2 fn
+    extern bool NUM_2_FN_flag;
+    if (NUM_2_FN_flag) {
+        gpio_write_pin_high(NUM_2_FN_PIN);
+    } else {
+        gpio_write_pin_low(NUM_2_FN_PIN);
+    }
+}
+
 void matrix_scan_kb(void) {
 #ifdef BT_MODE_ENABLE
     bt_task();
 #endif
+
+    extern bool kb_sleep_flag;
+    if (((dev_info.devs != DEVS_USB) && !kb_sleep_flag) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state != USB_SUSPENDED))) {
+        set_led_state();
+    }
+
     matrix_scan_user();
+}
+
+void keyboard_post_init_kb(void) {
+    if (keymap_config.no_gui) {
+        keymap_config.no_gui = 0;
+        eeconfig_update_keymap(&keymap_config);
+    }
+
+    keyboard_post_init_user();
+}
+
+void suspend_power_down_kb(void) {
+    extern void led_deconfig_all(void);
+    led_deconfig_all();
+    suspend_power_down_user();
+}
+
+void suspend_wakeup_init_kb(void) {
+    extern void led_config_all(void);
+    led_config_all();
+    suspend_wakeup_init_user();
 }
 
 void housekeeping_task_kb(void) {
@@ -147,6 +203,8 @@ void housekeeping_task_kb(void) {
 #    ifdef RGB_DRIVER_SDB_PIN
                 gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #    endif
+                // extern void led_config_all(void);
+                // led_config_all();
             }
         }
 
@@ -159,6 +217,8 @@ void housekeeping_task_kb(void) {
 #    ifdef RGB_DRIVER_SDB_PIN
                     gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
 #    endif
+                    // extern void led_deconfig_all(void);
+                    // led_deconfig_all();
                 }
                 usb_suspend_timer = 0;
             }
@@ -179,14 +239,18 @@ void housekeeping_task_kb(void) {
 #    ifdef RGB_DRIVER_SDB_PIN
             gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #    endif
+            // extern void led_config_all(void);
+            // led_config_all();
         }
     }
 #endif
 }
 
 #ifdef RGB_MATRIX_ENABLE
+extern bool low_battery_warning_flag;
+
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
-    if (!rgb_matrix_get_flags() || bts_info.bt_info.low_vol) {
+    if (!rgb_matrix_get_flags() || low_battery_warning_flag) {
         rgb_matrix_set_color_all(0, 0, 0);
     }
 
@@ -194,35 +258,16 @@ bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
         return false;
     }
 
-    RGB_effect_user(dev_info.sled_mode, dev_info.sled_color, SLED_START_INDEX, SLED_END_INDEX);
-    RGB_effect_user(dev_info.aled_mode, dev_info.aled_color, ALED_START_INDEX, ALED_END_INDEX);
+    if (!low_battery_warning_flag) {
+        RGB_effect_user(dev_info.sled_mode, dev_info.sled_color, SLED_START_INDEX, SLED_END_INDEX);
+        RGB_effect_user(dev_info.aled_mode, dev_info.aled_color, ALED_START_INDEX, ALED_END_INDEX);
+    }
 
 #    ifdef BT_MODE_ENABLE
     if (bt_indicator_rgb(led_min, led_max) != true) {
         return false;
     }
 #    endif
-
-    // caps lock red
-    extern bool kb_sleep_flag;
-    if (host_keyboard_led_state().caps_lock && (((dev_info.devs != DEVS_USB) && bts_info.bt_info.paired && !kb_sleep_flag) || ((dev_info.devs == DEVS_USB) && (USB_DRIVER.state != USB_SUSPENDED)))) {
-        gpio_write_pin_high(CAPS_LOCK_LED_PIN);
-    } else {
-        gpio_write_pin_low(CAPS_LOCK_LED_PIN);
-    }
-    // GUI lock red
-    if (keymap_config.no_gui) {
-        gpio_write_pin_high(GUI_LOCK_LED_PIN);
-    } else {
-        gpio_write_pin_low(GUI_LOCK_LED_PIN);
-    }
-    // all key lock red
-    extern bool KEY_LOCK_flag;
-    if (KEY_LOCK_flag) {
-        gpio_write_pin_high(ALL_KEY_LOCK_PIN);
-    } else {
-        gpio_write_pin_low(ALL_KEY_LOCK_PIN);
-    }
 
     return true;
 }
@@ -262,16 +307,15 @@ void RGB_flowing_effect_user(uint8_t led_start_index, uint8_t led_end_index) {
     }
 }
 
-#define BREATH_EFFCT_CONSTANT(TIME, BRIGHTNESS)                                                               \
-    (HSV) {                                                                                                   \
-        color_table[RGB_MATRIX_DEFAULT_HUE], 255, (uint8_t)scale8(abs8(sin8(TIME / 2) - 128) * 2, BRIGHTNESS) \
+#define BREATH_EFFCT_CONSTANT(TIME)                                                                                       \
+    (HSV) {                                                                                                               \
+        color_table[RGB_MATRIX_DEFAULT_HUE], 255, (uint8_t)scale8(abs8(sin8(TIME / 2) - 128) * 2, RGB_MATRIX_DEFAULT_VAL) \
     }
 
 void RGB_breath_effect_user(uint8_t color_mode, uint8_t led_start_index, uint8_t led_end_index) {
-    uint16_t time       = scale16by8(g_rgb_timer, (UINT8_MAX / 2) / 8);
-    uint8_t  brightness = scale8(abs8(sin8(time) - 128) * 2, RGB_MATRIX_DEFAULT_VAL);
+    uint16_t time = scale16by8(g_rgb_timer, qadd8((UINT8_MAX / 2) / 4, 1));
     for (uint8_t i = led_start_index; i <= led_end_index; i++) {
-        rgb_matrix_set_color(i, hsv_to_rgb(BREATH_EFFCT_CONSTANT(time, brightness)).r, hsv_to_rgb(BREATH_EFFCT_CONSTANT(time, brightness)).g, hsv_to_rgb(BREATH_EFFCT_CONSTANT(time, brightness)).b); /* code */
+        rgb_matrix_set_color(i, hsv_to_rgb(BREATH_EFFCT_CONSTANT(time)).r, hsv_to_rgb(BREATH_EFFCT_CONSTANT(time)).g, hsv_to_rgb(BREATH_EFFCT_CONSTANT(time)).b); /* code */
     }
 }
 

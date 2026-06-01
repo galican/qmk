@@ -63,6 +63,7 @@
 #define CAPS_LOCK_LED_PIN B12
 #define GUI_LOCK_LED_PIN B13
 #define ALL_KEY_LOCK_PIN A8
+#define NUM_2_FN_PIN A8
 
 // #define BAT_VOL_LED_INDEX {67, 68, 69, 70, 71, 72}
 

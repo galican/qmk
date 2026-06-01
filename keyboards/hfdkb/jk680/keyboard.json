@@ -1,5 +1,5 @@
 {
-    "manufacturer": " ",
+    "manufacturer": "hfdic",
     "keyboard_name": "JK680",
     "maintainer": "jonylee@hfd",
     "url": "https://github.com/jonylee1986/qmk_firmware_master/tree/hfdkb_playground",
@@ -8,7 +8,7 @@
     "usb": {
         "vid": "0x0C45",
         "pid": "0x8012",
-        "device_version": "1.0.1",
+        "device_version": "1.0.3",
         "suspend_wakeup_delay": 1000
     },
     "host": {
@@ -90,8 +90,8 @@
             { "flags": 4, "matrix": [1, 12], "x": 187, "y": 16},
             { "flags": 4, "matrix": [1, 11], "x": 172, "y": 16},
             { "flags": 4, "matrix": [1, 10], "x": 157, "y": 16},
-            { "flags": 4, "matrix": [1, 8],  "x": 127, "y": 16},
-            { "flags": 4, "matrix": [1, 9],  "x": 142, "y": 16},
+            { "flags": 4, "matrix": [1, 9],  "x": 127, "y": 16},
+            { "flags": 4, "matrix": [1, 8],  "x": 142, "y": 16},
             { "flags": 4, "matrix": [1, 7],  "x": 112, "y": 16},
             { "flags": 4, "matrix": [1, 6],  "x":  97, "y": 16},
             { "flags": 4, "matrix": [1, 5],  "x":  82, "y": 16},

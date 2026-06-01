@@ -1496,7 +1496,7 @@ static void factory_reset_indicate(void) {
         }
     }
 }
-
+extern bool no_local_rgb_effect;
 // ===========================================
 // Main RGB indicator functions
 // ===========================================
@@ -1540,16 +1540,16 @@ bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max) {
     // Charging status indicator
     bt_charging_indication();
 
-    if (keymap_config.no_gui) {
+    if (keymap_config.no_gui && !no_local_rgb_effect) {
         rgb_matrix_set_color(LED_LWIN_INDEX, 0xC8, 0xC8, 0xC8);
     }
 
     if (dev_info.devs == DEVS_USB) {
-        if (!host_keyboard_led_state().num_lock && (USB_DRIVER.state != USB_SUSPENDED) && (get_highest_layer(default_layer_state) == 0)) {
+        if (!host_keyboard_led_state().num_lock && (USB_DRIVER.state != USB_SUSPENDED) && (get_highest_layer(default_layer_state) == 0) && !no_local_rgb_effect) {
             rgb_matrix_set_color(LED_NUM_INDEX, 0xC8, 0xC8, 0xC8);
         }
     } else {
-        if (!host_keyboard_led_state().num_lock && bts_info.bt_info.paired && (get_highest_layer(default_layer_state) == 0)) {
+        if (!host_keyboard_led_state().num_lock && bts_info.bt_info.paired && (get_highest_layer(default_layer_state) == 0) && !no_local_rgb_effect) {
             rgb_matrix_set_color(LED_NUM_INDEX, 0xC8, 0xC8, 0xC8);
         }
     }

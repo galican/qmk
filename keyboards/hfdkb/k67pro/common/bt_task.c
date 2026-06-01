@@ -864,12 +864,21 @@ static void indicator_factory_reset(void) {
 
             eeconfig_init();
 
+            dip_switch_read(true);
+
             if (keymap_config.no_gui) {
                 keymap_config.no_gui = false;
             }
 
-            if (indicator_status != 0) {
-                last_total_time = timer_read32();
+            // if (indicator_status != 0) {
+            //     last_total_time = timer_read32();
+            // }
+            if ((dev_info.devs != DEVS_USB) && !bts_info.bt_info.paired) {
+                if (dev_info.devs == DEVS_2_4G) {
+                    bt_switch_mode(dev_info.last_devs, DEVS_2_4G, false);
+                } else {
+                    bt_switch_mode(dev_info.last_devs, dev_info.devs, false);
+                }
             }
         }
 
@@ -904,17 +913,23 @@ static void battery_voltage_display(void) {
     }
 }
 
+bool battery_low_warning_flag = false;
 // Low battery breathing effect & long press to sleep
 static void battery_low_warning(void) {
     if (gpio_read_pin(BT_CABLE_PIN)) {
         if (!gpio_read_pin(BT_CHARGE_PIN)) {
             rgb_matrix_set_color(61, 100, 0, 0);
         }
+        battery_low_warning_flag = false;
     } else {
         static bool     Low_power_blink = false;
         static uint32_t Low_power_time  = 0;
 
         if (bts_info.bt_info.low_vol) {
+            battery_low_warning_flag = true;
+        }
+
+        if (battery_low_warning_flag) {
             if (timer_elapsed32(Low_power_time) >= 1000) {
                 Low_power_blink = !Low_power_blink;
                 Low_power_time  = timer_read32();
@@ -1051,7 +1066,7 @@ static void indicator_bluetooth_connection(void) {
                     break;
                 }
 
-                if (timer_elapsed32(last_total_time) >= (10 * 1000)) {
+                if (timer_elapsed32(last_total_time) >= (20 * 1000)) {
                     indicator_status = 0;
                     kb_sleep_flag    = true;
                 }
@@ -1069,7 +1084,7 @@ static void indicator_bluetooth_connection(void) {
                 rgb = (RGB){0, 0, 0};
             } break;
 
-            default:
+            default: {
                 rgb_flip = false;
                 if (!kb_sleep_flag) {
                     if (!bts_info.bt_info.paired) {
@@ -1080,14 +1095,15 @@ static void indicator_bluetooth_connection(void) {
                         indicator_status = 2;
                         if (!bts_info.bt_info.pairing) {
                             if (dev_info.devs == DEVS_2_4G) {
-                                bt_switch_mode(DEVS_USB, DEVS_2_4G, false);
+                                bt_switch_mode(dev_info.last_devs, DEVS_2_4G, false);
                             } else {
-                                bt_switch_mode(DEVS_USB, dev_info.last_devs, false);
+                                bt_switch_mode(dev_info.last_devs, dev_info.devs, false);
                             }
                         }
                         break;
                     }
                 }
+            } break;
         }
 
         if (indicator_status) rgb_matrix_set_color(rgb_index, rgb.r, rgb.g, rgb.b);

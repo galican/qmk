@@ -71,6 +71,7 @@
         {"name":"Batt. Check",  "title":"Query the voltage of battery",  "shortName":"Batt.Check"},
         {"name":"KC_ LOCK",  "title":"All the key lock",  "shortName":"KC_LOCK"},
         {"name":"OS_SW",  "title":"Switch system mode",  "shortName":"OS_SW"},
+        {"name":"N2FN",  "title":"Switch number keys to function keys",  "shortName":"N2FN"},
         {"name":"SLED_ MODE",  "title":"Switch the effect of side light",  "shortName":"SL_MODE"},
         {"name":"ALED_ MODE",  "title":"Switch the effect of logo light",  "shortName":"AL_MODE"}
     ],

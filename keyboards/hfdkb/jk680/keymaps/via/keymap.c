@@ -44,9 +44,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [WIN_FN] = LAYOUT_ansi_67( /* FN */
         KC_GRV,  KC_F1,    KC_F2,    KC_F3,    KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,     KC_F12,  RM_TOGG, KC_INS,
-        RM_HUEU, KC_MSEL,  KC_VOLD,  KC_VOLU,  KC_MUTE, KC_MSTP, KC_MPRV, KC_MPLY, KC_MNXT, KC_MAIL, KC_WHOM, KC_LOCK,    KC_CALC, RM_NEXT, KC_END,
+        RM_HUEU, KC_MSEL,  KC_VOLD,  KC_VOLU,  KC_MUTE, KC_MSTP, KC_MPRV, KC_MPLY, KC_MNXT, KC_MAIL, KC_WHOM, KC_MYCM,    KC_CALC, RM_NEXT, KC_END,
         _______, _______,  OS_SW,    _______,  _______, _______, _______, _______, _______, _______, _______, _______,             _______, KC_PSCR,
-        _______,           BT1,      BT2,      BT3,     BT4,     _______, _______, _______, AL_MODE, _______, _______,    _______, RM_VALU, KC_PAUS,
+        _______,           BT1,      BT2,      BT3,     BT4,     KC_N2FN, _______, _______, AL_MODE, _______, _______,    _______, RM_VALU, KC_PAUS,
         SL_MODE, GU_TOGG,  _______,                              EE_CLR,                            _______, _______,    RM_SPDD, RM_VALD, RM_SPDU),
 
     [WIN_EX] = LAYOUT_ansi_67( /* FN */
@@ -67,7 +67,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_GRV,  KC_F1,    KC_F2,    KC_F3,    KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,     KC_F12,  RM_TOGG, KC_INS,
         RM_HUEU, KC_BRID,  KC_BRIU,  KC_MCTL,  KC_LPAD, RM_VALD, RM_VALU, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD,    KC_VOLU, RM_NEXT, KC_END,
         _______, OS_SW,    _______,  _______,  _______, _______, _______, _______, _______, _______, _______, _______,             _______, KC_PSCR,
-        _______,           BT1,      BT2,      BT3,     BT4,     _______, _______, _______, AL_MODE, _______, _______,    _______, RM_VALU, KC_PAUS,
+        _______,           BT1,      BT2,      BT3,     BT4,     KC_N2FN, _______, _______, AL_MODE, _______, _______,    _______, RM_VALU, KC_PAUS,
         SL_MODE, _______,  _______,                              EE_CLR,                            _______, _______,    RM_SPDD, RM_VALD, RM_SPDU),
 
     [MAC_EX] = LAYOUT_ansi_67( /* FN */
@@ -80,7 +80,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // clang-format on
 
+uint16_t FUN_table[][12] = {
+    {KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9, KC_0, KC_MINS, KC_EQL},
+    {KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12},
+};
+
+static uint8_t  single_blink_cnt   = 0;
+static uint8_t  single_blink_index = 0;
+static RGB      single_blink_color = {0};
+static uint32_t single_blink_time  = 0;
+
 bool KEY_LOCK_flag = false;
+bool NUM_2_FN_flag = false;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -91,9 +102,87 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case MO(WIN_FN):
         case MO(MAC_FN):
             return true;
+
+        case KC_N2FN: {
+            if (record->event.pressed) {
+                if (get_highest_layer(default_layer_state) == WIN_B) {
+                    if (dynamic_keymap_get_keycode(WIN_B, 0, 1) == KC_1) {
+                        for (size_t i = 0; i < 12; i++) {
+                            dynamic_keymap_set_keycode(WIN_B, 0, i + 1, FUN_table[1][i]);
+                        }
+                        NUM_2_FN_flag = true;
+                        // single_blink_color = (RGB){100, 100, 100};
+                    } else if (dynamic_keymap_get_keycode(WIN_B, 0, 1) == KC_F1) {
+                        for (size_t i = 0; i < 12; i++) {
+                            dynamic_keymap_set_keycode(WIN_B, 0, i + 1, FUN_table[0][i]);
+                        }
+                        NUM_2_FN_flag = false;
+                        // single_blink_color = (RGB){0, 0, 100};
+                    }
+                    // single_blink_cnt   = 6;
+                    // single_blink_index = LED_LEFT_CTRL_INDEX;
+                    // if (timer_elapsed32(single_blink_time) >= 300) {
+                    //     single_blink_time = timer_read32();
+                    // }
+                } else if (get_highest_layer(default_layer_state) == MAC_B) {
+                    if (dynamic_keymap_get_keycode(MAC_B, 0, 1) == KC_1) {
+                        for (size_t i = 0; i < 12; i++) {
+                            dynamic_keymap_set_keycode(MAC_B, 0, i + 1, FUN_table[1][i]);
+                        }
+                        NUM_2_FN_flag = true;
+                        // single_blink_color = (RGB){100, 100, 100};
+                    } else if (dynamic_keymap_get_keycode(MAC_B, 0, 1) == KC_F1) {
+                        for (size_t i = 0; i < 12; i++) {
+                            dynamic_keymap_set_keycode(MAC_B, 0, i + 1, FUN_table[0][i]);
+                        }
+                        NUM_2_FN_flag = false;
+                        // // single_blink_color = (RGB){0, 0, 100};
+                    }
+                    // single_blink_cnt   = 6;
+                    // single_blink_index = LED_LEFT_CTRL_INDEX;
+                    // if (timer_elapsed32(single_blink_time) >= 300) {
+                    //     single_blink_time = timer_read32();
+                    // }
+                }
+            }
+            return false;
+        }
+
         default:
             if (KEY_LOCK_flag) return false;
             break;
     }
     return true;
+}
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    if (single_blink_cnt) {
+        if (timer_elapsed32(single_blink_time) > 300) {
+            single_blink_time = timer_read32();
+            single_blink_cnt--;
+        }
+        if (single_blink_cnt % 2) {
+            rgb_matrix_set_color(single_blink_index, single_blink_color.r, single_blink_color.g, single_blink_color.b);
+        } else {
+            rgb_matrix_set_color(single_blink_index, 0, 0, 0);
+        }
+    }
+
+    return true;
+}
+
+void keyboard_post_init_user(void) {
+    if (get_highest_layer(default_layer_state) == WIN_B) {
+        if (dynamic_keymap_get_keycode(WIN_B, 0, 1) == KC_1) {
+            NUM_2_FN_flag = false;
+        } else if (dynamic_keymap_get_keycode(WIN_B, 0, 1) == KC_F1) {
+            NUM_2_FN_flag = true;
+        }
+    } else if (get_highest_layer(default_layer_state) == MAC_B) {
+        if (dynamic_keymap_get_keycode(MAC_B, 0, 1) == KC_1) {
+            NUM_2_FN_flag = false;
+        } else if (dynamic_keymap_get_keycode(MAC_B, 0, 1) == KC_F1) {
+            NUM_2_FN_flag = true;
+        }
+    }
 }
