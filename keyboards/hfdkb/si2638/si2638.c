@@ -126,18 +126,18 @@ bool led_inited = false;
 void led_config_all(void) {
     if (!led_inited) {
         // Set our LED pins as output
-        setPinOutput(A14);
+        gpio_set_pin_output(A14);
         if (dev_info.devs == DEVS_USB) {
-            writePinLow(A14);
+            gpio_write_pin_low(A14);
         } else {
-            writePinHigh(A14);
+            gpio_write_pin_high(A14);
         }
         // setPinOutput(RGB_DRIVER_SDB_PIN);
         // writePinHigh(RGB_DRIVER_SDB_PIN);
         // rgb_matrix_init();
 
-        setPinOutput(INDLED_POWER_PIN);
-        writePinLow(INDLED_POWER_PIN);
+        gpio_set_pin_output(INDLED_POWER_PIN);
+        gpio_write_pin_low(INDLED_POWER_PIN);
 
         led_inited = true;
     }
@@ -147,9 +147,9 @@ void led_deconfig_all(void) {
     if (led_inited) {
         // Set our LED pins as input
         // writePinLow(RGB_DRIVER_SDB_PIN);
-        writePinLow(LED_NUM_LOCK_PIN);
-        writePinLow(LED_CAPS_LOCK_PIN);
-        writePinLow(INDLED_POWER_PIN);
+        gpio_write_pin_low(LED_NUM_LOCK_PIN);
+        gpio_write_pin_low(LED_CAPS_LOCK_PIN);
+        gpio_write_pin_low(INDLED_POWER_PIN);
 
         led_inited = false;
     }
@@ -167,7 +167,7 @@ void Charge_Chat(void) {
     uint8_t i = 0;
 
     // if (!readPin(BT_CABLE_PIN)) i |= 0x01;
-    if (!readPin(BT_CHARGE_PIN)) i |= 0x02;
+    if (!gpio_read_pin(BT_CHARGE_PIN)) i |= 0x02;
 
     if (rChr_ChkBuf != i) {
         rChr_Cnt    = CHR_DEBOUNCE;
@@ -195,8 +195,8 @@ bool low_vol_off = false;
 
 void set_led_state(void) {
     if (led_inited) {
-        writePin(LED_NUM_LOCK_PIN, (host_keyboard_led_state().num_lock));
-        writePin(LED_CAPS_LOCK_PIN, (host_keyboard_led_state().caps_lock));
+        gpio_write_pin(LED_NUM_LOCK_PIN, (host_keyboard_led_state().num_lock));
+        gpio_write_pin(LED_CAPS_LOCK_PIN, (host_keyboard_led_state().caps_lock));
 #if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
         // 充电接入
         static uint32_t charging_time = 0;
@@ -204,13 +204,13 @@ void set_led_state(void) {
         static bool     Low_power_bink;
         static uint16_t Low_power_time;
 
-        if (!readPin(BT_CABLE_PIN)) {
+        if (!gpio_read_pin(BT_CABLE_PIN)) {
             if (f_Charged) {
-                writePinHigh(INDLED_POWER_PIN);
+                gpio_write_pin_high(INDLED_POWER_PIN);
                 charging_time = timer_read32();
             } else {
                 if (timer_elapsed32(charging_time) > 1000) {
-                    writePinLow(INDLED_POWER_PIN);
+                    gpio_write_pin_low(INDLED_POWER_PIN);
                 }
             }
 
@@ -222,17 +222,17 @@ void set_led_state(void) {
 
             if (low_vol_off) low_vol_off = false;
         } else {
-            if ((bts_info.bt_info.low_vol) && readPin(BT_CABLE_PIN)) {
+            if ((bts_info.bt_info.low_vol) && gpio_read_pin(BT_CABLE_PIN)) {
                 if (!low_vol_off) low_vol_off = true;
             } else {
-                writePinLow(INDLED_POWER_PIN);
+                gpio_write_pin_low(INDLED_POWER_PIN);
             }
             if (low_vol_off) {
                 if (timer_elapsed(Low_power_time) >= 300) {
                     Low_power_bink = !Low_power_bink;
                     Low_power_time = timer_read();
                 }
-                writePin(INDLED_POWER_PIN, Low_power_bink);
+                gpio_write_pin(INDLED_POWER_PIN, Low_power_bink);
             }
         }
 #endif
@@ -295,8 +295,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
 void matrix_init_kb(void) {
 #ifdef RGB_DRIVER_SDB_PIN
-    setPinOutputOpenDrain(RGB_DRIVER_SDB_PIN);
-    writePinHigh(RGB_DRIVER_SDB_PIN);
+    gpio_set_pin_output_push_pull(RGB_DRIVER_SDB_PIN);
+    gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 #endif
 
 #ifdef BT_MODE_ENABLE
@@ -347,7 +347,7 @@ void housekeeping_task_kb(void) {
                 usb_suspend       = false;
                 usb_suspend_timer = 0;
 #    ifdef RGB_DRIVER_SDB_PIN
-                writePinHigh(RGB_DRIVER_SDB_PIN);
+                gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
                 rgb_matrix_init();
 #    endif
             }
@@ -360,7 +360,7 @@ void housekeeping_task_kb(void) {
                 if (!usb_suspend) {
                     usb_suspend = true;
 #    ifdef RGB_DRIVER_SDB_PIN
-                    writePinLow(RGB_DRIVER_SDB_PIN);
+                    gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
 #    endif
                 }
                 led_deconfig_all();
@@ -371,7 +371,7 @@ void housekeeping_task_kb(void) {
                 usb_suspend_timer = 0;
                 usb_suspend       = false;
 #    ifdef RGB_DRIVER_SDB_PIN
-                writePinHigh(RGB_DRIVER_SDB_PIN);
+                gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
                 rgb_matrix_init();
 #    endif
             }
@@ -381,7 +381,7 @@ void housekeeping_task_kb(void) {
             usb_suspend_timer = 0;
             usb_suspend       = false;
 #    ifdef RGB_DRIVER_SDB_PIN
-            writePinHigh(RGB_DRIVER_SDB_PIN);
+            gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
             rgb_matrix_init();
 #    endif
         }

@@ -1,11 +1,17 @@
-/**
- * @file low_power.c
- * @brief
- * @author Joy chang.li@westberrytech.com
- * @version 1.0.0
- * @date 2022-09-16
+/* Copyright (C) 2023 Westberry Technology (ChangZhou) Corp., Ltd
  *
- * @copyright Copyright (c) 2022 Westberry Technology (ChangZhou) Corp., Ltd
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifdef ENTRY_STOP_MODE
@@ -127,7 +133,7 @@ void _pal_lld_enablepadevent(ioportid_t port, iopadid_t pad, ioeventmode_t mode)
     EXTI->EMR &= ~padmask;
 }
 
-static void pad_enable_interrupt(ioline_t pin) {
+static void pad_enbale_interrupt(ioline_t pin) {
     switch (pin) {
         case 0:
             nvicEnableVector(EXTI0_IRQn, WB32_IRQ_EXTI0_PRIORITY);
@@ -162,7 +168,7 @@ static void pad_enable_interrupt(ioline_t pin) {
     }
 }
 
-bool low_vol_offed_sleep = false;
+bool low_vol_offed_sleep;
 
 static void exti_init(void) {
     if (!low_vol_offed_sleep) {
@@ -170,29 +176,32 @@ static void exti_init(void) {
             gpio_set_pin_output_open_drain(col_pins[col]);
             gpio_write_pin_low(col_pins[col]);
         }
-        for (int col = 0; col < MATRIX_COLS; col++) {
-            gpio_set_pin_output_open_drain(col_pins[col]);
-            gpio_write_pin_low(col_pins[col]);
-        }
 
         for (int row = 0; row < MATRIX_ROWS; row++) {
             gpio_set_pin_input_high(row_pins[row]);
+            waitInputPinDelay();
             _pal_lld_enablepadevent(PAL_PORT(row_pins[row]), PAL_PAD(row_pins[row]), PAL_EVENT_MODE_BOTH_EDGES);
-            pad_enable_interrupt(PAL_PAD(row_pins[row]));
+            pad_enbale_interrupt(PAL_PAD(row_pins[row]));
         }
 
-#    if defined(RF_MODE_SW_PIN) && defined(BT_MODE_SW_PIN)
+#    if defined(BT_MODE_SW_PIN) && defined(RF_MODE_SW_PIN)
         gpio_set_pin_input_high(BT_MODE_SW_PIN);
-        _pal_lld_enablepadevent(PAL_PORT(BT_MODE_SW_PIN), PAL_PAD(BT_MODE_SW_PIN), PAL_EVENT_MODE_BOTH_EDGES);
-        pad_enable_interrupt(PAL_PAD(BT_MODE_SW_PIN));
         gpio_set_pin_input_high(RF_MODE_SW_PIN);
+        _pal_lld_enablepadevent(PAL_PORT(BT_MODE_SW_PIN), PAL_PAD(BT_MODE_SW_PIN), PAL_EVENT_MODE_BOTH_EDGES);
         _pal_lld_enablepadevent(PAL_PORT(RF_MODE_SW_PIN), PAL_PAD(RF_MODE_SW_PIN), PAL_EVENT_MODE_BOTH_EDGES);
-        pad_enable_interrupt(PAL_PAD(RF_MODE_SW_PIN));
+        pad_enbale_interrupt(PAL_PAD(BT_MODE_SW_PIN));
+        pad_enbale_interrupt(PAL_PAD(RF_MODE_SW_PIN));
+
 #    endif
+
+        // Enable cable detection for wakeup
+
     } else {
-        gpio_set_pin_input_high(BT_CABLE_PIN);
+#    ifdef BT_CABLE_PIN
+        //     gpio_set_pin_input_high(BT_CABLE_PIN);
         _pal_lld_enablepadevent(PAL_PORT(BT_CABLE_PIN), PAL_PAD(BT_CABLE_PIN), PAL_EVENT_MODE_BOTH_EDGES);
-        pad_enable_interrupt(PAL_PAD(BT_CABLE_PIN));
+        pad_enbale_interrupt(PAL_PAD(BT_CABLE_PIN));
+#    endif
     }
 }
 

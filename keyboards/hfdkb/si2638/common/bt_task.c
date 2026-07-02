@@ -33,13 +33,13 @@ typedef struct {
 uint32_t   bt_init_time = 0;
 dev_info_t dev_info     = {0};
 bts_info_t bts_info     = {
-        .bt_name        = {"YUNZII X98 BT$", "YUNZII X98 BT$", "YUNZII X98 BT$"},
-        .uart_init      = uart_init,
-        .uart_read      = uart_read,
-        .uart_transmit  = uart_transmit,
-        .uart_receive   = uart_receive,
-        .uart_available = uart_available,
-        .timer_read32   = timer_read32,
+    .bt_name        = {"YUNZII X98 BT$", "YUNZII X98 BT$", "YUNZII X98 BT$"},
+    .uart_init      = uart_init,
+    .uart_read      = uart_read,
+    .uart_transmit  = uart_transmit,
+    .uart_receive   = uart_receive,
+    .uart_available = uart_available,
+    .timer_read32   = timer_read32,
 };
 
 static void long_pressed_keys_hook(void);
@@ -231,12 +231,12 @@ void bt_init(void) {
     if (dev_info.devs != DEVS_USB) {
         usbDisconnectBus(&USB_DRIVER);
         usbStop(&USB_DRIVER);
-        writePinHigh(A12);
+        gpio_write_pin_high(A12);
     }
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
     bt_init_time = timer_read32();
 }
@@ -416,9 +416,9 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
         dev_info.last_devs = dev_info.devs;
     }
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
     bts_info.bt_info.pairing       = false;
     bts_info.bt_info.paired        = false;
@@ -1117,13 +1117,13 @@ static void long_pressed_keys_hook(void) {
 
 static void bt_used_pin_init(void) {
 #ifdef BT_MODE_SW_PIN
-    setPinInputHigh(BT_MODE_SW_PIN);
-    setPinInputHigh(RF_MODE_SW_PIN);
+    gpio_set_pin_input_high(BT_MODE_SW_PIN);
+    gpio_set_pin_input_high(RF_MODE_SW_PIN);
 #endif
 
 #if defined(BT_CABLE_PIN) && defined(BT_CHARGE_PIN)
-    setPinInput(BT_CABLE_PIN);
-    setPinInput(BT_CHARGE_PIN);
+    gpio_set_pin_input(BT_CABLE_PIN);
+    gpio_set_pin_input(BT_CHARGE_PIN);
 #endif
 }
 uint32_t mode_change_to_USB_time;
@@ -1137,15 +1137,15 @@ static void bt_scan_mode(void) {
     uint8_t        now_mode = 0;
     static uint8_t old_mode = 0;
 
-    if (readPin(RF_MODE_SW_PIN) && !readPin(BT_MODE_SW_PIN)) {
+    if (gpio_read_pin(RF_MODE_SW_PIN) && !gpio_read_pin(BT_MODE_SW_PIN)) {
         now_mode = 0;
         if ((dev_info.devs == DEVS_USB) || (dev_info.devs == DEVS_2_4G)) bt_switch_mode(dev_info.devs, dev_info.last_devs, false); // BT mode
     }
-    if (readPin(BT_MODE_SW_PIN) && !readPin(RF_MODE_SW_PIN)) {
+    if (gpio_read_pin(BT_MODE_SW_PIN) && !gpio_read_pin(RF_MODE_SW_PIN)) {
         now_mode = 1;
         if (dev_info.devs != DEVS_2_4G) bt_switch_mode(dev_info.devs, DEVS_2_4G, false); // 2_4G mode
     }
-    if (readPin(BT_MODE_SW_PIN) && readPin(RF_MODE_SW_PIN)) {
+    if (gpio_read_pin(BT_MODE_SW_PIN) && gpio_read_pin(RF_MODE_SW_PIN)) {
         now_mode = 2;
         if (dev_info.devs != DEVS_USB) {
             mode_change_to_USB_time = timer_read32();
@@ -1157,9 +1157,9 @@ static void bt_scan_mode(void) {
     if ((old_mode != now_mode) && !low_vol_off) {
         old_mode = now_mode;
 
-        writePinLow(RGB_DRIVER_SDB_PIN);
+        gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
         wait_ms(1);
-        writePinHigh(RGB_DRIVER_SDB_PIN);
+        gpio_write_pin_high(RGB_DRIVER_SDB_PIN);
 
         rgb_matrix_init();
     }
@@ -1192,7 +1192,7 @@ static void close_rgb(void) {
             sober          = false;
             close_rgb_time = timer_read32();
             rgb_matrix_disable_noeeprom();
-            writePinLow(RGB_DRIVER_SDB_PIN);
+            gpio_write_pin_low(RGB_DRIVER_SDB_PIN);
         }
     } else {
         if (!rgb_matrix_config.enable) {
@@ -1225,7 +1225,7 @@ void open_rgb(void) {
     // #    ifdef RGB_DRIVER_SDB_PIN
     // #    endif
     if (!sober) {
-        writePinHigh(RGB_DRIVER_SDB_PIN); // 解决休眠唤醒RGB轴灯不亮
+        gpio_write_pin_high(RGB_DRIVER_SDB_PIN); // 解决休眠唤醒RGB轴灯不亮
         rgb_matrix_init();
         if (bak_rgb_toggle) {
             kb_sleep_flag = false;
@@ -1326,7 +1326,7 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
             }
         }
 
-        if ((bts_info.bt_info.low_vol_offed) && readPin(BT_CABLE_PIN)) {
+        if ((bts_info.bt_info.low_vol_offed) && gpio_read_pin(BT_CABLE_PIN)) {
             if (timer_elapsed32(pressed_time) > 2000) {
                 kb_sleep_flag = true;
             }
