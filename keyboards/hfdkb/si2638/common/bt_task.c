@@ -412,14 +412,17 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
     }
 
     dev_info.devs = now_mode;
+
     if ((dev_info.devs != DEVS_USB) && (dev_info.devs != DEVS_2_4G)) {
         dev_info.last_devs = dev_info.devs;
     }
+
     if (dev_info.devs == DEVS_USB) {
         gpio_write_pin_low(A14);
     } else {
         gpio_write_pin_high(A14);
     }
+
     bts_info.bt_info.pairing       = false;
     bts_info.bt_info.paired        = false;
     bts_info.bt_info.come_back     = false;
@@ -1450,6 +1453,31 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
             rgb_matrix_set_color(rgb_index_table[DEVS_USB], 100, 100, 100);
         }
     }
+
+    static uint32_t bt_send_channel = 0;
+
+    if (!bts_info.bt_info.paired && !bts_info.bt_info.pairing && !kb_sleep_flag) {
+        if (timer_elapsed32(bt_send_channel) >= 2000) {
+            bt_send_channel = timer_read32();
+            if (dev_info.devs != DEVS_2_4G && dev_info.devs != DEVS_USB) {
+                switch (dev_info.devs) {
+                    case DEVS_HOST1: {
+                        bts_send_vendor(v_host1);
+                    } break;
+                    case DEVS_HOST2: {
+                        bts_send_vendor(v_host2);
+                    } break;
+                    case DEVS_HOST3: {
+                        bts_send_vendor(v_host3);
+                    } break;
+
+                    default: {
+                    } break;
+                }
+            }
+        }
+    }
+
     return true;
 }
 #endif

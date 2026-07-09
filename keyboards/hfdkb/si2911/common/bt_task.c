@@ -1557,6 +1557,30 @@ bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max) {
     // Factory reset
     factory_reset_indicate();
 
+    static uint32_t bt_send_channel = 0;
+
+    if (!bts_info.bt_info.paired && !bts_info.bt_info.pairing && !kb_sleep_flag) {
+        if (timer_elapsed32(bt_send_channel) >= 2000) {
+            bt_send_channel = timer_read32();
+            if (dev_info.devs != DEVS_2_4G && dev_info.devs != DEVS_USB) {
+                switch (dev_info.devs) {
+                    case DEVS_HOST1: {
+                        bts_send_vendor(v_host1);
+                    } break;
+                    case DEVS_HOST2: {
+                        bts_send_vendor(v_host2);
+                    } break;
+                    case DEVS_HOST3: {
+                        bts_send_vendor(v_host3);
+                    } break;
+
+                    default: {
+                    } break;
+                }
+            }
+        }
+    }
+
     return true;
 }
 
