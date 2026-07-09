@@ -22,9 +22,10 @@ enum bt_keycodes {
     BT_HOST1 = QK_KB_0,
     BT_HOST2,
     BT_HOST3,
-    BT_2_4G,
-    BT_USB,
+    // BT_2_4G,
+    // BT_USB,
     BT_VOL,
     OS_SWITCH,
     // RGB_TEST,
+    KC_FLASK,
 };

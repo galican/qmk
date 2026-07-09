@@ -8,7 +8,7 @@
     "usb": {
         "vid": "0xFFFE",
         "pid": "0x0040",
-        "device_version": "1.0.1",
+        "device_version": "1.0.3",
         "suspend_wakeup_delay": 1000
     },
     "host": {
@@ -37,11 +37,11 @@
         }
     },
     "rgb_matrix": {
-        "driver": "snled27351",
+        "driver": "is31fl3733",
         "react_on_keyup": true,
         "sleep": true,
         "max_brightness": 255,
-        "val_steps": 40,
+        "val_steps": 64,
         "speed_steps": 64,
         "hue_steps": 32,
         "animations": {

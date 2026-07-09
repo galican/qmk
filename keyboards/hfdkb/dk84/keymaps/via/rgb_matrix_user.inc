@@ -14,7 +14,7 @@ static bool EFFECT_CONST(effect_params_t *params) {
     uint8_t brightness = rgb_matrix_get_val();
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
-        rgb_matrix_set_color(i, brightness, brightness, brightness);
+        rgb_matrix_set_color(i, brightness / 3, brightness, brightness);
         // rgb_matrix_set_color(i, 255, 244, 229);
     }
     return rgb_matrix_check_finished_leds(led_max);
