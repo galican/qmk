@@ -1,5 +1,5 @@
 {
-    "manufacturer": "hfd",
+    "manufacturer": "AULA",
     "keyboard_name": "YUNZII B98 PRO Keyboard",
     "maintainer": "jonylee@hfd",
     "url": "https://github.com/jonylee1986",
@@ -8,7 +8,7 @@
     "usb": {
         "vid": "0xFFFE",
         "pid": "0x00AA",
-        "device_version": "1.3.9",
+        "device_version": "1.5.0",
         "suspend_wakeup_delay": 1000
     },
     "features": {

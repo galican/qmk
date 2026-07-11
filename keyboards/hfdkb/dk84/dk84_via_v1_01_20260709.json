@@ -67,10 +67,9 @@
         {"name":"BT_1","title":"Switch to bluetooth host1","shortName":"BT_1"},
         {"name":"BT_2","title":"Switch to bluetooth host2","shortName":"BT_2"},
         {"name":"BT_3","title":"Switch to bluetooth host3","shortName":"BT_3"},
-        {"name":"2_4G","title":"Switch to 2_4G","shortName":"2_4G"},
-        {"name":"USB","title":"Switch to USB","shortName":"USB"},
         {"name":"Batt. Check",  "title":"Query the voltage of battery",  "shortName":"Batt.Check"},
-        {"name":"OS_SW",  "title":"Switch OS between Windows and Mac",  "shortName":"OS_SW"}
+        {"name":"OS_SW",  "title":"Switch OS between Windows and Mac",  "shortName":"OS_SW"},
+        {"name":"FLASK",  "title":"Switch layer base on the number",  "shortName":"FLASK"}
     ],
     "layouts": {
     "labels": [

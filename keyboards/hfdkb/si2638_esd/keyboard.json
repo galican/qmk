@@ -1,5 +1,5 @@
 {
-    "manufacturer": " ",
+    "manufacturer": "AULA",
     "keyboard_name": "YUNZII X98",
     "maintainer": "jonylee@hfd",
     "url": "https://github.com/jonylee1986",
@@ -8,7 +8,7 @@
     "usb": {
         "vid": "0xFFFE",
         "pid": "0x00A8",
-        "device_version": "1.3.5",
+        "device_version": "1.3.7",
         "suspend_wakeup_delay": 1000
     },
     "diode_direction": "ROW2COL",

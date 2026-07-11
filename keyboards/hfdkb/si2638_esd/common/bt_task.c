@@ -1479,8 +1479,8 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
 
     static uint32_t bt_send_channel = 0;
 
-    if (!bts_info.bt_info.paired && !bts_info.bt_info.pairing && !kb_sleep_flag) {
-        if (timer_elapsed32(bt_send_channel) >= 2000) {
+    if (!bts_info.bt_info.paired && !bts_info.bt_info.pairing && !kb_sleep_flag && (indicator_status != 1) && (indicator_status == 2)) {
+        if (timer_elapsed32(bt_send_channel) >= 5000) {
             bt_send_channel = timer_read32();
             if (dev_info.devs != DEVS_2_4G && dev_info.devs != DEVS_USB) {
                 switch (dev_info.devs) {
