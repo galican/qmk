@@ -84,12 +84,6 @@ bool no_indicator_under_srgb = false;
 // uint8_t sled_mode_before_charge = SLED_MODE_VOL;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-#ifdef MULTIMODE_ENABLE
-    if (!bt_process_record(keycode, record)) {
-        return false;
-    }
-#endif
-
     switch (keycode) {
         case SLED_MOD:
         case BLED_MOD: {
@@ -180,7 +174,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
         }
 
-        case RM_PREV:
         case RM_HUEU:
         case RM_HUED:
         case RM_VALU:
@@ -194,9 +187,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             break;
 
+        case KC_RWIN:
+        case KC_APP:
+            if (record->event.pressed) {
+                if (keymap_config.no_gui) return false;
+            }
+            break;
+
         default:
             break;
     }
+
+#ifdef MULTIMODE_ENABLE
+    if (!bt_process_record(keycode, record)) {
+        return false;
+    }
+#endif
 
     return true;
 }

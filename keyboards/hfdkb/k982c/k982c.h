@@ -35,4 +35,5 @@ enum custom_keycodes {
     LED_WHITE,
     LCD_TOGGLE,
     LCD_TIME,
+    VIA_WEB,
 };

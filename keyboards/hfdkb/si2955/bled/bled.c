@@ -275,9 +275,13 @@ void bled_low_indicate(void) {
         Low_power_time = timer_read32();
     }
     if (Low_power_bink) {
-        rgb_matrix_set_color(sled_leds[0], RGB_RED);
+        for (uint8_t i = 0; i < sizeof(sled_leds) / sizeof(sled_leds[0]); i++) {
+            rgb_matrix_set_color(sled_leds[i], RGB_RED);
+        }
     } else {
-        rgb_matrix_set_color(sled_leds[0], RGB_OFF);
+        for (uint8_t i = 0; i < sizeof(sled_leds) / sizeof(sled_leds[0]); i++) {
+            rgb_matrix_set_color(sled_leds[i], RGB_OFF);
+        }
     }
 }
 

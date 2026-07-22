@@ -76,6 +76,8 @@ static uint8_t color_tab[][3] = {
     {HSV_PURPLE}, // PURPLE
 };
 
+extern bool no_indicator_under_srgb;
+
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     if (low_bat_vol_off) {
         bts_process_keys(keycode, 0, dev_info.devs, keymap_config.no_gui, KEY_NUM);
@@ -89,59 +91,69 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
 #ifdef RGB_MATRIX_ENABLE
         case QK_RGB_MATRIX_TOGGLE:
-            if (record->event.pressed) {
-                switch (rgb_matrix_get_flags()) {
-                    case LED_FLAG_ALL: {
-                        rgb_matrix_set_flags(LED_FLAG_NONE);
-                        rgb_matrix_set_color_all(0, 0, 0);
-                    } break;
-                    default: {
-                        rgb_matrix_set_flags(LED_FLAG_ALL);
-                    } break;
+            if (!no_indicator_under_srgb) {
+                if (record->event.pressed) {
+                    switch (rgb_matrix_get_flags()) {
+                        case LED_FLAG_ALL: {
+                            rgb_matrix_set_flags(LED_FLAG_NONE);
+                            rgb_matrix_set_color_all(0, 0, 0);
+                        } break;
+                        default: {
+                            rgb_matrix_set_flags(LED_FLAG_ALL);
+                        } break;
+                    }
                 }
-            }
-            if (!rgb_matrix_is_enabled()) {
-                rgb_matrix_set_flags(LED_FLAG_ALL);
-                rgb_matrix_enable();
+                if (!rgb_matrix_is_enabled()) {
+                    rgb_matrix_set_flags(LED_FLAG_ALL);
+                    rgb_matrix_enable();
+                }
             }
             return false;
 #endif
         case RM_HUEU:
-            if (record->event.pressed) {
-                if (dev_info.rgb_test_en) {
-                    dev_info.rgb_test_en = 0;
+            if (!no_indicator_under_srgb) {
+                if (record->event.pressed) {
+                    if (dev_info.rgb_test_en) {
+                        dev_info.rgb_test_en = 0;
+                    }
+                    dev_info.color_index++;
+                    if (dev_info.color_index >= sizeof(color_tab) / sizeof(color_tab[0])) {
+                        dev_info.color_index = 0;
+                    }
+                    rgb_matrix_config.hsv.h = color_tab[dev_info.color_index][0];
+                    eeconfig_update_user(dev_info.raw);
                 }
-                dev_info.color_index++;
-                if (dev_info.color_index >= sizeof(color_tab) / sizeof(color_tab[0])) {
-                    dev_info.color_index = 0;
-                }
-                rgb_matrix_config.hsv.h = color_tab[dev_info.color_index][0];
-                eeconfig_update_user(dev_info.raw);
             }
             return false;
         case RM_HUED:
-            if (record->event.pressed) {
-                if (dev_info.rgb_test_en) {
-                    dev_info.rgb_test_en = 0;
+            if (!no_indicator_under_srgb) {
+                if (record->event.pressed) {
+                    if (dev_info.rgb_test_en) {
+                        dev_info.rgb_test_en = 0;
+                    }
+                    if (dev_info.color_index == 0) {
+                        dev_info.color_index = sizeof(color_tab) / sizeof(color_tab[0]) - 1;
+                    } else {
+                        dev_info.color_index--;
+                    }
+                    rgb_matrix_config.hsv.h = color_tab[dev_info.color_index][0];
+                    eeconfig_update_user(dev_info.raw);
                 }
-                if (dev_info.color_index == 0) {
-                    dev_info.color_index = sizeof(color_tab) / sizeof(color_tab[0]) - 1;
-                } else {
-                    dev_info.color_index--;
-                }
-                rgb_matrix_config.hsv.h = color_tab[dev_info.color_index][0];
-                eeconfig_update_user(dev_info.raw);
             }
             return false;
         case RM_PREV:
         case RM_NEXT:
-            if (record->event.pressed) {
-                if (dev_info.rgb_test_en) {
-                    dev_info.rgb_test_en = 0;
-                    eeconfig_update_user(dev_info.raw);
+            if (!no_indicator_under_srgb) {
+                if (record->event.pressed) {
+                    if (dev_info.rgb_test_en) {
+                        dev_info.rgb_test_en = 0;
+                        eeconfig_update_user(dev_info.raw);
+                    }
                 }
+                return true;
+            } else {
+                return false;
             }
-            return true;
 
         default:
             break;
@@ -179,21 +191,23 @@ void keyboard_post_init_kb(void) {
 }
 
 bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
-    if ((rgb_matrix_get_flags() == LED_FLAG_NONE) || low_bat_vol) {
+    if (((rgb_matrix_get_flags() == LED_FLAG_NONE) || low_bat_vol) && !no_indicator_under_srgb) {
         rgb_matrix_set_color_all(0, 0, 0);
     }
 
     rgb_matrix_set_color(LED_PWR_INDEX, 0, 0, 0);
 
-    if (dev_info.rgb_test_en) {
+    if (dev_info.rgb_test_en && (rgb_matrix_get_flags() != LED_FLAG_NONE) && !no_indicator_under_srgb) {
         uint8_t brightness = rgb_matrix_get_val();
         for (uint8_t i = 0; i <= 83; i++) {
-            rgb_matrix_set_color(i, brightness / 2, brightness, brightness);
+            rgb_matrix_set_color(i, brightness * 2 / 5, brightness, brightness);
         }
     }
 
-    if (keymap_config.no_gui) {
-        rgb_matrix_set_color(73, 60, 60, 60);
+    if (!no_indicator_under_srgb) {
+        if (keymap_config.no_gui) {
+            rgb_matrix_set_color(GUI_LOCK_LED_INDEX, 60, 60, 60);
+        }
     }
 
     if (!rgb_matrix_indicators_advanced_user(led_min, led_max)) {
@@ -310,11 +324,11 @@ void set_led_state(void) {
             if (!dev_info.ind_toggle) {
                 if (gpio_read_pin(MM_CHARGE_PIN) && (pvol >= 100)) {
                     // if (timer_elapsed32(entry_full_time) >= 2000) {
-                    rgb_matrix_set_color(LED_PWR_INDEX, 0, 100, 0);
+                    rgb_matrix_set_color(LED_PWR_INDEX, 0, 255, 0);
                     // }
                 } else {
                     // entry_full_time = timer_read32();
-                    rgb_matrix_set_color(LED_PWR_INDEX, 100, 0, 0);
+                    rgb_matrix_set_color(LED_PWR_INDEX, 255, 0, 0);
                 }
             }
         } else {
@@ -420,7 +434,7 @@ static void low_power_indicator(void) {
             Low_power_time = timer_read32();
         }
         if (Low_power_bink) {
-            rgb_matrix_set_color(LED_PWR_INDEX, 100, 0, 0);
+            rgb_matrix_set_color(LED_PWR_INDEX, 255, 0, 0);
         } else {
             rgb_matrix_set_color(LED_PWR_INDEX, 0, 0, 0);
         }

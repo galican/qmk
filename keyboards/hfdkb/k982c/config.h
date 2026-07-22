@@ -55,6 +55,11 @@
 
 #    define USBLINK_Status readPin(MM_CABLE_PIN)
 #    define CHARGE_Status readPin(MM_CHARGE_PIN)
+
+#    define LED_INDICATOR_UNDER_SRGB
+#    define LOGO_LED_START_INDEX 84
+
+#    define GUI_LOCK_LED_INDEX 73
 #endif
 
 /* RGB Matrix Driver Configuration */

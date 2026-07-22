@@ -1,6 +1,4 @@
-ifeq ($(strip $(CONSOLE_ENABLE)), yes)
-    KEYBOARD_SHARED_EP = no
-endif
+KEYBOARD_SHARED_EP = yes
 
 # I2C_DRIVER_REQUIRED = yes
 

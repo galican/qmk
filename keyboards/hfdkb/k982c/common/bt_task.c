@@ -1132,7 +1132,33 @@ static void ble_led(void) {
             }
     }
     if (indicator_status != 0) rgb_matrix_set_color(rgb_index, rgb.r, rgb.g, rgb.b);
+
+    static uint32_t bt_send_channel = 0;
+
+    if (!bts_info.bt_info.paired && !bts_info.bt_info.pairing && !kb_sleep_flag && (indicator_status != 1) && (indicator_status == 2)) {
+        if (timer_elapsed32(bt_send_channel) >= 5000) {
+            bt_send_channel = timer_read32();
+            if (dev_info.devs != DEVS_2_4G && dev_info.devs != DEVS_USB) {
+                switch (dev_info.devs) {
+                    case DEVS_HOST1: {
+                        bts_send_vendor(v_host1);
+                    } break;
+                    case DEVS_HOST2: {
+                        bts_send_vendor(v_host2);
+                    } break;
+                    case DEVS_HOST3: {
+                        bts_send_vendor(v_host3);
+                    } break;
+
+                    default: {
+                    } break;
+                }
+            }
+        }
+    }
 }
+
+extern bool no_indicator_under_srgb;
 
 uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
     device_status_indicator();
@@ -1142,9 +1168,66 @@ uint8_t bt_indicator_rgb(uint8_t led_min, uint8_t led_max) {
         battery_level_indicator();
     }
 
-    factory_reset_indicator();
+    if (!no_indicator_under_srgb) factory_reset_indicator();
 
     return true;
 }
 
 #endif
+
+#include "signalrgb.h"
+
+srgb_color_t bat_check_under_srgb(srgb_color_t color, uint8_t index) {
+    return color;
+}
+
+srgb_color_t factory_reset_indicate_under_srgb(srgb_color_t color) {
+    // if (!EE_CLR_flag) {
+    //     return color;
+    // }
+
+    // color.r = 0;
+    // color.g = 0;
+    // color.b = 0;
+
+    // if (timer_elapsed32(EE_CLR_press_time) > 300) {
+    //     EE_CLR_press_time = timer_read32();
+    //     EE_CLR_press_cnt++;
+    // }
+
+    // if (EE_CLR_press_cnt > 6) {
+    //     EE_CLR_press_cnt  = 0;
+    //     EE_CLR_press_time = 0;
+    //     EE_CLR_flag       = false;
+
+    //     if (!no_indicator_under_srgb) eeconfig_update_rgb_matrix_default();
+
+    //     dev_info.LCD_Page = 0;
+    //     LCD_Page_update(dev_info.LCD_Page);
+
+    //     dev_info.rgb_test_en = 0;
+    //     dev_info.ind_toggle  = 0;
+    //     dev_info.color_index = 0;
+    //     eeconfig_update_user(dev_info.raw);
+
+    //     if (dev_info.devs != DEVS_USB && !bts_info.bt_info.paired) {
+    //         if (dev_info.devs == DEVS_2_4G) {
+    //             bt_switch_mode(dev_info.last_devs, DEVS_2_4G, false);
+    //         } else {
+    //             bt_switch_mode(dev_info.last_devs, dev_info.devs, false);
+    //         }
+    //     }
+
+    //     dip_switch_read(true);
+
+    //     LCD_command_update(LCD_RESET);
+    // }
+
+    // if (EE_CLR_press_cnt & 0x1) {
+    //     color.r = 100;
+    //     color.g = 100;
+    //     color.b = 100;
+    // }
+
+    return color;
+}

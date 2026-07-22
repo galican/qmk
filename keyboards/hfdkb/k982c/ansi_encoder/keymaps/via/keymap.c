@@ -52,7 +52,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  BT_1,     BT_2,     BT_3,     WL_2G4,   _______,  _______,  _______,  LCD_HOME,  _______,  LCD_PAGE,    _______,  _______,  RM_TOGG,  LCD_TOGGLE,
         LED_WHITE, _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,  RM_NEXT,  LCD_TIME,
         _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,    _______,            RM_HUEU,  _______,
-        _______,            _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RM_VALU,  _______,
+        _______,            _______,  _______,  VIA_WEB,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RM_VALU,  _______,
         _______,  GU_TOGG,  _______,                                _______,                      IND_TOGG, _______,    BT_VOL,   RM_SPDD,  RM_VALD,  RM_SPDU),
 
     [MAC_BASE] = LAYOUT_ansi(
@@ -68,7 +68,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  BT_1,     BT_2,     BT_3,     WL_2G4,   _______,  _______,  _______,  LCD_HOME,  _______,  LCD_PAGE,    _______,  _______,  RM_TOGG,  LCD_TOGGLE,
         LED_WHITE, _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,  RM_NEXT,  LCD_TIME,
         _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,    _______,            RM_HUEU,  _______,
-        _______,            _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RM_VALU,  _______,
+        _______,            _______,  _______,  VIA_WEB,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RM_VALU,  _______,
         _______,  _______,  _______,                                _______,                      IND_TOGG, _______,    BT_VOL,   RM_SPDD,  RM_VALD,  RM_SPDU),
 
 };
@@ -84,6 +84,8 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 
 // clang-format on
 
+bool no_indicator_under_srgb = false;
+
 static uint8_t  all_blink_cnt      = 0;
 static RGB      all_blink_color    = {0};
 static uint32_t all_blink_time     = 0;
@@ -94,6 +96,141 @@ static uint32_t single_blink_time  = 0;
 
 static bool     is_siri_active = false;
 static uint32_t siri_timer     = 0;
+
+enum via_web_states {
+    VIA_WEB_IDLE,
+    VIA_WEB_LAUNCH_RELEASE,
+    VIA_WEB_LAUNCH_WAIT,
+    VIA_WEB_CAPS_RELEASE,
+    VIA_WEB_CAPS_WAIT,
+    VIA_WEB_CHAR_PRESS,
+    VIA_WEB_CHAR_RELEASE,
+    VIA_WEB_SUBMIT_WAIT,
+    VIA_WEB_ENTER_RELEASE,
+    VIA_WEB_CAPS_RESTORE_WAIT,
+    VIA_WEB_CAPS_RESTORE_RELEASE,
+};
+
+static const uint16_t PROGMEM via_web_keycodes[] = {
+    KC_H, KC_T, KC_T, KC_P, KC_S, S(KC_SCLN), KC_SLSH, KC_SLSH, KC_Y, KC_U, KC_N, KC_Z, KC_I, KC_I, KC_DOT, KC_D, KC_R, KC_I, KC_V, KC_E, KC_A, KC_L, KC_L, KC_DOT, KC_C, KC_N, KC_SLSH,
+};
+
+static uint8_t  via_web_state = VIA_WEB_IDLE;
+static uint8_t  via_web_index = 0;
+static uint16_t via_web_keycode;
+static uint32_t via_web_timer;
+static bool     via_web_gui_was_locked;
+static bool     via_web_caps_was_on;
+static bool     via_web_is_mac;
+
+static void start_via_web(void) {
+    if (via_web_state != VIA_WEB_IDLE) {
+        return;
+    }
+
+    via_web_gui_was_locked = keymap_config.no_gui;
+    via_web_caps_was_on    = host_keyboard_led_state().caps_lock;
+    via_web_is_mac         = get_highest_layer(default_layer_state) == MAC_BASE;
+    via_web_index          = 0;
+
+    keymap_config.no_gui = false;
+    via_web_keycode      = via_web_is_mac ? G(KC_SPACE) : G(KC_R);
+    register_code16(via_web_keycode);
+    via_web_timer = timer_read32();
+    via_web_state = VIA_WEB_LAUNCH_RELEASE;
+}
+
+static void via_web_task(void) {
+    switch (via_web_state) {
+        case VIA_WEB_LAUNCH_RELEASE:
+            if (timer_elapsed32(via_web_timer) >= 30) {
+                unregister_code16(via_web_keycode);
+                keymap_config.no_gui = via_web_gui_was_locked;
+                via_web_timer        = timer_read32();
+                via_web_state        = VIA_WEB_LAUNCH_WAIT;
+            }
+            break;
+
+        case VIA_WEB_LAUNCH_WAIT:
+            if (timer_elapsed32(via_web_timer) >= 600) {
+                via_web_timer = timer_read32();
+                if (via_web_caps_was_on) {
+                    via_web_state = VIA_WEB_CHAR_PRESS;
+                } else {
+                    register_code(KC_CAPS);
+                    via_web_state = VIA_WEB_CAPS_RELEASE;
+                }
+            }
+            break;
+
+        case VIA_WEB_CAPS_RELEASE:
+            if (timer_elapsed32(via_web_timer) >= TAP_HOLD_CAPS_DELAY) {
+                unregister_code(KC_CAPS);
+                via_web_timer = timer_read32();
+                via_web_state = VIA_WEB_CAPS_WAIT;
+            }
+            break;
+
+        case VIA_WEB_CAPS_WAIT:
+            if (timer_elapsed32(via_web_timer) >= 100) {
+                via_web_timer = timer_read32();
+                via_web_state = VIA_WEB_CHAR_PRESS;
+            }
+            break;
+
+        case VIA_WEB_CHAR_PRESS:
+            if (timer_elapsed32(via_web_timer) >= 10) {
+                via_web_keycode = pgm_read_word(&via_web_keycodes[via_web_index]);
+                register_code16(via_web_keycode);
+                via_web_timer = timer_read32();
+                via_web_state = VIA_WEB_CHAR_RELEASE;
+            }
+            break;
+
+        case VIA_WEB_CHAR_RELEASE:
+            if (timer_elapsed32(via_web_timer) >= 20) {
+                unregister_code16(via_web_keycode);
+                via_web_timer = timer_read32();
+                via_web_index++;
+                via_web_state = via_web_index < ARRAY_SIZE(via_web_keycodes) ? VIA_WEB_CHAR_PRESS : VIA_WEB_SUBMIT_WAIT;
+            }
+            break;
+
+        case VIA_WEB_SUBMIT_WAIT:
+            if (timer_elapsed32(via_web_timer) >= (via_web_is_mac ? 500 : 100)) {
+                register_code(KC_ENTER);
+                via_web_timer = timer_read32();
+                via_web_state = VIA_WEB_ENTER_RELEASE;
+            }
+            break;
+
+        case VIA_WEB_ENTER_RELEASE:
+            if (timer_elapsed32(via_web_timer) >= (via_web_is_mac ? 100 : 50)) {
+                unregister_code(KC_ENTER);
+                via_web_timer = timer_read32();
+                via_web_state = via_web_caps_was_on ? VIA_WEB_IDLE : VIA_WEB_CAPS_RESTORE_WAIT;
+            }
+            break;
+
+        case VIA_WEB_CAPS_RESTORE_WAIT:
+            if (timer_elapsed32(via_web_timer) >= 100) {
+                register_code(KC_CAPS);
+                via_web_timer = timer_read32();
+                via_web_state = VIA_WEB_CAPS_RESTORE_RELEASE;
+            }
+            break;
+
+        case VIA_WEB_CAPS_RESTORE_RELEASE:
+            if (timer_elapsed32(via_web_timer) >= TAP_HOLD_CAPS_DELAY) {
+                unregister_code(KC_CAPS);
+                via_web_state = VIA_WEB_IDLE;
+            }
+            break;
+
+        default:
+            break;
+    }
+}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -109,45 +246,61 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
 
         case RM_VALU:
-            if (record->event.pressed) {
-                if (rgb_matrix_get_val() >= (RGB_MATRIX_MAXIMUM_BRIGHTNESS - RGB_MATRIX_VAL_STEP)) {
-                    single_blink_cnt   = 6;
-                    single_blink_index = 70;
-                    single_blink_color = (RGB){100, 100, 100};
-                    single_blink_time  = timer_read32();
+            if (!no_indicator_under_srgb) {
+                if (record->event.pressed) {
+                    if (rgb_matrix_get_val() >= (RGB_MATRIX_MAXIMUM_BRIGHTNESS - RGB_MATRIX_VAL_STEP)) {
+                        single_blink_cnt   = 6;
+                        single_blink_index = 70;
+                        single_blink_color = (RGB){100, 100, 100};
+                        single_blink_time  = timer_read32();
+                    }
                 }
+                break;
+            } else {
+                return false;
             }
-            break;
         case RM_VALD:
-            if (record->event.pressed) {
-                if (rgb_matrix_get_val() <= RGB_MATRIX_VAL_STEP) {
-                    single_blink_cnt   = 6;
-                    single_blink_index = 82;
-                    single_blink_color = (RGB){100, 100, 100};
-                    single_blink_time  = timer_read32();
+            if (!no_indicator_under_srgb) {
+                if (record->event.pressed) {
+                    if (rgb_matrix_get_val() <= RGB_MATRIX_VAL_STEP) {
+                        single_blink_cnt   = 6;
+                        single_blink_index = 82;
+                        single_blink_color = (RGB){100, 100, 100};
+                        single_blink_time  = timer_read32();
+                    }
                 }
+                break;
+            } else {
+                return false;
             }
-            break;
         case RM_SPDU:
-            if (record->event.pressed) {
-                if (rgb_matrix_get_speed() >= (UINT8_MAX - RGB_MATRIX_SPD_STEP)) {
-                    single_blink_cnt   = 6;
-                    single_blink_index = 83;
-                    single_blink_color = (RGB){100, 100, 100};
-                    single_blink_time  = timer_read32();
+            if (!no_indicator_under_srgb) {
+                if (record->event.pressed) {
+                    if (rgb_matrix_get_speed() >= (UINT8_MAX - RGB_MATRIX_SPD_STEP)) {
+                        single_blink_cnt   = 6;
+                        single_blink_index = 83;
+                        single_blink_color = (RGB){100, 100, 100};
+                        single_blink_time  = timer_read32();
+                    }
                 }
+                break;
+            } else {
+                return false;
             }
-            break;
         case RM_SPDD:
-            if (record->event.pressed) {
-                if (rgb_matrix_get_speed() <= RGB_MATRIX_SPD_STEP) {
-                    single_blink_cnt   = 6;
-                    single_blink_index = 81;
-                    single_blink_color = (RGB){100, 100, 100};
-                    single_blink_time  = timer_read32();
+            if (!no_indicator_under_srgb) {
+                if (record->event.pressed) {
+                    if (rgb_matrix_get_speed() <= RGB_MATRIX_SPD_STEP) {
+                        single_blink_cnt   = 6;
+                        single_blink_index = 81;
+                        single_blink_color = (RGB){100, 100, 100};
+                        single_blink_time  = timer_read32();
+                    }
                 }
+                break;
+            } else {
+                return false;
             }
-            break;
 
         case LCD_HOME: {
             if (record->event.pressed) {
@@ -207,6 +360,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
 
+        case VIA_WEB:
+            if (record->event.pressed) {
+                start_via_web();
+            }
+            return false;
+
         default:
             break;
     }
@@ -215,6 +374,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 void housekeeping_task_user(void) {
+    via_web_task();
+
     if (is_siri_active) {
         if (timer_elapsed32(siri_timer) >= 500) {
             unregister_code(KC_LCMD);

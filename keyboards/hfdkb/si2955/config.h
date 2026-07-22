@@ -39,7 +39,8 @@
 #    define MM_BLINK_HOST2_COLOR RGB_BLUE // Host2 color
 #    define MM_BLINK_HOST3_COLOR RGB_BLUE // Host3 color
 #    define MM_BLINK_2G4_COLOR RGB_CYAN   // 2.4G color
-#    define MM_BLINK_USB_COLOR RGB_WHITE  // USB color
+// #    define MM_BLINK_USB_COLOR RGB_WHITE  // USB color
+#    define MM_BLINK_USB_COLOR 0x80, 0xFF, 0xFF // USB color
 
 #    define BAT_LEVEL_DISPLAY_INDEX {20, 21, 22, 23, 24, 25, 26, 27, 28, 29} // Battery level indicator
 
@@ -89,3 +90,4 @@
 #define SLEDS {109, 110, 111, 112, 113}
 
 #define LED_INDICATOR_UNDER_SRGB
+#define LOGO_LED_START_INDEX 107
