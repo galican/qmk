@@ -180,6 +180,9 @@ static uint32_t last_total_time = 0;
 // static uint32_t caps_blink_time = 0;
 // static uint8_t  caps_blink_cnt  = 0;
 // static bool     caps_blink_flag = false;
+static uint16_t bt_space_cadet_keycode;
+static uint16_t bt_space_cadet_timer;
+static bool     bt_space_cadet_interrupted;
 
 static uint32_t EE_CLR_press_cnt  = 0;
 static uint32_t EE_CLR_press_time = 0;
@@ -204,6 +207,91 @@ extern bool show_chrg_full;
 #include "action.h"
 
 void register_mouse(uint8_t mouse_keycode, bool pressed);
+
+static void bt_process_mods(uint8_t mods, bool pressed) {
+    bool right = mods & 0x10;
+
+    if (mods & MOD_LCTL) {
+        bts_process_keys(right ? KC_RCTL : KC_LCTL, pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+    }
+
+    if (mods & MOD_LSFT) {
+        bts_process_keys(right ? KC_RSFT : KC_LSFT, pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+    }
+
+    if (mods & MOD_LALT) {
+        bts_process_keys(right ? KC_RALT : KC_LALT, pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+    }
+
+    if (mods & MOD_LGUI) {
+        bts_process_keys(right ? KC_RGUI : KC_LGUI, pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+    }
+}
+
+typedef struct {
+    uint8_t hold_mod;
+    uint8_t tap_mod;
+    uint8_t tap_keycode;
+} bt_space_cadet_action_t;
+
+static bool bt_get_space_cadet_action(uint16_t keycode, bt_space_cadet_action_t *action) {
+    switch (keycode) {
+        case SC_LCPO:
+            *action = (bt_space_cadet_action_t){KC_LCTL, KC_LSFT, KC_9};
+            return true;
+        case SC_RCPC:
+            *action = (bt_space_cadet_action_t){KC_RCTL, KC_RSFT, KC_0};
+            return true;
+        case SC_LSPO:
+            *action = (bt_space_cadet_action_t){KC_LSFT, KC_LSFT, KC_9};
+            return true;
+        case SC_RSPC:
+            *action = (bt_space_cadet_action_t){KC_RSFT, KC_RSFT, KC_0};
+            return true;
+        case SC_LAPO:
+            *action = (bt_space_cadet_action_t){KC_LALT, KC_LSFT, KC_9};
+            return true;
+        case SC_RAPC:
+            *action = (bt_space_cadet_action_t){KC_RALT, KC_RSFT, KC_0};
+            return true;
+        case SC_SENT:
+            *action = (bt_space_cadet_action_t){KC_RSFT, KC_TRNS, KC_ENT};
+            return true;
+        default:
+            return false;
+    }
+}
+
+static void bt_process_space_cadet(uint16_t keycode, keyrecord_t *record, const bt_space_cadet_action_t *action) {
+    if (record->event.pressed) {
+        bt_space_cadet_keycode    = keycode;
+        bt_space_cadet_timer      = timer_read();
+        bt_space_cadet_interrupted = false;
+        bts_process_keys(action->hold_mod, true, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+        return;
+    }
+
+    bts_process_keys(action->hold_mod, false, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+
+    if (bt_space_cadet_keycode == keycode && !bt_space_cadet_interrupted && timer_elapsed(bt_space_cadet_timer) < GET_TAPPING_TERM(keycode, record)) {
+        if (action->tap_mod != KC_TRNS) {
+            bts_process_keys(action->tap_mod, true, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+        }
+        bts_process_keys(action->tap_keycode, true, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+        bts_task(dev_info.devs);
+        wait_ms(TAP_CODE_DELAY);
+        bts_process_keys(action->tap_keycode, false, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+        if (action->tap_mod != KC_TRNS) {
+            bts_process_keys(action->tap_mod, false, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+        }
+        bts_task(dev_info.devs);
+    }
+
+    if (bt_space_cadet_keycode == keycode) {
+        bt_space_cadet_keycode = KC_NO;
+    }
+}
+
 /** \brief Utilities for actions. (FIXME: Needs better description)
  *
  * FIXME: Needs documentation.
@@ -465,11 +553,11 @@ void bt_init(void) {
         usbStop(&USB_DRIVER);
     }
 
-    setPinOutput(A14);
+    gpio_set_pin_output(A14);
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
 
     // rgb_status_save = rgb_matrix_config.enable;
@@ -586,7 +674,15 @@ bool bt_process_record(uint16_t keycode, keyrecord_t *record) {
             while (bts_is_busy()) {
                 wait_ms(1);
             }
-            if ((keycode > QK_MODS) && (keycode <= QK_MODS_MAX)) {
+            /*
+             * LM modifiers and LT tap keys are forwarded by
+             * bt_process_record_other().  Their layer actions still need to
+             * reach QMK, but the encoded 16-bit keycodes must not be passed
+             * to the wireless library as ordinary HID keys.
+             */
+            if (IS_QK_LAYER_MOD(keycode) || (IS_QK_LAYER_TAP(keycode) && record->tap.count == 0)) {
+                retval = true;
+            } else if ((keycode > QK_MODS) && (keycode <= QK_MODS_MAX)) {
                 if (QK_MODS_GET_MODS(keycode) & 0x1) {
                     if (QK_MODS_GET_MODS(keycode) & 0x10)
                         bts_process_keys(KC_RCTL, record->event.pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
@@ -660,9 +756,9 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
     }
     // Set hardware control pin
     if (dev_info.devs == DEVS_USB) {
-        writePinLow(A14);
+        gpio_write_pin_low(A14);
     } else {
-        writePinHigh(A14);
+        gpio_write_pin_high(A14);
     }
 
     // Reset BT connection state
@@ -766,6 +862,18 @@ static bool bt_process_record_other(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
+    bt_space_cadet_action_t space_cadet_action;
+    bool                    is_space_cadet = bt_get_space_cadet_action(keycode, &space_cadet_action);
+
+    if (record->event.pressed && bt_space_cadet_keycode != KC_NO && keycode != bt_space_cadet_keycode) {
+        bt_space_cadet_interrupted = true;
+    }
+
+    if (dev_info.devs && is_space_cadet) {
+        bt_process_space_cadet(keycode, record, &space_cadet_action);
+        return false;
+    }
+
     switch (keycode) {
         case BT_HOST1: {
             if (record->event.pressed) {
@@ -821,6 +929,85 @@ static bool bt_process_record_other(uint16_t keycode, keyrecord_t *record) {
                 }
             }
         } break;
+
+        case QK_GRAVE_ESCAPE:
+            if (dev_info.devs) {
+                if (record->event.pressed) {
+                    if ((get_mods() & MOD_MASK_SG)) {
+                        bts_process_keys(KC_GRAVE, record->event.pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+                    } else {
+                        bts_process_keys(KC_ESCAPE, record->event.pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+                    }
+                } else {
+                    bts_process_keys(KC_GRAVE, record->event.pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+                    bts_process_keys(KC_ESCAPE, record->event.pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+                }
+            }
+            return true;
+
+        case QK_LAYER_MOD ... QK_LAYER_MOD_MAX:
+            if (dev_info.devs) {
+                bt_process_mods(QK_LAYER_MOD_GET_MODS(keycode), record->event.pressed);
+            }
+            /* Let QMK perform the layer_on()/layer_off() action. */
+            return true;
+        case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+            if (dev_info.devs && record->tap.count > 0) {
+                bts_process_keys(QK_LAYER_TAP_GET_TAP_KEYCODE(keycode), record->event.pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+                /* The wireless library handled the tap key. */
+                return false;
+            }
+            /* A hold has no wireless key to send; QMK handles the layer. */
+            return true;
+
+        case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+            if (!dev_info.devs) {
+                // USB 模式交给 QMK 原生处理
+                return true;
+            }
+
+            if (record->tap.count > 0) {
+                /*
+                 * Tap：
+                 * LCTL_T(KC_ESC) 发送 KC_ESC
+                 */
+                uint8_t tap_keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
+
+                bts_process_keys(tap_keycode, record->event.pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+            } else {
+                /*
+                 * Hold：
+                 * LCTL_T(KC_ESC) 发送 KC_LCTL
+                 */
+                uint8_t mods = QK_MOD_TAP_GET_MODS(keycode);
+
+                bt_process_mods(mods, record->event.pressed);
+
+                /*
+                 * 同步 QMK 内部 modifier 状态。
+                 * 这样 get_mods()、Grave Escape 等功能仍能知道 MT 正在按住。
+                 *
+                 * 不调用 send_keyboard_report()，避免无线模式向 USB 发报告。
+                 */
+                uint8_t qmk_mods = mods;
+
+                if (qmk_mods & 0x10) {
+                    qmk_mods = (qmk_mods & 0x0F) << 4;
+                } else {
+                    qmk_mods &= 0x0F;
+                }
+
+                if (record->event.pressed) {
+                    add_mods(qmk_mods);
+                } else {
+                    del_mods(qmk_mods);
+                }
+            }
+
+            /*
+             * 已经由无线库处理，阻止 QMK 后续再次执行该 MT。
+             */
+            return false;
 
         default:
             return true;
@@ -880,18 +1067,18 @@ static void bt_long_pressed_keys_hook(void) {
 // ===========================================
 static void bt_used_pin_init(void) {
 #if defined(MM_BT_MODE_PIN) && defined(MM_2G4_MODE_PIN)
-    setPinInputHigh(MM_BT_MODE_PIN);
-    setPinInputHigh(MM_2G4_MODE_PIN);
+    gpio_set_pin_input_high(MM_BT_MODE_PIN);
+    gpio_set_pin_input_high(MM_2G4_MODE_PIN);
 #endif
 
 #if defined(MM_CABLE_PIN) && defined(MM_CHARGE_PIN)
-    setPinInputHigh(MM_CABLE_PIN);
-    setPinInputHigh(MM_CHARGE_PIN);
+    gpio_set_pin_input_high(MM_CABLE_PIN);
+    gpio_set_pin_input_high(MM_CHARGE_PIN);
 #endif
 
 #ifdef RGB_MATRIX_SHUTDOWN_PIN
-    setPinOutputOpenDrain(RGB_MATRIX_SHUTDOWN_PIN);
-    writePinHigh(RGB_MATRIX_SHUTDOWN_PIN);
+    gpio_set_pin_output_open_drain(RGB_MATRIX_SHUTDOWN_PIN);
+    gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
     // wait_ms(10);
     // writePinHigh(RGB_MATRIX_SHUTDOWN_PIN);
 #endif
@@ -903,15 +1090,15 @@ static void bt_scan_mode(void) {
     static uint8_t old_mode;
     static bool    first_call = true;
 
-    if (readPin(MM_BT_MODE_PIN) && !readPin(MM_2G4_MODE_PIN)) {
+    if (gpio_read_pin(MM_BT_MODE_PIN) && !gpio_read_pin(MM_2G4_MODE_PIN)) {
         now_mode = 0;
         if (dev_info.devs != DEVS_2_4G) bt_switch_mode(dev_info.devs, DEVS_2_4G, false); // 2_4G mode
     }
-    if (readPin(MM_2G4_MODE_PIN) && !readPin(MM_BT_MODE_PIN)) {
+    if (gpio_read_pin(MM_2G4_MODE_PIN) && !gpio_read_pin(MM_BT_MODE_PIN)) {
         now_mode = 1;
         if ((dev_info.devs == DEVS_USB) || (dev_info.devs == DEVS_2_4G)) bt_switch_mode(dev_info.devs, dev_info.last_devs, false); // BT mode
     }
-    if (readPin(MM_BT_MODE_PIN) && readPin(MM_2G4_MODE_PIN)) {
+    if (gpio_read_pin(MM_BT_MODE_PIN) && gpio_read_pin(MM_2G4_MODE_PIN)) {
         now_mode = 2;
         if (dev_info.devs != DEVS_USB) bt_switch_mode(dev_info.devs, DEVS_USB, false); // usb mode
     }
@@ -926,9 +1113,9 @@ static void bt_scan_mode(void) {
     if ((old_mode != now_mode) && !bts_info.bt_info.low_vol) {
         old_mode = now_mode;
 
-        writePinLow(RGB_MATRIX_SHUTDOWN_PIN);
+        gpio_write_pin_low(RGB_MATRIX_SHUTDOWN_PIN);
         wait_ms(1);
-        writePinHigh(RGB_MATRIX_SHUTDOWN_PIN);
+        gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
 
         rgb_matrix_init();
     }
@@ -946,8 +1133,8 @@ void led_config_all(void) {
         // if (host_keyboard_led_state().caps_lock) {
         //     writePinHigh(LED_CAPS_LOCK_PIN);
         // }
-        setPinOutput(LED_CAPS_LOCK_PIN);
-        writePin(LED_CAPS_LOCK_PIN, (host_keyboard_led_state().caps_lock));
+        gpio_set_pin_output(LED_CAPS_LOCK_PIN);
+        gpio_write_pin(LED_CAPS_LOCK_PIN, (host_keyboard_led_state().caps_lock));
 
         led_inited = true;
     }
@@ -962,7 +1149,7 @@ void led_deconfig_all(void) {
         // gpio_write_pin(LED_CAPS_LOCK_PIN, 0);
         // setPinOutputOpenDrain(LED_CAPS_LOCK_PIN);
         // writePinLow(LED_CAPS_LOCK_PIN);
-        writePinLow(LED_CAPS_LOCK_PIN);
+        gpio_write_pin_low(LED_CAPS_LOCK_PIN);
 
         led_inited = false;
     }
@@ -1003,7 +1190,7 @@ static void close_rgb(void) {
 
 #ifdef RGB_MATRIX_SHUTDOWN_PIN
             // setPinOutputOpenDrain(RGB_MATRIX_SHUTDOWN_PIN);
-            writePinLow(RGB_MATRIX_SHUTDOWN_PIN);
+            gpio_write_pin_low(RGB_MATRIX_SHUTDOWN_PIN);
 #endif
         }
     } else {
@@ -1036,7 +1223,7 @@ static void open_rgb(void) {
 
 #ifdef RGB_MATRIX_SHUTDOWN_PIN
             // setPinOutputPushPull(RGB_MATRIX_SHUTDOWN_PIN);
-            writePinHigh(RGB_MATRIX_SHUTDOWN_PIN);
+            gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
 #endif
         }
         if (!led_inited) {
@@ -1431,7 +1618,7 @@ bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max) {
 
     bt_bat_query_period();
 
-    if ((dev_info.devs != DEVS_USB) && (readPin(MM_CABLE_PIN))) {
+    if ((dev_info.devs != DEVS_USB) && (gpio_read_pin(MM_CABLE_PIN))) {
         bt_bat_low_level_warning();
     }
 
@@ -1442,7 +1629,7 @@ bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max) {
         usb_indicate();
     } else {
         bt_indicate();
-        if (readPin(MM_CABLE_PIN)) {
+        if (gpio_read_pin(MM_CABLE_PIN)) {
             // bt_bat_low_level_warning();
             bt_bat_level_display();
             bt_bat_low_level_shutdown();

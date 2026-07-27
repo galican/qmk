@@ -556,10 +556,10 @@ void housekeeping_task_user(void) {
                     usb_suspend = true;
 #    ifdef RGB_MATRIX_SHUTDOWN_PIN
                     // setPinOutputOpenDrain(RGB_MATRIX_SHUTDOWN_PIN);
-                    writePinLow(RGB_MATRIX_SHUTDOWN_PIN);
+                    gpio_write_pin_low(RGB_MATRIX_SHUTDOWN_PIN);
 #    endif
                     // setPinOutputOpenDrain(LED_CAPS_LOCK_PIN);
-                    writePinLow(LED_CAPS_LOCK_PIN);
+                    gpio_write_pin_low(LED_CAPS_LOCK_PIN);
                     // wwdg_pause();
 
                     // rgb_status_save = rgb_matrix_is_enabled();
@@ -573,7 +573,7 @@ void housekeeping_task_user(void) {
                     usb_suspend = false;
 #    ifdef RGB_MATRIX_SHUTDOWN_PIN
                     // setPinOutputPushPull(RGB_MATRIX_SHUTDOWN_PIN);
-                    writePinHigh(RGB_MATRIX_SHUTDOWN_PIN);
+                    gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
 #    endif
                     // setPinOutputOpenDrain(LED_CAPS_LOCK_PIN);
                     // if (host_keyboard_led_state().caps_lock) {
@@ -614,7 +614,7 @@ extern bool led_inited;
 
 void set_led_state(void) {
     if (led_inited) {
-        writePin(LED_CAPS_LOCK_PIN, (host_keyboard_led_state().caps_lock));
+        gpio_write_pin(LED_CAPS_LOCK_PIN, (host_keyboard_led_state().caps_lock));
     }
 }
 
@@ -680,10 +680,10 @@ bool is_fully_charged(void) {
 }
 
 void snled27351_reset(void) {
-    setPinOutputOpenDrain(C11);
-    writePinLow(C11);
+    gpio_set_pin_output_open_drain(C11);
+    gpio_write_pin_low(C11);
     wait_ms(1);
-    writePinHigh(C11);
+    gpio_write_pin_high(C11);
     // wait_ms(20);
 
     WWDG_SetCounter(127);
