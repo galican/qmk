@@ -36,6 +36,8 @@ enum multimode_keycodes {
 
     RGB_TEST,
     WIN_TSK,
+    GOOGLE_WEB,
+    VIA_WEB,
 };
 
 typedef enum {

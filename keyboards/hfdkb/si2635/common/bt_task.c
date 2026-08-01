@@ -114,13 +114,13 @@ extern bool low_vol_offed_sleep;
 uint32_t   bt_init_time = 0;
 dev_info_t dev_info     = {0};
 bts_info_t bts_info     = {
-        .bt_name        = {MM_BT_HOST1_NAME, MM_BT_HOST2_NAME, MM_BT_HOST3_NAME},
-        .uart_init      = uart_init,
-        .uart_read      = uart_read,
-        .uart_transmit  = uart_transmit,
-        .uart_receive   = uart_receive,
-        .uart_available = uart_available,
-        .timer_read32   = timer_read32,
+    .bt_name        = {MM_BT_HOST1_NAME, MM_BT_HOST2_NAME, MM_BT_HOST3_NAME},
+    .uart_init      = uart_init,
+    .uart_read      = uart_read,
+    .uart_transmit  = uart_transmit,
+    .uart_receive   = uart_receive,
+    .uart_available = uart_available,
+    .timer_read32   = timer_read32,
 };
 
 // Long press config
@@ -264,8 +264,8 @@ static bool bt_get_space_cadet_action(uint16_t keycode, bt_space_cadet_action_t 
 
 static void bt_process_space_cadet(uint16_t keycode, keyrecord_t *record, const bt_space_cadet_action_t *action) {
     if (record->event.pressed) {
-        bt_space_cadet_keycode    = keycode;
-        bt_space_cadet_timer      = timer_read();
+        bt_space_cadet_keycode     = keycode;
+        bt_space_cadet_timer       = timer_read();
         bt_space_cadet_interrupted = false;
         bts_process_keys(action->hold_mod, true, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
         return;
@@ -710,6 +710,13 @@ bool bt_process_record(uint16_t keycode, keyrecord_t *record) {
                 retval = bts_process_keys(QK_MODS_GET_BASIC_KEYCODE(keycode), record->event.pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
             } else {
                 retval = bts_process_keys(keycode, record->event.pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+            }
+
+            if (IS_ENCODEREVENT(record->event)) {
+                bts_task(dev_info.devs);
+                while (bts_is_busy()) {
+                    wait_ms(1);
+                }
             }
         }
     }
