@@ -78,6 +78,36 @@ static uint8_t color_tab[][3] = {
 
 extern bool no_indicator_under_srgb;
 
+#if defined(RGB_MATRIX_CUSTOM_KB) && defined(RGB_MATRIX_CUSTOM_USER)
+static void rgb_matrix_step_user_effects(bool reverse) {
+    uint8_t mode = rgb_matrix_get_mode();
+
+    if (reverse) {
+        if (mode == RGB_MATRIX_CYCLE_UP_DOWN) {
+            rgb_matrix_mode(RGB_MATRIX_CUSTOM_EFFECT_ROLL_WHITE);
+        } else if (mode == RGB_MATRIX_CUSTOM_EFFECT_ROLL_WHITE) {
+            rgb_matrix_mode(RGB_MATRIX_CYCLE_ALL);
+        } else if (mode == 1) {
+            // Skip the custom ROLL_WHITE and SIGNALRGB modes at the end.
+            rgb_matrix_mode(RGB_MATRIX_CUSTOM_EFFECT_ROLL_WHITE - 1);
+        } else {
+            rgb_matrix_step_reverse();
+        }
+    } else {
+        if (mode == RGB_MATRIX_CYCLE_ALL) {
+            rgb_matrix_mode(RGB_MATRIX_CUSTOM_EFFECT_ROLL_WHITE);
+        } else if (mode == RGB_MATRIX_CUSTOM_EFFECT_ROLL_WHITE) {
+            rgb_matrix_mode(RGB_MATRIX_CYCLE_UP_DOWN);
+        } else if (mode == RGB_MATRIX_CUSTOM_EFFECT_ROLL_WHITE - 1) {
+            // Wrap before reaching the custom ROLL_WHITE and SIGNALRGB modes.
+            rgb_matrix_mode(1);
+        } else {
+            rgb_matrix_step();
+        }
+    }
+}
+#endif
+
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     if (low_bat_vol_off) {
         bts_process_keys(keycode, 0, dev_info.devs, keymap_config.no_gui, KEY_NUM);
@@ -150,7 +180,22 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                         eeconfig_update_user(dev_info.raw);
                     }
                 }
+#if defined(RGB_MATRIX_CUSTOM_KB) && defined(RGB_MATRIX_CUSTOM_USER)
+#    ifdef RGB_TRIGGER_ON_KEYDOWN
+                if (record->event.pressed) {
+#    else
+                if (!record->event.pressed) {
+#    endif
+                    bool reverse = keycode == RM_PREV;
+                    if (get_mods() & MOD_MASK_SHIFT) {
+                        reverse = !reverse;
+                    }
+                    rgb_matrix_step_user_effects(reverse);
+                }
+                return false;
+#else
                 return true;
+#endif
             } else {
                 return false;
             }

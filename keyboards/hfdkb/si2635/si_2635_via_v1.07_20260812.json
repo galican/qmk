@@ -2,7 +2,7 @@
     "name": "F75 Ultra",
     "vendorId": "0xFFFE",
     "productId": "0x00A9",
-    "keycodes": ["qmk_lighting"],
+    "keycodes": ["qmk_rgb_matrix_keycodes"],
     "menus": [
       {
         "label": "Lighting",

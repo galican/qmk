@@ -53,7 +53,6 @@
             "band_spiral_val": true,
             "breathing": true,
             "cycle_all": true,
-            "cycle_left_right": true,
             "cycle_up_down": true,
             "rainbow_moving_chevron": true,
             "cycle_out_in": true,
@@ -74,7 +73,8 @@
         },
         "sleep": true,
         "default": {
-            "speed": 128
+            "speed": 128,
+            "animation": "custom_effect_roll_white"
         }
     }
 }

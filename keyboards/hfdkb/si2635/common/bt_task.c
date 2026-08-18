@@ -208,6 +208,17 @@ extern bool show_chrg_full;
 
 void register_mouse(uint8_t mouse_keycode, bool pressed);
 
+static void bt_process_key_sync(uint16_t keycode, bool pressed) {
+    bts_process_keys(keycode, pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+
+    bts_task(dev_info.devs);
+
+    uint16_t timeout = timer_read();
+    while (bts_is_busy() && timer_elapsed(timeout) < 20) {
+        wait_ms(1);
+    }
+}
+
 static void bt_process_mods(uint8_t mods, bool pressed) {
     bool right = mods & 0x10;
 
@@ -960,7 +971,7 @@ static bool bt_process_record_other(uint16_t keycode, keyrecord_t *record) {
             return true;
         case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
             if (dev_info.devs && record->tap.count > 0) {
-                bts_process_keys(QK_LAYER_TAP_GET_TAP_KEYCODE(keycode), record->event.pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+                bt_process_key_sync(QK_LAYER_TAP_GET_TAP_KEYCODE(keycode), record->event.pressed);
                 /* The wireless library handled the tap key. */
                 return false;
             }
@@ -980,7 +991,7 @@ static bool bt_process_record_other(uint16_t keycode, keyrecord_t *record) {
                  */
                 uint8_t tap_keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
 
-                bts_process_keys(tap_keycode, record->event.pressed, dev_info.devs, keymap_config.no_gui, BT_KEY_NUM);
+                bt_process_key_sync(tap_keycode, record->event.pressed);
             } else {
                 /*
                  * Hold：
