@@ -98,6 +98,7 @@ const snled27351_led_t PROGMEM g_snled27351_leds[SNLED27351_LED_COUNT] = {
     {0, CB7_CA10,  CB8_CA10,  CB9_CA10},
     {0, CB7_CA11,  CB8_CA11,  CB9_CA11},
     {0, CB7_CA12,  CB8_CA12,  CB9_CA12},
+    {0, CB4_CA16,  CB5_CA16,  CB6_CA16},
     {0, CB7_CA13,  CB8_CA13,  CB9_CA13},
     {1, CB7_CA3,   CB8_CA3,   CB9_CA3},
     {1, CB7_CA4,   CB8_CA4,   CB9_CA4},
@@ -105,6 +106,7 @@ const snled27351_led_t PROGMEM g_snled27351_leds[SNLED27351_LED_COUNT] = {
     {1, CB7_CA6,   CB8_CA6,   CB9_CA6},
 
     {0, CB10_CA1,  CB11_CA1,  CB12_CA1},
+    {0, CB4_CA15, CB5_CA15, CB6_CA15},
     {0, CB10_CA2,  CB11_CA2,  CB12_CA2},
     {0, CB10_CA3,  CB11_CA3,  CB12_CA3},
     {0, CB10_CA4,  CB11_CA4,  CB12_CA4},

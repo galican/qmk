@@ -1,0 +1,107 @@
+/**
+ * @file bt_task.h
+ * @brief
+ * @author Joy chang.li@westberrytech.com
+ * @version 1.1.0
+ * @date 2022-10-03
+ *
+ * @copyright Copyright (c) 2022 Westberry Technology (ChangZhou) Corp., Ltd
+ */
+
+#pragma once
+
+#include "bts_lib.h"
+#include "quantum.h"
+
+// #define BT_DEBUG_MODE
+#define ENTRY_STOP_TIMEOUT 100 // ms
+// #define ENTRY_STOP_TIMEOUT (30 * 60000) // ms
+
+enum multimode_keycodes {
+    BT_HOST1 = QK_KB_0,
+    BT_HOST2,
+    BT_HOST3,
+    BT_2_4G,
+    BT_USB,
+    BT_VOL,
+
+    BLED_MOD,
+    BLED_HUI,
+    BLED_VAI,
+    BLED_SPI,
+    SLED_MOD,
+    SLED_HUI,
+    SLED_VAI,
+    SLED_SPI,
+
+    RGB_TEST,
+    WIN_TSK,
+};
+
+typedef enum {
+    MODE_WORKING,
+    MODE_GAMING,
+} mode_t;
+
+extern mode_t mode;
+
+typedef union {
+    uint32_t raw;
+    struct PACKED {
+        uint8_t devs;
+        uint8_t last_devs;
+        uint8_t bled_color : 4;
+        uint8_t bled_mode : 4;
+        uint8_t sled_color : 4;
+        uint8_t sled_mode : 3;
+        uint8_t rgb_test_en : 1;
+    };
+} dev_info_t;
+
+extern dev_info_t dev_info;
+extern bts_info_t bts_info;
+
+extern bool backlight_sleep_flag;
+
+extern bool query_vol_flag;
+
+void led_config_all(void);
+void led_deconfig_all(void);
+
+bool get_low_vol_off(void);
+
+/**
+ * @brief bluetooth 初始化函数
+ * @param None
+ * @return None
+ */
+void bt_init(void);
+
+/**
+ * @brief bluetooth交互任务
+ * @param None
+ * @return None
+ */
+void bt_task(void);
+
+/**
+ * @brief 处理和BT相关的按键
+ * @param keycode: 键值
+ * @param record: 记录值
+ * @return None
+ */
+bool bt_process_record(uint16_t keycode, keyrecord_t *record);
+
+/**
+ * @brief rgb指示灯任务
+ * @param None
+ * @return None
+ */
+bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max);
+
+/**
+ * @brief 切换工作模式
+ * @param None
+ * @return None
+ */
+void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset);

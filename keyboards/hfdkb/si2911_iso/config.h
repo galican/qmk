@@ -50,11 +50,14 @@
 #endif
 
 // Win lock indicator
-#define GUI_LOCK_LED_INDEX 90
+#define GUI_LOCK_LED_INDEX 92
 // Num lock indicator
 #define NUM_LOCK_LED_INDEX 32
 
-#define KEYBOARD_MAIN_LED_NUM 100
+#define KEYBOARD_MAIN_LED_NUM 102
+
+#define BLED_INDEX {102, 103}
+#define SLED_INDEX {104, 105, 106, 107, 108}
 
 /* SPI Config for spi flash*/
 #define SPI_DRIVER SPIDQ
