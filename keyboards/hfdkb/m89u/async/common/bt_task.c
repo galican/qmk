@@ -226,6 +226,80 @@ uint32_t last_total_time = 0;
 #include "action.h"
 
 void register_mouse(uint8_t mouse_keycode, bool pressed);
+
+typedef struct {
+    bool dir;
+    bool pressed;
+} move_t;
+typedef struct {
+    bool dir;
+    bool pressed;
+} wheel_t;
+typedef struct {
+    uint16_t pressed_time;
+    move_t   move_x;
+    move_t   move_y;
+    wheel_t  wheel_x;
+    wheel_t  wheel_y;
+    uint8_t  data[5];
+} bt_mousekey_t;
+static bt_mousekey_t bt_mousekey;
+
+uint16_t bt_mousekey_move_send_time;
+uint16_t bt_mousekey_wheel_send_time;
+// static uint8_t bt_mousekey_send_speed;
+
+void bt_mousekey_task(void) {
+    if (bt_mousekey.move_x.pressed || bt_mousekey.move_y.pressed) {
+        if (bt_mousekey.move_x.pressed) {
+            if (bt_mousekey.move_x.dir)
+                bt_mousekey.data[1] = 0xfe;
+            else
+                bt_mousekey.data[1] = 0x02;
+        } else {
+            bt_mousekey.data[1] = 0;
+        }
+        if (bt_mousekey.move_y.pressed) {
+            if (bt_mousekey.move_y.dir)
+                bt_mousekey.data[2] = 0xfe;
+            else
+                bt_mousekey.data[2] = 0x02;
+        } else {
+            bt_mousekey.data[2] = 0;
+        }
+        bt_mousekey.data[4] = 0;
+        bt_mousekey.data[3] = 0;
+        if (timer_elapsed(bt_mousekey_move_send_time) >= 10) {
+            bt_mousekey_move_send_time = timer_read();
+            bts_send_mouse_report(bt_mousekey.data);
+        }
+    }
+    if (bt_mousekey.wheel_x.pressed || bt_mousekey.wheel_y.pressed) {
+        bt_mousekey.data[1] = 0;
+        bt_mousekey.data[2] = 0;
+        if (bt_mousekey.wheel_x.pressed) {
+            if (bt_mousekey.wheel_x.dir)
+                bt_mousekey.data[4] = 0xff;
+            else
+                bt_mousekey.data[4] = 0x01;
+        } else {
+            bt_mousekey.data[4] = 0;
+        }
+        if (bt_mousekey.wheel_y.pressed) {
+            if (bt_mousekey.wheel_y.dir)
+                bt_mousekey.data[3] = 0xfe;
+            else
+                bt_mousekey.data[3] = 0x01;
+        } else {
+            bt_mousekey.data[3] = 0;
+        }
+        if (timer_elapsed(bt_mousekey_wheel_send_time) >= 100) {
+            bt_mousekey_wheel_send_time = timer_read();
+            bts_send_mouse_report(bt_mousekey.data);
+        }
+    }
+}
+
 /** \brief Utilities for actions. (FIXME: Needs better description)
  *
  * FIXME: Needs documentation.
@@ -552,6 +626,7 @@ void bt_task(void) {
         }
     }
 
+    bt_mousekey_task();
     long_pressed_keys_hook();
     if (!bt_init_time) bt_scan_mode();
 }
@@ -817,6 +892,120 @@ static bool bt_process_record_other(uint16_t keycode, keyrecord_t *record) {
         case KEYBOARD_RESET:
         case BLE_RESET:
             break;
+
+        case MS_UP:
+            if (dev_info.devs) {
+                if (record->event.pressed) {
+                    bt_mousekey.move_y.pressed = 1;
+                    bt_mousekey.move_y.dir     = 1;
+                    // if (!bt_mousekey.pressed_time) bt_mousekey.pressed_time = timer_read();
+                } else {
+                    if (bt_mousekey.move_y.dir) {
+                        bt_mousekey.move_y.pressed = 0;
+                        // bt_mousekey.pressed_time   = 0;
+                    }
+                }
+                return false;
+            }
+            return true;
+        case MS_DOWN:
+            if (dev_info.devs) {
+                if (record->event.pressed) {
+                    bt_mousekey.move_y.pressed = 1;
+                    bt_mousekey.move_y.dir     = 0;
+                    // if (!bt_mousekey.pressed_time) bt_mousekey.pressed_time = timer_read();
+                } else {
+                    if (!bt_mousekey.move_y.dir) {
+                        bt_mousekey.move_y.pressed = 0;
+                        // bt_mousekey.pressed_time   = 0;
+                    }
+                }
+                return false;
+            }
+            return true;
+        case MS_LEFT:
+            if (dev_info.devs) {
+                if (record->event.pressed) {
+                    bt_mousekey.move_x.pressed = 1;
+                    bt_mousekey.move_x.dir     = 1;
+                    // if (!bt_mousekey.pressed_time) bt_mousekey.pressed_time = timer_read();
+                } else {
+                    if (bt_mousekey.move_x.dir) {
+                        bt_mousekey.move_x.pressed = 0;
+                        // bt_mousekey.pressed_time   = 0;
+                    }
+                }
+                return false;
+            }
+            return true;
+        case MS_RGHT:
+            if (dev_info.devs) {
+                if (record->event.pressed) {
+                    bt_mousekey.move_x.pressed = 1;
+                    bt_mousekey.move_x.dir     = 0;
+                    // if (!bt_mousekey.pressed_time) bt_mousekey.pressed_time = timer_read();
+                } else {
+                    if (!bt_mousekey.move_x.dir) {
+                        bt_mousekey.move_x.pressed = 0;
+                        // bt_mousekey.pressed_time   = 0;
+                    }
+                }
+                return false;
+            }
+            return true;
+        case MS_WHLU:
+            if (dev_info.devs) {
+                if (record->event.pressed) {
+                    bt_mousekey.wheel_y.pressed = 1;
+                    bt_mousekey.wheel_y.dir     = 0;
+                    // if (!bt_mousekey.pressed_time) bt_mousekey.pressed_time = timer_read();
+                } else {
+                    bt_mousekey.wheel_y.pressed = 0;
+                    // bt_mousekey.pressed_time   = 0;
+                }
+                return false;
+            }
+            return true;
+        case MS_WHLD:
+            if (dev_info.devs) {
+                if (record->event.pressed) {
+                    bt_mousekey.wheel_y.pressed = 1;
+                    bt_mousekey.wheel_y.dir     = 1;
+                    // if (!bt_mousekey.pressed_time) bt_mousekey.pressed_time = timer_read();
+                } else {
+                    bt_mousekey.wheel_y.pressed = 0;
+                    // bt_mousekey.pressed_time   = 0;
+                }
+                return false;
+            }
+            return true;
+        case MS_WHLL:
+            if (dev_info.devs) {
+                if (record->event.pressed) {
+                    bt_mousekey.wheel_x.pressed = 1;
+                    bt_mousekey.wheel_x.dir     = 1;
+                    // if (!bt_mousekey.pressed_time) bt_mousekey.pressed_time = timer_read();
+                } else {
+                    bt_mousekey.wheel_x.pressed = 0;
+                    // bt_mousekey.pressed_time   = 0;
+                }
+                return false;
+            }
+            return true;
+        case MS_WHLR:
+            if (dev_info.devs) {
+                if (record->event.pressed) {
+                    bt_mousekey.wheel_x.pressed = 1;
+                    bt_mousekey.wheel_x.dir     = 0;
+                    // if (!bt_mousekey.pressed_time) bt_mousekey.pressed_time = timer_read();
+                } else {
+                    bt_mousekey.wheel_x.pressed = 0;
+                    // bt_mousekey.pressed_time   = 0;
+                }
+                return false;
+            }
+            return true;
+
         default:
             return true;
     }
