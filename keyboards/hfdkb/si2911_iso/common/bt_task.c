@@ -1183,7 +1183,7 @@ static void bt_bat_low_level_warning(void) {
         if (Low_power) Low_power = false;
     }
     if (Low_power) {
-        for (uint8_t i = 0; i < 102; i++) {
+        for (uint8_t i = 0; i < KEYBOARD_MAIN_LED_NUM; i++) {
             rgb_matrix_set_color(i, RGB_OFF);
         }
         bled_low_indicate();
@@ -1196,7 +1196,7 @@ static void bt_bat_low_level_warning(void) {
 }
 
 static void bt_charging_indication(void) {
-    const uint8_t leds[] = {102, 103, 104, 105, 106};
+    const uint8_t leds[] = SLED_INDEX;
 
     static uint32_t entry_chrg_time = 0;
     static uint32_t entry_full_time = 0;

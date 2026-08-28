@@ -275,9 +275,9 @@ void bled_low_indicate(void) {
         Low_power_time = timer_read32();
     }
     if (Low_power_bink) {
-        rgb_matrix_set_color(102, RGB_RED);
+        rgb_matrix_set_color(LOW_PWR_LED_INDEX, RGB_RED);
     } else {
-        rgb_matrix_set_color(102, RGB_OFF);
+        rgb_matrix_set_color(LOW_PWR_LED_INDEX, RGB_OFF);
     }
 }
 
@@ -315,7 +315,7 @@ void bled_charged_indicate(void) {
 }
 
 void bled_vol_indicate(void) {
-    uint8_t query_index[] = {102, 103, 104, 105, 106};
+    uint8_t query_index[] = SLED_INDEX;
     uint8_t pvol          = bts_info.bt_info.pvol;
     uint8_t led_count     = 0;
     RGB     color;
