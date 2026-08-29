@@ -108,24 +108,20 @@ static uint16_t via_web_keycode;
 static uint32_t via_web_timer;
 static bool     via_web_gui_was_locked;
 static bool     via_web_caps_was_on;
-static bool     via_web_is_mac;
 static bool     via_web_is_google;
-static bool     via_web_needs_slow_timing;
 
 static void start_web(bool is_google) {
     if (via_web_state != VIA_WEB_IDLE) {
         return;
     }
 
-    via_web_gui_was_locked    = keymap_config.no_gui;
-    via_web_caps_was_on       = host_keyboard_led_state().caps_lock;
-    via_web_is_mac            = get_highest_layer(default_layer_state) == MAC_BASE;
-    via_web_is_google         = is_google;
-    via_web_needs_slow_timing = via_web_is_mac && dev_info.devs >= DEVS_HOST1 && dev_info.devs <= DEVS_HOST3;
-    via_web_index             = 0;
+    via_web_gui_was_locked = keymap_config.no_gui;
+    via_web_caps_was_on    = host_keyboard_led_state().caps_lock;
+    via_web_is_google      = is_google;
+    via_web_index          = 0;
 
     keymap_config.no_gui = false;
-    via_web_keycode      = via_web_is_mac ? G(KC_SPACE) : G(KC_R);
+    via_web_keycode      = G(KC_R);
     register_code16(via_web_keycode);
     via_web_timer = timer_read32();
     via_web_state = VIA_WEB_LAUNCH_RELEASE;
@@ -170,7 +166,7 @@ static void via_web_task(void) {
             break;
 
         case VIA_WEB_CHAR_PRESS:
-            if (timer_elapsed32(via_web_timer) >= (via_web_needs_slow_timing ? 50 : 10)) {
+            if (timer_elapsed32(via_web_timer) >= 10) {
                 if (via_web_is_google) {
                     via_web_keycode = pgm_read_word(&google_web_keycodes[via_web_index]);
                 } else {
@@ -183,7 +179,7 @@ static void via_web_task(void) {
             break;
 
         case VIA_WEB_CHAR_RELEASE:
-            if (timer_elapsed32(via_web_timer) >= (via_web_needs_slow_timing ? 50 : 20)) {
+            if (timer_elapsed32(via_web_timer) >= 20) {
                 unregister_code16(via_web_keycode);
                 via_web_timer = timer_read32();
                 via_web_index++;
@@ -192,7 +188,7 @@ static void via_web_task(void) {
             break;
 
         case VIA_WEB_SUBMIT_WAIT:
-            if (timer_elapsed32(via_web_timer) >= (via_web_needs_slow_timing ? 800 : (via_web_is_mac ? 500 : 100))) {
+            if (timer_elapsed32(via_web_timer) >= 100) {
                 register_code(KC_ENTER);
                 via_web_timer = timer_read32();
                 via_web_state = VIA_WEB_ENTER_RELEASE;
@@ -200,7 +196,7 @@ static void via_web_task(void) {
             break;
 
         case VIA_WEB_ENTER_RELEASE:
-            if (timer_elapsed32(via_web_timer) >= (via_web_needs_slow_timing ? 200 : (via_web_is_mac ? 100 : 50))) {
+            if (timer_elapsed32(via_web_timer) >= 50) {
                 unregister_code(KC_ENTER);
                 via_web_timer = timer_read32();
                 via_web_state = via_web_caps_was_on ? VIA_WEB_IDLE : VIA_WEB_CAPS_RESTORE_WAIT;

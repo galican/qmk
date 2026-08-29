@@ -229,6 +229,23 @@ bool get_low_vol_off(void) {
 #include "command.h"
 #include "action.h"
 
+/*
+ * VIA macros are played synchronously, so an unbounded wait here can prevent
+ * the main keyboard loop from ever servicing the wireless task again.  Keep
+ * the short synchronous flush, but always return control to the main loop if
+ * the module does not become idle in time.
+ */
+static void bt_process_key_sync(uint16_t keycode, bool pressed) {
+    WL_PROCESS_KEYS(keycode, pressed);
+    bts_task(dev_info.devs);
+
+    uint16_t timeout = timer_read();
+    while (bts_is_busy() && timer_elapsed(timeout) < 20) {
+        bts_task(dev_info.devs);
+        wait_ms(1);
+    }
+}
+
 void register_mouse(uint8_t mouse_keycode, bool pressed);
 /** \brief Utilities for actions. (FIXME: Needs better description)
  *
@@ -236,8 +253,8 @@ void register_mouse(uint8_t mouse_keycode, bool pressed);
  */
 __attribute__((weak)) void register_code(uint8_t code) {
     if (dev_info.devs) {
-        WL_PROCESS_KEYS(code, 1);
-        bts_task(dev_info.devs);
+        bt_process_key_sync(code, true);
+        // bts_task(dev_info.devs);
         // while (bts_is_busy()) {
         //     wait_ms(1);
         // }
@@ -314,8 +331,8 @@ __attribute__((weak)) void register_code(uint8_t code) {
  */
 __attribute__((weak)) void unregister_code(uint8_t code) {
     if (dev_info.devs) {
-        WL_PROCESS_KEYS(code, 0);
-        bts_task(dev_info.devs);
+        bt_process_key_sync(code, false);
+        // bts_task(dev_info.devs);
         // while (bts_is_busy()) {
         //     wait_ms(1);
         // }
@@ -1734,11 +1751,11 @@ bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max) {
         }
 
         if (dev_info.devs == DEVS_USB) {
-            if (!host_keyboard_led_state().num_lock && (USB_DRIVER.state != USB_SUSPENDED) && (get_highest_layer(default_layer_state) == 0)) {
+            if (host_keyboard_led_state().num_lock && (USB_DRIVER.state != USB_SUSPENDED) && (get_highest_layer(default_layer_state) == 0)) {
                 rgb_matrix_set_color(NUM_LOCK_LED_INDEX, 50, 100, 100);
             }
         } else {
-            if (!host_keyboard_led_state().num_lock && bts_info.bt_info.paired && (get_highest_layer(default_layer_state) == 0)) {
+            if (host_keyboard_led_state().num_lock && bts_info.bt_info.paired && (get_highest_layer(default_layer_state) == 0)) {
                 rgb_matrix_set_color(NUM_LOCK_LED_INDEX, 50, 100, 100);
             }
         }
