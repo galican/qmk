@@ -37,11 +37,11 @@
 #    define BT4_LED_INDEX 16
 #    define USB_LED_INDEX 20
 
-#    define BT1_LED_COLOR {0, 0, 100}
-#    define BT2_LED_COLOR {0, 0, 100}
-#    define BT3_LED_COLOR {0, 0, 100}
-#    define BT4_LED_COLOR {0, 100, 0}
-#    define USB_LED_COLOR {100 / 3, 100, 100}
+#    define BT1_LED_COLOR {0xFF, 0xF4, 0xE5}
+#    define BT2_LED_COLOR {0xFF, 0xF4, 0xE5}
+#    define BT3_LED_COLOR {0xFF, 0xF4, 0xE5}
+#    define BT4_LED_COLOR {0xFF, 0xF4, 0xE5}
+#    define USB_LED_COLOR {0xFF, 0xF4, 0xE5}
 #endif
 
 /* SPI Config for spi flash*/
@@ -76,3 +76,16 @@
 // #define SNLED27351_CURRENT_TUNE {0x45, 0x80, 0x80, 0x45, 0x80, 0x80, 0x45, 0x80, 0x80, 0x45, 0x80, 0x80}
 
 #define BAT_VOL_LED_INDEX {17, 18, 19, 20, 21, 22, 23, 24, 25, 26}
+
+/* Battery/charging indicators */
+#define FLASK_LED_INDEX 15
+#define CHARGE_LED_INDEX 65
+// #define LOGO_LED_INDEX 81
+
+#define LOW_BATTERY_COLOR 0xFF, 0x00, 0x00
+#define CHARGE_INDICATOR_COLOR 0xFF, 0xF4, 0xE5
+
+#define LOW_BATTERY_BLINK_INTERVAL 500
+#define LOW_BATTERY_NOTICE_TIME 10000
+#define CHARGE_BLINK_INTERVAL 400
+#define CHARGE_NOTICE_TIME 2400

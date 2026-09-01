@@ -1,14 +1,14 @@
 {
     "manufacturer": "hfdic",
-    "keyboard_name": "DK84 Keyboard",
+    "keyboard_name": "Code One",
     "maintainer": "jonylee@hfd",
     "url": "https://github.com/jonylee1986/qmk_firmware_master/tree/hfdkb_playground",
     "processor": "WB32FQ95",
     "bootloader": "wb32-dfu",
     "usb": {
-        "vid": "0xFFFE",
+        "vid": "0x0C45",
         "pid": "0x0040",
-        "device_version": "1.0.3",
+        "device_version": "1.0.5",
         "suspend_wakeup_delay": 1000
     },
     "host": {
@@ -40,8 +40,8 @@
         "driver": "is31fl3733",
         "react_on_keyup": true,
         "sleep": true,
-        "max_brightness": 255,
-        "val_steps": 64,
+        "max_brightness": 200,
+        "val_steps": 50,
         "speed_steps": 64,
         "hue_steps": 32,
         "animations": {

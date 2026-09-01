@@ -32,17 +32,11 @@
 #    define BT_DEBUG_INFO(fmt, ...)
 #endif
 
-typedef struct {
-    uint32_t press_time;
-    uint16_t keycode;
-    void (*event_cb)(uint16_t);
-} long_pressed_keys_t;
-
 uint32_t bt_init_time = 0;
 
 dev_info_t dev_info = {0};
 bts_info_t bts_info = {
-    .bt_name        = {"DK84 BT5.2", "DK84 BT5.2", "DK84 BT5.2"},
+    .bt_name        = {"Code one", "Code one", "Code one"},
     .uart_init      = uart_init,
     .uart_read      = uart_read,
     .uart_transmit  = uart_transmit,
@@ -71,10 +65,10 @@ static bool bt_soft_switch_enabled(void);
 static uint8_t  all_blink_cnt      = 0;
 static uint32_t all_blink_time     = 0;
 static RGB      all_blink_color    = {0};
-static uint8_t  single_blink_cnt   = 0;
-static uint8_t  single_blink_index = 0;
-static RGB      single_blink_color = {0};
-static uint32_t single_blink_time  = 0;
+uint8_t         single_blink_cnt   = 0;
+uint8_t         single_blink_index = 0;
+RGB             single_blink_color = {0};
+uint32_t        single_blink_time  = 0;
 
 static uint32_t USB_switch_time = 0;
 uint8_t         USB_blink_cnt   = 0;
@@ -96,12 +90,12 @@ static uint32_t last_total_time           = 0;
 static uint8_t  indicator_status          = 2;
 static uint8_t  indicator_reset_last_time = false;
 
-static uint32_t EE_CLR_press_cnt  = 0;
-static uint32_t EE_CLR_press_time = 0;
-static bool     EE_CLR_flag       = false;
+uint32_t EE_CLR_press_cnt  = 0;
+uint32_t EE_CLR_press_time = 0;
+bool     EE_CLR_flag       = false;
 
-static bool query_vol_flag           = false;
-bool        battery_low_warning_flag = false;
+bool query_vol_flag           = false;
+bool battery_low_warning_flag = false;
 
 // static const RGB caps_lock_indicator_color = {120, 255, 0};
 // static const RGB gui_lock_indicator_color  = {255, 0, 140};
@@ -118,12 +112,12 @@ bool        battery_low_warning_flag = false;
 
 // clang-format off
 long_pressed_keys_t long_pressed_keys[] = {
-  {.keycode = BT_HOST1, .press_time = 0, .event_cb = long_pressed_keys_cb},
-  {.keycode = BT_HOST2, .press_time = 0, .event_cb = long_pressed_keys_cb},
-  {.keycode = BT_HOST3, .press_time = 0, .event_cb = long_pressed_keys_cb},
+  {.keycode = BT_HOST1, .press_time = 0, .event_cb = long_pressed_keys_cb, .press_hold_time = 3 * 1000},
+  {.keycode = BT_HOST2, .press_time = 0, .event_cb = long_pressed_keys_cb, .press_hold_time = 3 * 1000},
+  {.keycode = BT_HOST3, .press_time = 0, .event_cb = long_pressed_keys_cb,  .press_hold_time = 3 * 1000},
 //   {.keycode = BT_2_4G, .press_time = 0, .event_cb = long_pressed_keys_cb},
 //   {.keycode = RGB_TEST, .press_time = 0, .event_cb = long_pressed_keys_cb},
-  {.keycode = EE_CLR, .press_time = 0, .event_cb = long_pressed_keys_cb},
+//   {.keycode = EE_CLR, .press_time = 0, .event_cb = long_pressed_keys_cb,  .press_hold_time = 5 * 1000},
 };
 // clang-format on
 
@@ -659,11 +653,9 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
                 if ((dev_info.devs != DEVS_HOST1) && (!gpio_read_pin(BT_MODE_SW_PIN))) {
                     bt_switch_mode(dev_info.devs, DEVS_HOST1, false);
                     single_blink_cnt   = 6;
-                    single_blink_color = (RGB)BT1_LED_COLOR;
-                    if (timer_elapsed32(single_blink_time) >= 300) {
-                        single_blink_time = timer_read32();
-                    }
                     single_blink_index = BT1_LED_INDEX;
+                    single_blink_color = (RGB)BT1_LED_COLOR;
+                    single_blink_time  = timer_read32();
                 }
             }
         } break;
@@ -673,11 +665,9 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
                 if ((dev_info.devs != DEVS_HOST2) && (!gpio_read_pin(BT_MODE_SW_PIN))) {
                     bt_switch_mode(dev_info.devs, DEVS_HOST2, false);
                     single_blink_cnt   = 6;
-                    single_blink_color = (RGB)BT2_LED_COLOR;
-                    if (timer_elapsed32(single_blink_time) >= 300) {
-                        single_blink_time = timer_read32();
-                    }
                     single_blink_index = BT2_LED_INDEX;
+                    single_blink_color = (RGB)BT2_LED_COLOR;
+                    single_blink_time  = timer_read32();
                 }
             }
         } break;
@@ -687,122 +677,119 @@ static bool process_record_other(uint16_t keycode, keyrecord_t *record) {
                 if ((dev_info.devs != DEVS_HOST3) && (!gpio_read_pin(BT_MODE_SW_PIN))) {
                     bt_switch_mode(dev_info.devs, DEVS_HOST3, false);
                     single_blink_cnt   = 6;
-                    single_blink_color = (RGB)BT3_LED_COLOR;
-                    if (timer_elapsed32(single_blink_time) >= 300) {
-                        single_blink_time = timer_read32();
-                    }
                     single_blink_index = BT3_LED_INDEX;
+                    single_blink_color = (RGB)BT3_LED_COLOR;
+                    single_blink_time  = timer_read32();
                 }
             }
         } break;
-        // case BT_2_4G: {
-        //     if (record->event.pressed) {
-        //         // if ((dev_info.devs != DEVS_2_4G) && (bt_soft_switch_enabled() || !gpio_read_pin(RF_MODE_SW_PIN))) {
-        //         if ((dev_info.devs != DEVS_2_4G) && (!gpio_read_pin(RF_MODE_SW_PIN))) {
-        //             bt_switch_mode(dev_info.devs, DEVS_2_4G, false);
-        //             single_blink_cnt   = 6;
-        //             single_blink_color = (RGB)BT4_LED_COLOR;
-        //             if (timer_elapsed32(single_blink_time) >= 300) {
-        //                 single_blink_time = timer_read32();
-        //             }
-        //             single_blink_index = BT4_LED_INDEX;
-        //         }
-        //     }
-        // } break;
-        // case BT_USB: {
-        //     if (record->event.pressed) {
-        //         // if ((dev_info.devs != DEVS_USB) && bt_soft_switch_enabled()) {
-        //         if ((dev_info.devs != DEVS_USB) && (gpio_read_pin(BT_MODE_SW_PIN) && gpio_read_pin(RF_MODE_SW_PIN))) {
-        //             bt_switch_mode(dev_info.devs, DEVS_USB, false);
-        //             single_blink_cnt   = 6;
-        //             single_blink_color = (RGB)USB_LED_COLOR;
-        //             if (timer_elapsed32(single_blink_time) >= 300) {
-        //                 single_blink_time = timer_read32();
-        //             }
-        //             single_blink_index = USB_LED_INDEX;
-        //         }
-        //     }
-        // } break;
-        case BT_VOL: {
-            if (record->event.pressed) {
-                bts_send_vendor(v_query_vol);
-                query_vol_flag = true;
-            } else {
-                query_vol_flag = false;
-            }
-        } break;
+            // case BT_2_4G: {
+            //     if (record->event.pressed) {
+            //         // if ((dev_info.devs != DEVS_2_4G) && (bt_soft_switch_enabled() || !gpio_read_pin(RF_MODE_SW_PIN))) {
+            //         if ((dev_info.devs != DEVS_2_4G) && (!gpio_read_pin(RF_MODE_SW_PIN))) {
+            //             bt_switch_mode(dev_info.devs, DEVS_2_4G, false);
+            //             single_blink_cnt   = 6;
+            //             single_blink_color = (RGB)BT4_LED_COLOR;
+            //             if (timer_elapsed32(single_blink_time) >= 300) {
+            //                 single_blink_time = timer_read32();
+            //             }
+            //             single_blink_index = BT4_LED_INDEX;
+            //         }
+            //     }
+            // } break;
+            // case BT_USB: {
+            //     if (record->event.pressed) {
+            //         // if ((dev_info.devs != DEVS_USB) && bt_soft_switch_enabled()) {
+            //         if ((dev_info.devs != DEVS_USB) && (gpio_read_pin(BT_MODE_SW_PIN) && gpio_read_pin(RF_MODE_SW_PIN))) {
+            //             bt_switch_mode(dev_info.devs, DEVS_USB, false);
+            //             single_blink_cnt   = 6;
+            //             single_blink_color = (RGB)USB_LED_COLOR;
+            //             if (timer_elapsed32(single_blink_time) >= 300) {
+            //                 single_blink_time = timer_read32();
+            //             }
+            //             single_blink_index = USB_LED_INDEX;
+            //         }
+            //     }
+            // } break;
+            // case BT_VOL: {
+            //     if (record->event.pressed) {
+            //         bts_send_vendor(v_query_vol);
+            //         query_vol_flag = true;
+            //     } else {
+            //         query_vol_flag = false;
+            //     }
+            // } break;
 
-        // case KC_PGDN: {
-        //     if (record->event.pressed) {
-        //         if (rgb_test_en) {
-        //             rgb_test_en = false;
-        //             return false;
-        //         }
-        //     }
-        //     return true;
-        // }
-        // case KC_DOWN: {
-        //     if (record->event.pressed) {
-        //         if (rgb_test_en) {
-        //             rgb_test_index++;
-        //             if (rgb_test_index > 4) rgb_test_index = 1;
-        //             return false;
-        //         } else {
-        //         }
-        //     }
-        //     return true;
-        // }
+            // case KC_PGDN: {
+            //     if (record->event.pressed) {
+            //         if (rgb_test_en) {
+            //             rgb_test_en = false;
+            //             return false;
+            //         }
+            //     }
+            //     return true;
+            // }
+            // case KC_DOWN: {
+            //     if (record->event.pressed) {
+            //         if (rgb_test_en) {
+            //             rgb_test_index++;
+            //             if (rgb_test_index > 4) rgb_test_index = 1;
+            //             return false;
+            //         } else {
+            //         }
+            //     }
+            //     return true;
+            // }
 
-        // case RGB_TEST: {
-        // } break;
-        case EE_CLR: {
-        } break;
+            // case RGB_TEST: {
+            // } break;
+            // case EE_CLR: {
+            // } break;
 
-        case OS_SWITCH: {
-            if (record->event.pressed) {
-                if (get_highest_layer(default_layer_state) == 0) { // WIN_BASE
-                    set_single_persistent_default_layer(2);
-                    if (keymap_config.no_gui) {
-                        keymap_config.no_gui = false;
-                    }
-                    single_blink_cnt   = 6;
-                    single_blink_color = (RGB){100 / 3, 100, 100};
-                    if (timer_elapsed32(single_blink_time) >= 300) {
-                        single_blink_time = timer_read32();
-                    }
-                    single_blink_index = GUI_LOCK_LED_INDEX;
-                    eeconfig_update_keymap(&keymap_config);
-                } else if (get_highest_layer(default_layer_state) == 2) { // MAC_BASE
-                    set_single_persistent_default_layer(0);
-                    eeconfig_update_keymap(&keymap_config);
-                }
-            }
-        } break;
+            // case OS_SWITCH: {
+            //     if (record->event.pressed) {
+            //         if (get_highest_layer(default_layer_state) == 0) { // WIN_BASE
+            //             set_single_persistent_default_layer(2);
+            //             if (keymap_config.no_gui) {
+            //                 keymap_config.no_gui = false;
+            //             }
+            //             single_blink_cnt   = 6;
+            //             single_blink_color = (RGB){100 / 3, 100, 100};
+            //             if (timer_elapsed32(single_blink_time) >= 300) {
+            //                 single_blink_time = timer_read32();
+            //             }
+            //             single_blink_index = GUI_LOCK_LED_INDEX;
+            //             eeconfig_update_keymap(&keymap_config);
+            //         } else if (get_highest_layer(default_layer_state) == 2) { // MAC_BASE
+            //             set_single_persistent_default_layer(0);
+            //         }
+            //     }
+            // } break;
 
-        case RM_SPDU:
-            if (record->event.pressed) {
-                if (rgb_matrix_get_speed() >= (UINT8_MAX - RGB_MATRIX_SPD_STEP)) {
-                    single_blink_cnt   = 6;
-                    single_blink_color = (RGB){100 / 3, 100, 100};
-                    if (timer_elapsed32(single_blink_time) >= 300) {
-                        single_blink_time = timer_read32();
-                    }
-                    single_blink_index = GUI_LOCK_LED_INDEX;
-                }
-                return true;
-            }
-        case RM_SPDD:
-            if (record->event.pressed) {
-                if (rgb_matrix_get_speed() <= RGB_MATRIX_SPD_STEP) {
-                    single_blink_cnt   = 6;
-                    single_blink_color = (RGB){100 / 3, 100, 100};
-                    if (timer_elapsed32(single_blink_time) >= 300) {
-                        single_blink_time = timer_read32();
-                    }
-                    single_blink_index = GUI_LOCK_LED_INDEX;
-                }
-                return true;
-            }
+            // case RM_SPDU:
+            //     if (record->event.pressed) {
+            //         if (rgb_matrix_get_speed() >= (UINT8_MAX - RGB_MATRIX_SPD_STEP)) {
+            //             single_blink_cnt   = 6;
+            //             single_blink_color = (RGB){100 / 3, 100, 100};
+            //             if (timer_elapsed32(single_blink_time) >= 300) {
+            //                 single_blink_time = timer_read32();
+            //             }
+            //             single_blink_index = GUI_LOCK_LED_INDEX;
+            //         }
+            //         return true;
+            //     }
+            // case RM_SPDD:
+            //     if (record->event.pressed) {
+            //         if (rgb_matrix_get_speed() <= RGB_MATRIX_SPD_STEP) {
+            //             single_blink_cnt   = 6;
+            //             single_blink_color = (RGB){100 / 3, 100, 100};
+            //             if (timer_elapsed32(single_blink_time) >= 300) {
+            //                 single_blink_time = timer_read32();
+            //             }
+            //             single_blink_index = GUI_LOCK_LED_INDEX;
+            //         }
+            //         return true;
+            //     }
 
         default:
             return true;
@@ -828,11 +815,11 @@ static void long_pressed_keys_cb(uint16_t keycode) {
                 bt_switch_mode(dev_info.devs, DEVS_HOST3, true);
             }
         } break;
-        // case BT_2_4G: {
-        //     if (dev_info.devs == DEVS_2_4G) {
-        //         bt_switch_mode(dev_info.devs, DEVS_2_4G, true);
-        //     }
-        // } break;
+            // case BT_2_4G: {
+            //     if (dev_info.devs == DEVS_2_4G) {
+            //         bt_switch_mode(dev_info.devs, DEVS_2_4G, true);
+            //     }
+            // } break;
 
         case EE_CLR: {
             if (!EE_CLR_flag) {
@@ -856,7 +843,7 @@ static void long_pressed_keys_cb(uint16_t keycode) {
 
 static void long_pressed_keys_hook(void) {
     for (uint8_t i = 0; i < NUM_LONG_PRESS_KEYS; i++) {
-        if ((long_pressed_keys[i].press_time != 0) && (timer_elapsed32(long_pressed_keys[i].press_time) >= (3 * 1000))) {
+        if ((long_pressed_keys[i].press_time != 0) && (timer_elapsed32(long_pressed_keys[i].press_time) >= long_pressed_keys[i].press_hold_time)) {
             long_pressed_keys[i].event_cb(long_pressed_keys[i].keycode);
             long_pressed_keys[i].press_time = 0;
         }
@@ -1132,81 +1119,325 @@ static void battery_voltage_query(void) {
 uint8_t ledNum;
 
 // Display battery voltage on LEDs
+// static void battery_voltage_display(void) {
+//     if (query_vol_flag && gpio_read_pin(BT_CABLE_PIN)) {
+//         static bool     bat_query_blink = false;
+//         static uint32_t bat_query_time  = 0;
+
+//         uint8_t        pvol                    = bts_info.bt_info.pvol;
+//         uint8_t        led_count               = 0;
+//         uint8_t        i                       = 0;
+//         static uint8_t LED_POWER_LEVEL_TABLE[] = BAT_VOL_LED_INDEX;
+
+//         rgb_matrix_set_color_all(0, 0, 0);
+
+//         if (pvol <= 10)
+//             led_count = 1;
+//         else if (pvol <= 20)
+//             led_count = 2;
+//         else if (pvol < 40)
+//             led_count = 3;
+//         else if (pvol >= 100)
+//             led_count = 10;
+//         else
+//             led_count = pvol / 10;
+
+//         if (timer_elapsed32(bat_query_time) >= 1000) {
+//             bat_query_blink = !bat_query_blink;
+//             bat_query_time  = timer_read32();
+//         }
+
+//         if (bat_query_blink) {
+//             for (i = 0; i < 10; i++) {
+//                 if (i < led_count) {
+//                     // if (pvol < 30)
+//                     //     rgb_matrix_set_color(LED_POWER_LEVEL_TABLE[i], 100, 0, 0);
+//                     // else if (pvol < 60)
+//                     //     rgb_matrix_set_color(LED_POWER_LEVEL_TABLE[i], 0, 0, 100);
+//                     // else
+//                     rgb_matrix_set_color(LED_POWER_LEVEL_TABLE[i], 0xFF, 0xF4, 0xE5);
+//                 }
+//             }
+//         }
+//     }
+// }
+/* ================================================== */
 static void battery_voltage_display(void) {
-    if (query_vol_flag && gpio_read_pin(BT_CABLE_PIN)) {
-        rgb_matrix_set_color_all(0, 0, 0);
+    static bool     was_querying   = false;
+    static bool     bat_query_on   = false;
+    static uint32_t bat_query_time = 0;
 
-        uint8_t        pvol                    = bts_info.bt_info.pvol;
-        uint8_t        led_count               = 0;
-        uint8_t        i                       = 0;
-        static uint8_t LED_POWER_LEVEL_TABLE[] = BAT_VOL_LED_INDEX;
+    const bool querying = query_vol_flag && gpio_read_pin(BT_CABLE_PIN);
 
-        if (pvol <= 10)
-            led_count = 1;
-        else if (pvol <= 20)
-            led_count = 2;
-        else if (pvol < 40)
-            led_count = 3;
-        else if (pvol >= 100)
-            led_count = 10;
-        else
-            led_count = pvol / 10;
+    /*
+     * 不在查询状态时复位。
+     * 下次查询一定从“亮”开始。
+     */
+    if (!querying) {
+        was_querying = false;
+        bat_query_on = false;
+        return;
+    }
 
-        for (i = 0; i < 10; i++) {
-            if (i < led_count) {
-                if (pvol < 30)
-                    rgb_matrix_set_color(LED_POWER_LEVEL_TABLE[i], 100, 0, 0);
-                else if (pvol < 60)
-                    rgb_matrix_set_color(LED_POWER_LEVEL_TABLE[i], 0, 0, 100);
-                else
-                    rgb_matrix_set_color(LED_POWER_LEVEL_TABLE[i], 0, 100, 0);
-            }
+    /*
+     * 检测一次新的电量查询。
+     */
+    if (!was_querying) {
+        was_querying   = true;
+        bat_query_on   = true;
+        bat_query_time = timer_read32();
+    }
+
+    /*
+     * 查询显示期间先关闭所有灯，
+     * 后面只点亮表示电量的数字键。
+     */
+    rgb_matrix_set_color_all(0, 0, 0);
+
+    uint8_t        pvol                    = bts_info.bt_info.pvol;
+    uint8_t        led_count               = 0;
+    static uint8_t LED_POWER_LEVEL_TABLE[] = BAT_VOL_LED_INDEX;
+
+    if (pvol <= 10) {
+        led_count = 1;
+    } else if (pvol <= 20) {
+        led_count = 2;
+    } else if (pvol < 40) {
+        led_count = 3;
+    } else if (pvol >= 100) {
+        led_count = 10;
+    } else {
+        led_count = pvol / 10;
+    }
+
+    /*
+     * 每 1 秒切换一次亮灭状态。
+     * 因为新查询时 bat_query_on=true，所以必定先亮。
+     */
+    if (timer_elapsed32(bat_query_time) >= 1000) {
+        bat_query_time = timer_read32();
+        bat_query_on   = !bat_query_on;
+    }
+
+    if (bat_query_on) {
+        for (uint8_t i = 0; i < led_count; i++) {
+            rgb_matrix_set_color(LED_POWER_LEVEL_TABLE[i], 0xFF, 0xF4, 0xE5);
         }
     }
 }
+/* ================================================== */
+
+// static void battery_low_warning(void) {
+//     static bool     Low_power_blink  = false;
+//     static uint32_t Low_power_time   = 0;
+//     static uint32_t charge_last_time = 0;
+
+//     if (!gpio_read_pin(BT_CABLE_PIN)) {
+//         if (!gpio_read_pin(BT_CHARGE_PIN)) {
+//             if (timer_elapsed32(charge_last_time) < 3000) {
+//                 rgb_matrix_set_color(81, 100, 0, 0);
+//             }
+//         }
+//         battery_low_warning_flag = false;
+//     } else {
+//         charge_last_time = timer_read32();
+
+//         if (bts_info.bt_info.low_vol) {
+//             battery_low_warning_flag = true;
+//         }
+
+//         if (battery_low_warning_flag) {
+//             if (timer_elapsed32(Low_power_time) >= 300) {
+//                 Low_power_blink = !Low_power_blink;
+//                 Low_power_time  = timer_read32();
+//             }
+//             if (Low_power_blink) {
+//                 rgb_matrix_set_color(81, 100, 0, 0);
+//             } else {
+//                 rgb_matrix_set_color(81, 0, 0, 0);
+//             }
+//         } else {
+//             Low_power_blink = 0;
+//         }
+
+//         if (bts_info.bt_info.low_vol_offed) {
+//             if (timer_elapsed32(pressed_time) >= 2000) {
+//                 kb_sleep_flag = true;
+//             }
+//             extern bool low_vol_offed_sleep;
+//             low_vol_offed_sleep = true;
+//         }
+//     }
+// }
+/* ============================================== */
+typedef enum {
+    BAT_NOTICE_NONE,
+    BAT_NOTICE_15,
+    BAT_NOTICE_10,
+    BAT_NOTICE_5,
+} battery_notice_t;
+
+static void set_battery_warning_leds(uint8_t r, uint8_t g, uint8_t b) {
+    rgb_matrix_set_color(FLASK_LED_INDEX, r, g, b);
+    // rgb_matrix_set_color(LOGO_LED_INDEX, r, g, b);
+}
 
 static void battery_low_warning(void) {
-    static bool     Low_power_blink  = false;
-    static uint32_t Low_power_time   = 0;
-    static uint32_t charge_last_time = 0;
+    static uint8_t          next_threshold = 15;
+    static battery_notice_t active_notice  = BAT_NOTICE_NONE;
+    static uint32_t         notice_started = 0;
+    static uint32_t         blink_timer    = 0;
+    static bool             blink_on       = false;
 
-    if (!gpio_read_pin(BT_CABLE_PIN)) {
-        if (!gpio_read_pin(BT_CHARGE_PIN)) {
-            if (timer_elapsed32(charge_last_time) < 3000) {
-                rgb_matrix_set_color(81, 100, 0, 0);
-            }
-        }
+    static bool     cable_initialized     = false;
+    static bool     cable_was_present     = false;
+    static uint32_t charge_notice_started = 0;
+    static uint32_t charge_blink_timer    = 0;
+    static bool     charge_blink_on       = false;
+
+    const bool    cable_present = !gpio_read_pin(BT_CABLE_PIN);
+    const bool    charging      = cable_present && !gpio_read_pin(BT_CHARGE_PIN);
+    const uint8_t percent       = bts_info.bt_info.pvol;
+
+    /*
+     * Type-C 插入边沿。
+     * cable_initialized 保证键盘上电时线已经插着，也会产生一次充电提示。
+     */
+    if (!cable_initialized) {
+        cable_initialized = true;
+        cable_was_present = false;
+    }
+
+    if (cable_present && !cable_was_present) {
+        active_notice            = BAT_NOTICE_NONE;
         battery_low_warning_flag = false;
-    } else {
-        charge_last_time = timer_read32();
 
-        if (bts_info.bt_info.low_vol) {
-            battery_low_warning_flag = true;
+        charge_notice_started = timer_read32();
+        charge_blink_timer    = timer_read32();
+        charge_blink_on       = true;
+
+        /*
+         * 插线视为开始一个新的充放电周期。
+         * 下次拔线后允许重新检测 15/10/5% 节点。
+         */
+        next_threshold = 15;
+    }
+
+    cable_was_present = cable_present;
+
+    /*
+     * 充电提示：
+     * 仅在插入 Type-C 且充电脚有效时，C 键标准白闪烁约 2.4 秒。
+     * 不检测充满状态。
+     */
+    if (charging && timer_elapsed32(charge_notice_started) < CHARGE_NOTICE_TIME) {
+        if (timer_elapsed32(charge_blink_timer) >= CHARGE_BLINK_INTERVAL) {
+            charge_blink_timer = timer_read32();
+            charge_blink_on    = !charge_blink_on;
         }
 
-        if (battery_low_warning_flag) {
-            if (timer_elapsed32(Low_power_time) >= 300) {
-                Low_power_blink = !Low_power_blink;
-                Low_power_time  = timer_read32();
-            }
-            if (Low_power_blink) {
-                rgb_matrix_set_color(81, 100, 0, 0);
-            } else {
-                rgb_matrix_set_color(81, 0, 0, 0);
-            }
+        if (charge_blink_on) {
+            rgb_matrix_set_color(CHARGE_LED_INDEX, CHARGE_INDICATOR_COLOR);
         } else {
-            Low_power_blink = 0;
+            rgb_matrix_set_color(CHARGE_LED_INDEX, 0, 0, 0);
+        }
+    }
+
+    /*
+     * 插线立即终止低电提醒。
+     */
+    if (cable_present) {
+        active_notice            = BAT_NOTICE_NONE;
+        battery_low_warning_flag = false;
+        blink_on                 = false;
+        battery_low_warning_flag = false;
+        return;
+    }
+
+    /*
+     * 低于 3% 优先级最高：直到模块执行低电关机前持续闪烁。
+     */
+    if (percent < 3 || bts_info.bt_info.low_vol_offed) {
+        active_notice            = BAT_NOTICE_NONE;
+        battery_low_warning_flag = true;
+
+        if (timer_elapsed32(blink_timer) >= LOW_BATTERY_BLINK_INTERVAL) {
+            blink_timer = timer_read32();
+            blink_on    = !blink_on;
         }
 
+        if (blink_on) {
+            set_battery_warning_leds(LOW_BATTERY_COLOR);
+        } else {
+            set_battery_warning_leds(0, 0, 0);
+        }
+
+        /*
+         * 保留原固件的低电关机逻辑。
+         */
         if (bts_info.bt_info.low_vol_offed) {
             if (timer_elapsed32(pressed_time) >= 2000) {
                 kb_sleep_flag = true;
             }
+
             extern bool low_vol_offed_sleep;
             low_vol_offed_sleep = true;
         }
+
+        return;
     }
+
+    /*
+     * 每个电量节点只触发一次。
+     * 若电量一次从 16% 跳到 9%，会先提示 15%，结束后再提示 10%，
+     * 因而不会丢失任何节点提醒。
+     */
+    if (active_notice == BAT_NOTICE_NONE) {
+        if (next_threshold == 15 && percent <= 15) {
+            active_notice  = BAT_NOTICE_15;
+            next_threshold = 10;
+        } else if (next_threshold == 10 && percent <= 10) {
+            active_notice  = BAT_NOTICE_10;
+            next_threshold = 5;
+        } else if (next_threshold == 5 && percent <= 5) {
+            active_notice  = BAT_NOTICE_5;
+            next_threshold = 0;
+        }
+
+        if (active_notice != BAT_NOTICE_NONE) {
+            notice_started = timer_read32();
+            blink_timer    = timer_read32();
+            blink_on       = true;
+        }
+    }
+
+    if (active_notice != BAT_NOTICE_NONE) {
+        if (timer_elapsed32(notice_started) >= LOW_BATTERY_NOTICE_TIME) {
+            // battery_low_warning_flag = false;
+            active_notice = BAT_NOTICE_NONE;
+            blink_on      = false;
+            set_battery_warning_leds(0, 0, 0);
+            return;
+        }
+
+        if (active_notice == BAT_NOTICE_5) battery_low_warning_flag = true;
+
+        if (timer_elapsed32(blink_timer) >= LOW_BATTERY_BLINK_INTERVAL) {
+            blink_timer = timer_read32();
+            blink_on    = !blink_on;
+        }
+
+        if (blink_on) {
+            set_battery_warning_leds(LOW_BATTERY_COLOR);
+        } else {
+            set_battery_warning_leds(0, 0, 0);
+        }
+    }
+    // else {
+    //     battery_low_warning_flag = false;
+    // }
 }
+/* ============================================== */
 
 // All indicator blink
 static void indicator_all_blink(void) {

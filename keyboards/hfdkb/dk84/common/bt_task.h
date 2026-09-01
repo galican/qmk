@@ -33,6 +33,13 @@ typedef union {
 extern dev_info_t dev_info;
 extern bts_info_t bts_info;
 
+typedef struct {
+    uint32_t press_time;
+    uint32_t press_hold_time;
+    uint16_t keycode;
+    void (*event_cb)(uint16_t);
+} long_pressed_keys_t;
+
 /**
  * @brief bluetooth 初始化函数
  * @param None
