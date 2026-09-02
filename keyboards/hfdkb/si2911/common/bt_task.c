@@ -957,7 +957,7 @@ static void bt_scan_mode(void) {
 #if defined(MM_BT_MODE_PIN) && defined(MM_2G4_MODE_PIN)
     uint8_t        now_mode   = 0;
     static uint8_t old_mode   = 0;
-    static bool    first_call = true;
+    static bool    first_call = false;
 
     if (gpio_read_pin(MM_BT_MODE_PIN) && !gpio_read_pin(MM_2G4_MODE_PIN)) {
         now_mode = 0;
@@ -972,14 +972,15 @@ static void bt_scan_mode(void) {
         if (dev_info.devs != DEVS_USB) bt_switch_mode(dev_info.devs, DEVS_USB, false); // usb mode
     }
 
-    if (first_call) {
-        old_mode   = now_mode;
-        first_call = false;
-        return;
+    if (!first_call) {
+        // old_mode   = now_mode;
+        first_call = true;
+        // return;
     }
 
-    if ((old_mode != now_mode) && !Low_power) {
-        old_mode = now_mode;
+    if ((old_mode != now_mode) && first_call && !Low_power) {
+        old_mode   = now_mode;
+        first_call = false;
 
         gpio_write_pin_low(RGB_MATRIX_SHUTDOWN_PIN);
         wait_ms(1);
