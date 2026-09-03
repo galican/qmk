@@ -683,6 +683,10 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
     // Reset wireless indicator timer if switching between different devices
     if (last_mode != now_mode) {
         last_total_time = timer_read32();
+
+#ifdef RGB_MATRIX_ENABLE
+        open_rgb();
+#endif
     }
 
     // Update device state
@@ -965,7 +969,7 @@ static void bt_scan_mode(void) {
         return;
     }
 
-    if ((old_mode != now_mode) && !Low_power) {
+    if ((old_mode != now_mode) && !Low_power && (USBLINK_Status != 0)) {
         old_mode = now_mode;
 
         gpio_write_pin_low(RGB_MATRIX_SHUTDOWN_PIN);
