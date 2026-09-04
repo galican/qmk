@@ -87,3 +87,10 @@
 #define NKRO_DEFAULT_ON true
 
 #define LED_INDICATOR_UNDER_SRGB
+
+#define NUM_LOCK_LED_INVERTED
+#if defined(NUM_LOCK_LED_INVERTED)
+#    define NUM_LOCK_INDICATOR_ON() (!host_keyboard_led_state().num_lock)
+#else
+#    define NUM_LOCK_INDICATOR_ON() (host_keyboard_led_state().num_lock)
+#endif

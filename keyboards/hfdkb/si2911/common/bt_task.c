@@ -684,6 +684,10 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
     // Reset wireless indicator timer if switching between different devices
     if (last_mode != now_mode) {
         last_total_time = timer_read32();
+
+#ifdef RGB_MATRIX_ENABLE
+        open_rgb();
+#endif
     }
 
     // Update device state
@@ -955,9 +959,8 @@ static void bt_used_pin_init(void) {
 
 static void bt_scan_mode(void) {
 #if defined(MM_BT_MODE_PIN) && defined(MM_2G4_MODE_PIN)
-    uint8_t        now_mode   = 0;
-    static uint8_t old_mode   = 0;
-    static bool    first_call = false;
+    uint8_t        now_mode = 0;
+    static uint8_t old_mode = 0;
 
     if (gpio_read_pin(MM_BT_MODE_PIN) && !gpio_read_pin(MM_2G4_MODE_PIN)) {
         now_mode = 0;
@@ -972,15 +975,8 @@ static void bt_scan_mode(void) {
         if (dev_info.devs != DEVS_USB) bt_switch_mode(dev_info.devs, DEVS_USB, false); // usb mode
     }
 
-    if (!first_call) {
-        // old_mode   = now_mode;
-        first_call = true;
-        // return;
-    }
-
-    if ((old_mode != now_mode) && first_call && !Low_power) {
-        old_mode   = now_mode;
-        first_call = false;
+    if ((old_mode != now_mode) && (USBLINK_Status != 0) && !Low_power) {
+        old_mode = now_mode;
 
         gpio_write_pin_low(RGB_MATRIX_SHUTDOWN_PIN);
         wait_ms(1);
@@ -1659,11 +1655,11 @@ bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max) {
         }
 
         if (dev_info.devs == DEVS_USB) {
-            if (host_keyboard_led_state().num_lock && (USB_DRIVER.state != USB_SUSPENDED) && (get_highest_layer(default_layer_state) == 0)) {
+            if (NUM_LOCK_INDICATOR_ON() && (USB_DRIVER.state != USB_SUSPENDED) && (get_highest_layer(default_layer_state) == 0)) {
                 rgb_matrix_set_color(NUM_LOCK_LED_INDEX, 0xC8, 0xC8, 0xC8);
             }
         } else {
-            if (host_keyboard_led_state().num_lock && bts_info.bt_info.paired && (get_highest_layer(default_layer_state) == 0)) {
+            if (NUM_LOCK_INDICATOR_ON() && bts_info.bt_info.paired && (get_highest_layer(default_layer_state) == 0)) {
                 rgb_matrix_set_color(NUM_LOCK_LED_INDEX, 0xC8, 0xC8, 0xC8);
             }
         }

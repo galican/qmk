@@ -180,12 +180,12 @@ static void exti_init(void) {
 
 #    if defined(MM_BT_MODE_PIN) && defined(MM_2G4_MODE_PIN)
         gpio_set_pin_input_high(MM_BT_MODE_PIN);
-        pad_enbale_interrupt(PAL_PAD(MM_BT_MODE_PIN));
         _pal_lld_enablepadevent(PAL_PORT(MM_BT_MODE_PIN), PAL_PAD(MM_BT_MODE_PIN), PAL_EVENT_MODE_BOTH_EDGES);
+        pad_enbale_interrupt(PAL_PAD(MM_BT_MODE_PIN));
 
         gpio_set_pin_input_high(MM_2G4_MODE_PIN);
-        pad_enbale_interrupt(PAL_PAD(MM_2G4_MODE_PIN));
         _pal_lld_enablepadevent(PAL_PORT(MM_2G4_MODE_PIN), PAL_PAD(MM_2G4_MODE_PIN), PAL_EVENT_MODE_BOTH_EDGES);
+        pad_enbale_interrupt(PAL_PAD(MM_2G4_MODE_PIN));
 
 #    endif
 
@@ -216,8 +216,8 @@ static void stop_mode_entry(void) {
     EXTI->PR = 0x7FFFF;
     for (uint8_t i = 0; i < 8; i++) {
         for (uint8_t j = 0; j < 32; j++) {
-            if (NVIC->ISPR[i] & (0x01UL < j)) {
-                NVIC->ICPR[i] = (0x01UL < j);
+            if (NVIC->ISPR[i] & (0x01UL << j)) {
+                NVIC->ICPR[i] = (0x01UL << j);
             }
         }
     }
