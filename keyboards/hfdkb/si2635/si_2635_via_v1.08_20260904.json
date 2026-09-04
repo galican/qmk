@@ -73,7 +73,8 @@
         {"name": "BLED _SPI","title":"Adjust the speed of usb light","shortName":"BLED_SPI"},
         {"name": "WORK _MOD","title":"Switch encoder mode","shortName":"WORK_MOD"},
         {"name": "KC _FLXP","title":"Open file explore in Windows os","shortName":"KC_FLXP"},
-        {"name": "MAC _TSK","title":"Turn back to desktop in MAC os","shortName":"MAC_TSK"}
+        {"name": "MAC _TSK","title":"Turn back to desktop in MAC os","shortName":"MAC_TSK"},
+        {"name": "SLEP _TIME","title":"Set sleep time","shortName":"SLEP_TIME"}
     ],
     "layouts": {
       "keymap":[

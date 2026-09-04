@@ -32,6 +32,7 @@ enum multimode_keycodes {
     // KC_FLXP,
     AN_TASK,
     KC_SPOTLIGHT,
+    KC_TIME,
 
     // RGB_TOG,
     // RGB_MOD,
@@ -63,6 +64,7 @@ typedef union {
     struct {
         uint8_t devs : 3;
         uint8_t last_devs : 3;
+        uint8_t sleep_mode : 2;
         uint8_t bled_speed;
         uint8_t bled_val;
         uint8_t bled_mode : 3;

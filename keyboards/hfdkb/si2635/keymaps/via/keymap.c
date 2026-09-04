@@ -57,7 +57,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [WIN_FN] = LAYOUT_80_ansi(
         EE_CLR,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_MYCM,  KC_MAIL, KC_WHOM, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_VOLD,  KC_VOLU,            _______,
         BT_2_4G, BT_HOST1, BT_HOST2, BT_HOST3, _______,  _______, _______, _______, _______, _______, _______, _______,  _______,  RM_TOGG,  KC_INS,
-        RM_HUEU, KEY_AND,  _______,  KEY_MAC,  _______,  _______, _______, KC_PSCR, KC_SCRL, KC_PAUS, _______, _______,  _______,  RM_NEXT,  _______,
+        RM_HUEU, KEY_AND,  _______,  KEY_MAC,  _______,  _______, KC_TIME, KC_PSCR, KC_SCRL, KC_PAUS, _______, _______,  _______,  RM_NEXT,  _______,
         _______, _______,  _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______,            _______,  _______,
         BLED_MOD,          _______, _______,  _______,  _______, BT_VOL,  _______, _______, _______, _______, _______,  _______,  RM_VALU,  KC_HOME,
         _______, GU_TOGG, _______,                              _______,                            _______, _______,  RM_SPDD,  RM_VALD,  RM_SPDU),
@@ -73,7 +73,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [AND_FN] = LAYOUT_80_ansi(
         EE_CLR,  KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,   KC_F12,             _______,
         BT_2_4G, BT_HOST1, BT_HOST2, BT_HOST3, _______,  _______, _______, _______, _______, _______, _______, _______,  _______,  RM_TOGG,  _______,
-        RM_HUEU, _______,  KEY_WIN,  KEY_MAC,  _______,  _______, _______, KC_PSCR, KC_SCRL, KC_PAUS, _______, _______,  _______,  RM_NEXT,  _______,
+        RM_HUEU, _______,  KEY_WIN,  KEY_MAC,  _______,  _______, KC_TIME, KC_PSCR, KC_SCRL, KC_PAUS, _______, _______,  _______,  RM_NEXT,  _______,
         _______, _______,  _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______,            _______,  _______,
         BLED_MOD,          _______, _______,  _______,  _______, BT_VOL,  _______, _______, _______, _______, _______,  _______,  RM_VALU,  KC_HOME,
         _______, _______, _______,                              _______,                            _______, _______,  RM_SPDD,  RM_VALD,  RM_SPDU),
@@ -89,7 +89,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [MAC_FN] = LAYOUT_80_ansi(
         EE_CLR,  KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,   KC_F12,             _______,
         BT_2_4G, BT_HOST1, BT_HOST2, BT_HOST3, BT_2_4G,  _______, _______, _______, _______, _______, _______, _______,  _______,  RM_TOGG,  _______,
-        RM_HUEU, KEY_AND,  KEY_WIN,  _______,  _______,  _______, _______, KC_PSCR, KC_SCRL, KC_PAUS, _______, _______,  _______,  RM_NEXT,  _______,
+        RM_HUEU, KEY_AND,  KEY_WIN,  _______,  _______,  _______, KC_TIME, KC_PSCR, KC_SCRL, KC_PAUS, _______, _______,  _______,  RM_NEXT,  _______,
         _______, _______,  _______,  _______,  _______,  _______, _______, _______, _______, _______, _______, _______,            _______,  _______,
         BLED_MOD,          _______, _______,  _______,  _______, BT_VOL,  _______, _______, _______, _______, _______,  _______,  RM_VALU,  KC_HOME,
         _______, _______, _______,                              _______,                            _______, _______,  RM_SPDD,  RM_VALD,  RM_SPDU),
@@ -394,6 +394,7 @@ void keyboard_post_init_user(void) {
 }
 
 void eeconfig_init_user(void) {
+    dev_info.sleep_mode   = 0;
     dev_info.encoder_mode = MODE_WORKING;
     eeconfig_update_user(dev_info.raw);
 

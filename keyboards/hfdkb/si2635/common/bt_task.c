@@ -192,6 +192,19 @@ static bool     EE_CLR_flag       = false;
 /* Battery level indicator */
 uint8_t query_index[] = BAT_LEVEL_DISPLAY_INDEX;
 
+enum {
+    SLEEP_TIME_5_MIN,
+    SLEEP_TIME_10_MIN,
+    SLEEP_TIME_30_MIN,
+    SLEEP_TIME_COUNT,
+};
+
+static const uint32_t sleep_times[SLEEP_TIME_COUNT] = {
+    5UL * 60UL * 1000UL,
+    10UL * 60UL * 1000UL,
+    30UL * 60UL * 1000UL,
+};
+
 mode_t mode = MODE_WORKING;
 
 // USB related
@@ -544,8 +557,14 @@ void bt_init(void) {
 
     dev_info.raw = eeconfig_read_user();
     if (!dev_info.raw) {
-        dev_info.devs      = DEVS_USB;
-        dev_info.last_devs = DEVS_HOST1;
+        dev_info.devs       = DEVS_USB;
+        dev_info.last_devs  = DEVS_HOST1;
+        dev_info.sleep_mode = SLEEP_TIME_5_MIN;
+        eeconfig_update_user(dev_info.raw);
+    }
+
+    if (dev_info.sleep_mode >= SLEEP_TIME_COUNT) {
+        dev_info.sleep_mode = SLEEP_TIME_5_MIN;
         eeconfig_update_user(dev_info.raw);
     }
 
@@ -948,6 +967,14 @@ static bool bt_process_record_other(uint16_t keycode, keyrecord_t *record) {
             }
         } break;
 
+        case KC_TIME: {
+            if (record->event.pressed) {
+                dev_info.sleep_mode = (dev_info.sleep_mode + 1) % SLEEP_TIME_COUNT;
+
+                eeconfig_update_user(dev_info.raw);
+            }
+        } break;
+
         case QK_GRAVE_ESCAPE:
             if (dev_info.devs) {
                 if (record->event.pressed) {
@@ -1194,8 +1221,14 @@ static void close_rgb(void) {
         return;
     }
 
+    uint8_t sleep_mode = dev_info.sleep_mode;
+
+    if (sleep_mode >= SLEEP_TIME_COUNT) {
+        sleep_mode = SLEEP_TIME_5_MIN;
+    }
+
     if (sober) {
-        if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= ENTRY_SLEEP_TIMEOUT_MS)) {
+        if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= sleep_times[sleep_mode])) {
             // wwdg_pause();
             // bak_rgb_toggle = rgb_matrix_config.enable;
             bak_rgb_toggle = rgb_matrix_is_enabled();

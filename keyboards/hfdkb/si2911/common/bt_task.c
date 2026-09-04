@@ -979,9 +979,9 @@ static void bt_scan_mode(void) {
         old_mode = now_mode;
 
         gpio_write_pin_low(RGB_MATRIX_SHUTDOWN_PIN);
-        wait_ms(1);
+        wait_ms(10);
         gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
-
+        wait_ms(10);
         rgb_matrix_init();
     }
 #endif
@@ -1092,8 +1092,9 @@ static void open_rgb(void) {
 
 #ifdef RGB_MATRIX_SHUTDOWN_PIN
         gpio_write_pin_low(RGB_MATRIX_SHUTDOWN_PIN);
-        wait_ms(1);
+        wait_ms(10);
         gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
+        wait_ms(10);
         rgb_matrix_init();
 #endif
 
@@ -1659,7 +1660,7 @@ bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max) {
                 rgb_matrix_set_color(NUM_LOCK_LED_INDEX, 0xC8, 0xC8, 0xC8);
             }
         } else {
-            if (NUM_LOCK_INDICATOR_ON() && bts_info.bt_info.paired && (get_highest_layer(default_layer_state) == 0)) {
+            if (NUM_LOCK_INDICATOR_ON() && bts_info.bt_info.paired && !backlight_sleep_flag && (get_highest_layer(default_layer_state) == 0)) {
                 rgb_matrix_set_color(NUM_LOCK_LED_INDEX, 0xC8, 0xC8, 0xC8);
             }
         }

@@ -285,6 +285,7 @@ void housekeeping_task_user(void) {
                 usb_suspend_timer = 0;
 #    ifdef RGB_MATRIX_SHUTDOWN_PIN
                 gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
+                wait_ms(10);
 #    endif
                 rgb_matrix_init();
             }
@@ -310,6 +311,7 @@ void housekeeping_task_user(void) {
 
 #    ifdef RGB_MATRIX_SHUTDOWN_PIN
                 gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
+                wait_ms(10);
 #    endif
                 rgb_matrix_init();
             }
@@ -320,6 +322,7 @@ void housekeeping_task_user(void) {
             usb_suspend       = false;
 #    ifdef RGB_MATRIX_SHUTDOWN_PIN
             gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
+            wait_ms(10);
 #    endif
             rgb_matrix_init();
         }
@@ -343,8 +346,8 @@ void matrix_scan_user(void) {
 void matrix_init_user(void) {
 #ifdef RGB_MATRIX_SHUTDOWN_PIN
     gpio_set_pin_output_push_pull(RGB_MATRIX_SHUTDOWN_PIN);
-    gpio_write_pin_low(RGB_MATRIX_SHUTDOWN_PIN);
-    wait_ms(10);
+    // gpio_write_pin_low(RGB_MATRIX_SHUTDOWN_PIN);
+    // wait_ms(10);
     gpio_write_pin_high(RGB_MATRIX_SHUTDOWN_PIN);
 #endif
 
