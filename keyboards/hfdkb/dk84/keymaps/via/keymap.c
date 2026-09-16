@@ -162,6 +162,8 @@ static uint32_t flask_consumed = 0;
 // 最近一次 FLASK 组合所对应的任务。
 static uint16_t flask_task = KC_NO;
 
+static uint8_t brightness = 0;
+
 static void flask_cancel_task(void) {
     if (flask_task != KC_NO) {
         long_press_cancel(flask_task, LONG_PRESS_SOURCE_FLASK);
@@ -173,12 +175,16 @@ static bool process_flask_long_press(uint16_t keycode, keyrecord_t *record) {
     if (keycode == KC_FLASK) {
         if (record->event.pressed) {
             key_press_status |= KEY_FLASK_PRESSED;
+
+            if (!brightness) brightness = rgb_matrix_get_val();
+
+            rgb_matrix_config.hsv.v = brightness / 5;
         } else {
             key_press_status &= ~KEY_FLASK_PRESSED;
             flask_cancel_task();
 
-            // 不清除 flask_consumed：
-            // 数字键/ESC 后续松开时仍然要吞掉释放事件。
+            rgb_matrix_config.hsv.v = brightness;
+            brightness              = 0;
         }
         return false;
     }
@@ -348,6 +354,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     static uint8_t leds[] = {
         17, 18, 19, 33, 55, 67, 69,
     };
+
     if ((key_press_status & KEY_FLASK_PRESSED) != 0) {
         for (uint8_t i = 0; i < (sizeof(leds) / sizeof(leds[0])); i++) {
             rgb_matrix_set_color(leds[i], 0xFF / 3, 0xFF, 0xFF);

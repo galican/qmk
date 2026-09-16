@@ -1426,6 +1426,7 @@ static void battery_low_warning(void) {
     // 留出 5 个百分点，避免 15% 附近波动造成反复提醒。
     if (percent >= 20) {
         next_threshold = 15;
+        battery_low_warning_flag = false;
     }
     /*
      * 每个电量节点只触发一次。
