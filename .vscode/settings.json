@@ -65,7 +65,7 @@
             "url": "./data/schemas/keymap.jsonschema"
         }
     ],
-    "editor.fontFamily": "MesloLGM Nerd Font Regular",
+    "editor.fontFamily": "MesloLGS Nerd Font Mono",
     "editor.formatOnSave": true,
     "files.autoSave": "afterDelay",
     "editor.fontSize": 12,

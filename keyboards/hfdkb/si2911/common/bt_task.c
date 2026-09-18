@@ -1432,9 +1432,9 @@ static void bt_bat_query_period(void) {
             // for (uint8_t i = 102; i <= 103; i++) {
             //     rgb_matrix_set_color(i, RGB_RED);
             // }
-            color = (RGB){0, 100, 0}; // 红色
+            color = (RGB){100, 0, 0}; // 红色
         } else {
-            color = (RGB){100, 0, 0}; // 绿色
+            color = (RGB){0, 100, 0}; // 绿色
         }
 
         for (uint8_t i = 0; i < led_count; i++) {

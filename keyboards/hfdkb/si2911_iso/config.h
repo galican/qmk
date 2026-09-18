@@ -91,3 +91,5 @@
 #define NKRO_DEFAULT_ON true
 
 #define LED_INDICATOR_UNDER_SRGB
+
+// #define VIA_INSECURE

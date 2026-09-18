@@ -1,6 +1,6 @@
 {
     "manufacturer": "AULA",
-    "keyboard_name": "YUNZII B98 PRO Keyboard",
+    "keyboard_name": "YUNZII B98 PRO ISO",
     "maintainer": "jonylee@hfd",
     "url": "https://github.com/jonylee1986",
     "processor": "WB32FQ95",
@@ -8,7 +8,7 @@
     "usb": {
         "vid": "0xFFFE",
         "pid": "0x00AB",
-        "device_version": "1.0.1",
+        "device_version": "1.0.3",
         "suspend_wakeup_delay": 1000
     },
     "features": {
