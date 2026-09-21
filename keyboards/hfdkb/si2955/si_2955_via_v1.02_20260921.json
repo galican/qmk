@@ -1,8 +1,8 @@
 {
-    "name": "YUNZII B104PRO",
+    "name": "YUNZII B104 Keyboard",
     "vendorId": "0xFFFE",
     "productId": "0x00AB",
-    "keycodes": ["qmk_lighting"],
+    "keycodes": ["qmk_rgb_matrix_keycodes"],
     "menus": [
       {
         "label": "Lighting",
