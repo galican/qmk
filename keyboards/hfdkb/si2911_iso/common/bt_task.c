@@ -1204,8 +1204,10 @@ static void bt_charging_indication(void) {
     extern bool is_charging(void);
     extern bool is_fully_charged(void);
 
-    if (is_charging()) {
+    // if (is_charging()) {
+    if (USBLINK_Status == 0) {
         if (is_fully_charged()) {
+            // if (CHARGE_Status == 1) {
             // Charge pin indicates full - trigger only if not already displayed
             if (timer_elapsed32(entry_full_time) >= 2000) {
                 entry_chrg_time = timer_read32();
