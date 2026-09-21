@@ -7,7 +7,7 @@
 #include "transport.h"
 
 #ifndef USB_POWER_DOWN_DELAY
-#    define USB_POWER_DOWN_DELAY 7000
+#    define USB_POWER_DOWN_DELAY 3000
 #endif
 
 extern host_driver_t chibios_driver;
@@ -17,12 +17,10 @@ static transport_t transport = TRANSPORT_USB;
 
 void wls_transport_enable(bool enable) __attribute__((weak));
 void wls_transport_enable(bool enable) {
-
     if (enable) {
         if (host_get_driver() != &wireless_driver) {
             host_set_driver(&wireless_driver);
-            //keyboard_protocol = true; // default with true
-            usb_device_state_set_protocol(true);
+            // keyboard_protocol = true; // default with true
         }
     } else {
         if (*md_getp_state() == MD_STATE_CONNECTED) {
@@ -43,7 +41,6 @@ void usb_power_disconnect(void) {}
 
 void usb_transport_enable(bool enable) __attribute__((weak));
 void usb_transport_enable(bool enable) {
-
     if (enable) {
         if (host_get_driver() != &chibios_driver) {
             extern bool last_suspend_state;
@@ -58,8 +55,8 @@ void usb_transport_enable(bool enable) {
         }
     } else {
         if (USB_DRIVER.state == USB_ACTIVE) {
-            report_keyboard_t empty_report = {0};
-            report_nkro_t empty_nkro_report = {0};
+            report_keyboard_t empty_report      = {0};
+            report_nkro_t     empty_nkro_report = {0};
             host_keyboard_send(&empty_report);
             host_nkro_send(&empty_nkro_report);
         }
@@ -73,7 +70,6 @@ void usb_transport_enable(bool enable) {
 }
 
 void set_transport(transport_t new_transport) {
-
     transport = new_transport;
 
     switch (transport) {
@@ -91,12 +87,10 @@ void set_transport(transport_t new_transport) {
 }
 
 transport_t get_transport(void) {
-
     return transport;
 }
 
 void usb_remote_wakeup(void) {
-
 #ifdef USB_REMOTE_USE_QMK
     if (USB_DRIVER.state == USB_SUSPENDED) {
         dprintln("suspending keyboard");
@@ -136,7 +130,6 @@ void usb_remote_wakeup(void) {
 
 #ifndef USB_REMOTE_USE_QMK
 void usb_remote_host(void) {
-
     if (USB_DRIVER.state == USB_SUSPENDED) {
         if ((USB_DRIVER.status & 2U) && suspend_wakeup_condition()) {
             usbWakeupHost(&USB_DRIVER);
@@ -157,9 +150,8 @@ void usb_remote_host(void) {
 }
 
 bool process_action_kb(keyrecord_t *record) {
-
     (void)record;
-    if (get_transport() == TRANSPORT_USB){
+    if (get_transport() == TRANSPORT_USB) {
         usb_remote_host();
     }
 

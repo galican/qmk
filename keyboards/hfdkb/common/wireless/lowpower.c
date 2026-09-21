@@ -21,12 +21,12 @@
 #    define LPWR_WAKEUP_DELAY 200
 #endif
 
-static lpwr_state_t    lpwr_state         = LPWR_NORMAL;
-static lpwr_mode_t     lpwr_mode          = LPWR_MODE_TIMEOUT;
-static uint32_t        lpwr_timeout_value = LPWR_TIMEOUT;
-static uint32_t        lpwr_timestamp     = 0x00;
-static lpwr_wakeupcd_t lpwr_wakeupcd      = LPWR_WAKEUP_NONE;
-static bool            manual_timeout     = false;
+static lpwr_state_t lpwr_state       = LPWR_NORMAL;
+static lpwr_mode_t lpwr_mode         = LPWR_MODE_TIMEOUT;
+static uint32_t lpwr_timeout_value   = LPWR_TIMEOUT;
+static uint32_t lpwr_timestamp       = 0x00;
+static lpwr_wakeupcd_t lpwr_wakeupcd = LPWR_WAKEUP_NONE;
+static bool manual_timeout           = false;
 
 static bool rgb_enable_bak = false;
 
@@ -110,6 +110,7 @@ bool lpwr_get_timeout_manual(void) {
 
 // 2.4g mode, host state
 void md_receive_host_cb(bool resume) {
+
     if (resume) {
         if (lpwr_get_state() != LPWR_NORMAL) {
             lpwr_update_timestamp();
@@ -214,6 +215,7 @@ void lpwr_presleep_hook(void) {}
 
 void lpwr_presleep_cb(void) __attribute__((weak));
 void lpwr_presleep_cb(void) {
+
 #if defined(RGB_MATRIX_ENABLE)
     rgb_enable_bak = rgb_matrix_is_enabled();
     rgb_matrix_disable_noeeprom();
@@ -235,6 +237,7 @@ void lpwr_stop_hook_post(void) {}
 
 void lpwr_stop_cb(void) __attribute__((weak));
 void lpwr_stop_cb(void) {
+
     lpwr_set_sleep_wakeupcd(LPWR_WAKEUP_NONE);
 
     lpwr_stop_hook_pre();
@@ -257,6 +260,7 @@ void lpwr_wakeup_hook(void) {}
 
 void lpwr_wakeup_cb(void) __attribute__((weak));
 void lpwr_wakeup_cb(void) {
+
     if (rgb_enable_bak) {
 #if defined(RGB_MATRIX_ENABLE)
         rgb_matrix_enable_noeeprom();
@@ -273,6 +277,7 @@ void lpwr_wakeup_cb(void) {
 
 void lpwr_task(void) __attribute__((weak));
 void lpwr_task(void) {
+
     switch (lpwr_get_state()) {
         case LPWR_NORMAL: {
             if (lpwr_is_allow_timeout()) {

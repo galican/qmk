@@ -55,65 +55,57 @@ void palcallback(void *arg) {
 }
 
 void pal_events_init(void) {
+
     for (uint8_t i = 0; i < 16; i++) {
         _pal_events[i].cb  = palcallback;
         _pal_events[i].arg = (void *)(uint32_t)i;
     }
 }
 
-bool low_vol_offed_sleep = false;
-
 void lpwr_exti_init_hook(void) __attribute__((weak));
 void lpwr_exti_init_hook(void) {}
 
 void lpwr_exti_init(void) {
+
     pal_events_init();
 
-    if (!low_vol_offed_sleep) {
 #if DIODE_DIRECTION == ROW2COL
-        for (uint8_t i = 0; i < ARRAY_SIZE(col_pins); i++) {
-            if (col_pins[i] != NO_PIN) {
-                setPinOutputOpenDrain(col_pins[i]);
-                writePinLow(col_pins[i]);
-            }
+    for (uint8_t i = 0; i < ARRAY_SIZE(col_pins); i++) {
+        if (col_pins[i] != NO_PIN) {
+            gpio_set_pin_output_open_drain(col_pins[i]);
+            gpio_write_pin_low(col_pins[i]);
         }
+    }
 
-        for (uint8_t i = 0; i < ARRAY_SIZE(row_pins); i++) {
-            if (row_pins[i] != NO_PIN) {
-                setPinInputHigh(row_pins[i]);
-                waitInputPinDelay();
-                palEnableLineEvent(row_pins[i], PAL_EVENT_MODE_FALLING_EDGE);
-            }
+    for (uint8_t i = 0; i < ARRAY_SIZE(row_pins); i++) {
+        if (row_pins[i] != NO_PIN) {
+            gpio_set_pin_input_high(row_pins[i]);
+            waitInputPinDelay();
+            palEnableLineEvent(row_pins[i], PAL_EVENT_MODE_BOTH_EDGES);
         }
+    }
 #elif DIODE_DIRECTION == COL2ROW
-        for (uint8_t i = 0; i < ARRAY_SIZE(row_pins); i++) {
-            if (row_pins[i] != NO_PIN) {
-                setPinOutputOpenDrain(row_pins[i]);
-                writePinLow(row_pins[i]);
-            }
+    for (uint8_t i = 0; i < ARRAY_SIZE(row_pins); i++) {
+        if (row_pins[i] != NO_PIN) {
+            setPinOutputOpenDrain(row_pins[i]);
+            writePinLow(row_pins[i]);
         }
+    }
 
-        for (uint8_t i = 0; i < ARRAY_SIZE(col_pins); i++) {
-            if (col_pins[i] != NO_PIN) {
-                setPinInputHigh(col_pins[i]);
-                waitInputPinDelay();
-                palEnableLineEvent(col_pins[i], PAL_EVENT_MODE_FALLING_EDGE);
-            }
+    for (uint8_t i = 0; i < ARRAY_SIZE(col_pins); i++) {
+        if (col_pins[i] != NO_PIN) {
+            gpio_set_pin_input_high(col_pins[i]);
+            waitInputPinDelay();
+            palEnableLineEvent(col_pins[i], PAL_EVENT_MODE_BOTH_EDGES);
         }
+    }
 #endif
 
 #ifndef LPWR_UART_WAKEUP_DISABLE
-        setPinInput(UART_RX_PIN);
-        waitInputPinDelay();
-        palEnableLineEvent(UART_RX_PIN, PAL_EVENT_MODE_BOTH_EDGES);
+    gpio_set_pin_input(UART_RX_PIN);
+    waitInputPinDelay();
+    palEnableLineEvent(UART_RX_PIN, PAL_EVENT_MODE_BOTH_EDGES);
 #endif
-    } else {
-#ifdef BT_CABLE_PIN
-        setPinInputHigh(BT_CABLE_PIN);
-        waitInputPinDelay();
-        palEnableLineEvent(BT_CABLE_PIN, PAL_EVENT_MODE_BOTH_EDGES);
-#endif
-    }
 
     lpwr_exti_init_hook();
 
@@ -125,9 +117,6 @@ void lpwr_clock_enable_user(void) __attribute__((weak));
 void lpwr_clock_enable_user(void) {}
 
 void lpwr_clock_enable(void) {
-#ifdef WB32_WAKE_RESET_HACK
-    NVIC_SystemReset();
-#endif
 
     __early_init();
 
@@ -175,6 +164,7 @@ void lpwr_clock_enable(void) {
 }
 
 void wb32_stop_mode(void) {
+
     SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
 
     /* Prevent the chip from being unable to enter stop mode due to pending interrupts */
@@ -214,5 +204,6 @@ void wb32_stop_mode(void) {
 }
 
 void mcu_stop_mode(void) {
+
     wb32_stop_mode();
 }

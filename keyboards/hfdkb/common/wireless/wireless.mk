@@ -1,5 +1,5 @@
 WIRELESS_ENABLE ?= yes
-WIRELESS_DIR = $(TOP_DIR)/keyboards/0_hfdkb/wireless
+WIRELESS_DIR = $(TOP_DIR)/keyboards/hfdkb/common/wireless
 
 ifeq ($(strip $(WIRELESS_ENABLE)), yes)
     OPT_DEFS += -DWIRELESS_ENABLE -DNO_USB_STARTUP_CHECK
@@ -17,10 +17,15 @@ ifeq ($(strip $(WIRELESS_ENABLE)), yes)
         $(WIRELESS_DIR)/lowpower.c \
         $(WIRELESS_DIR)/md_raw.c \
         $(WIRELESS_DIR)/smsg.c \
-        $(WIRELESS_DIR)/module.c
+        $(WIRELESS_DIR)/module.c \
+		$(WIRELESS_DIR)/retarget_suspend.c
 
     ifeq ($(strip $(WIRELESS_LPWR_STOP_ENABLE)), yes)
         OPT_DEFS += -DWIRELESS_LPWR_STOP_ENABLE
         SRC += $(WIRELESS_DIR)/lpwr_wb32.c
+#     endif
+	else ifeq ($(strip $(ENTRY_STOP_MODE_ENABLE)), yes)
+        OPT_DEFS += -DENTRY_STOP_MODE
+        SRC += $(WIRELESS_DIR)/lp_sleep.c
     endif
 endif

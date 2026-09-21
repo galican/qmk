@@ -46,9 +46,6 @@ uint8_t wireless_keyboard_leds(void) {
 
 void wireless_send_keyboard(report_keyboard_t *report) __attribute__((weak));
 void wireless_send_keyboard(report_keyboard_t *report) {
-    if (MD_STATE_PAIRING == *md_getp_state()) {
-        return;
-    }
     uint8_t wls_report_kb[MD_SND_CMD_KB_LEN] = {0};
 
     if (*md_getp_state() != MD_STATE_CONNECTED) {
@@ -69,10 +66,6 @@ void wireless_send_nkro(report_nkro_t *report) __attribute__((weak));
 void wireless_send_nkro(report_nkro_t *report) {
     static report_keyboard_t temp_report_keyboard                 = {0};
     uint8_t                  wls_report_nkro[MD_SND_CMD_NKRO_LEN] = {0};
-
-    if (MD_STATE_PAIRING == *md_getp_state()) {
-        return;
-    }
 
 #ifdef NKRO_ENABLE
     if (*md_getp_state() != MD_STATE_CONNECTED) {
@@ -156,15 +149,11 @@ void wireless_send_nkro(report_nkro_t *report) {
 
 void wireless_send_mouse(report_mouse_t *report) __attribute__((weak));
 void wireless_send_mouse(report_mouse_t *report) {
-    if (MD_STATE_PAIRING == *md_getp_state()) {
-        return;
-    }
-
     typedef struct {
         uint8_t buttons;
         int8_t  x;
         int8_t  y;
-        int8_t  v;
+        int8_t  z;
         int8_t  h;
     } __attribute__((packed)) wls_report_mouse_t;
 
@@ -179,8 +168,8 @@ void wireless_send_mouse(report_mouse_t *report) {
         wls_report_mouse.buttons = report->buttons;
         wls_report_mouse.x       = report->x;
         wls_report_mouse.y       = report->y;
-        wls_report_mouse.v       = report->v;
-        wls_report_mouse.h       = report->h;
+        wls_report_mouse.z       = report->h;
+        wls_report_mouse.h       = report->v;
     }
 
     md_send_mouse((uint8_t *)&wls_report_mouse);
@@ -188,10 +177,6 @@ void wireless_send_mouse(report_mouse_t *report) {
 
 void wireless_send_extra(report_extra_t *report) __attribute__((weak));
 void wireless_send_extra(report_extra_t *report) {
-    if (MD_STATE_PAIRING == *md_getp_state()) {
-        return;
-    }
-
     uint16_t usage = 0;
 
     if (*md_getp_state() != MD_STATE_CONNECTED) {
@@ -272,12 +257,4 @@ void wireless_task(void) {
             }
         }
     }
-}
-
-void wireless_kb_task(void) __attribute__((weak));
-void wireless_kb_task(void) {}
-
-void housekeeping_task_kb(void) {
-    wireless_task();
-    wireless_kb_task();
 }

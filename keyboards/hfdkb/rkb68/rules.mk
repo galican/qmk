@@ -2,7 +2,8 @@ ifeq ($(strip $(CONSOLE_ENABLE)), yes)
     KEYBOARD_SHARED_EP = no
 endif
 
-include keyboards/0_hfdkb/wireless/wireless.mk
+include keyboards/hfdkb/common/hfdkb_common.mk
+include keyboards/hfdkb/common/wireless/wireless.mk
 
 # OPT_DEFS += -DBT_MODE_ENABLE
 # OPT_DEFS += -DENTRY_STOP_MODE

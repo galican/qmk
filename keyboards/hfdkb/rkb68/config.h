@@ -13,7 +13,7 @@
 #    define BT_CABLE_PIN B8
 #    define BT_CHARGE_PIN B9
 #    define USB_POWER_EN_PIN A14
-#    define WL_PWR_SW_PIN C13
+// #    define WL_PWR_SW_PIN C13
 
 /* UART */
 #    define UART_TX_PIN A9
