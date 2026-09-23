@@ -202,17 +202,31 @@ bool get_low_vol_off(void) {
 #include "action.h"
 
 void register_mouse(uint8_t mouse_keycode, bool pressed);
+
+/*
+ * VIA macros are played synchronously, so an unbounded wait here can prevent
+ * the main keyboard loop from ever servicing the wireless task again.  Keep
+ * the short synchronous flush, but always return control to the main loop if
+ * the module does not become idle in time.
+ */
+static void bt_process_key_sync(uint16_t keycode, bool pressed) {
+    WL_PROCESS_KEYS(keycode, pressed);
+    bts_task(dev_info.devs);
+
+    uint16_t timeout = timer_read();
+    while (bts_is_busy() && timer_elapsed(timeout) < 20) {
+        bts_task(dev_info.devs);
+        wait_ms(1);
+    }
+}
+
 /** \brief Utilities for actions. (FIXME: Needs better description)
  *
  * FIXME: Needs documentation.
  */
 __attribute__((weak)) void register_code(uint8_t code) {
     if (dev_info.devs) {
-        WL_PROCESS_KEYS(code, 1);
-        bts_task(dev_info.devs);
-        while (bts_is_busy()) {
-            wait_ms(1);
-        }
+        bt_process_key_sync(code, true);
     } else {
         if (code == KC_NO) {
             return;
@@ -286,11 +300,7 @@ __attribute__((weak)) void register_code(uint8_t code) {
  */
 __attribute__((weak)) void unregister_code(uint8_t code) {
     if (dev_info.devs) {
-        WL_PROCESS_KEYS(code, 0);
-        bts_task(dev_info.devs);
-        while (bts_is_busy()) {
-            wait_ms(1);
-        }
+        bt_process_key_sync(code, false);
     } else {
         if (code == KC_NO) {
             return;
@@ -1318,34 +1328,13 @@ static void bt_bat_query_period(void) {
         uint8_t led_count     = 0;
         RGB     color;
 
-        // if (pvol <= 20) {
-        //     led_count = 1;
-        // } else if (pvol <= 40) {
-        //     led_count = 2;
-        // } else if (pvol <= 60) {
-        //     led_count = 3;
-        // } else if (pvol <= 80) {
-        //     led_count = 4;
-        // } else {
-        //     led_count = 5;
-        // }
-
         led_count = (pvol < 10) ? 1 : ((pvol / 10) > 10 ? 10 : (pvol / 10));
 
-        // for (uint8_t i = 0; i < (sizeof(query_index) / sizeof(query_index[0])); i++) {
-        //     rgb_matrix_set_color(query_index[i], RGB_OFF);
-        // }
         for (uint8_t i = 0; i < KEYBOARD_MAIN_LED_NUM; i++) {
             rgb_matrix_set_color(i, RGB_OFF);
         }
 
         if (led_count <= 3) {
-            // for (uint8_t i = 102; i <= 106; i++) {
-            //     rgb_matrix_set_color(i, RGB_OFF);
-            // }
-            // for (uint8_t i = 102; i <= 103; i++) {
-            //     rgb_matrix_set_color(i, RGB_RED);
-            // }
             color = (RGB){100, 0, 0};
         } else {
             color = (RGB){0, 100, 0};
@@ -1565,11 +1554,11 @@ bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max) {
         }
 
         if (dev_info.devs == DEVS_USB) {
-            if (host_keyboard_led_state().num_lock && (USB_DRIVER.state != USB_SUSPENDED) && (get_highest_layer(default_layer_state) == 0)) {
+            if (!host_keyboard_led_state().num_lock && (USB_DRIVER.state != USB_SUSPENDED) && ((default_layer_state & (1 << 0)) != 0)) {
                 rgb_matrix_set_color(NUM_LOCK_LED_INDEX, 0xC8, 0xC8, 0xC8);
             }
         } else {
-            if (host_keyboard_led_state().num_lock && bts_info.bt_info.paired && (get_highest_layer(default_layer_state) == 0)) {
+            if (!host_keyboard_led_state().num_lock && bts_info.bt_info.paired && ((default_layer_state & (1 << 0)) != 0)) {
                 rgb_matrix_set_color(NUM_LOCK_LED_INDEX, 0xC8, 0xC8, 0xC8);
             }
         }

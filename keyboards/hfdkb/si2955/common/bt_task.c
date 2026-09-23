@@ -148,11 +148,6 @@ bool backlight_sleep_flag = false;
 static bool is_in_charging_state   = false;
 static bool is_in_full_power_state = false;
 
-// extern bool show_chrg;
-// extern bool show_chrg_full;
-
-// static bool long_pressed_flag = false;
-
 // Device indicator config
 static const uint8_t rgb_index_table[] = {MM_BLINK_USB_INDEX, MM_BLINK_HOST1_INDEX, MM_BLINK_HOST2_INDEX, MM_BLINK_HOST3_INDEX, MM_BLINK_2G4_INDEX};
 // clang-format off
@@ -165,31 +160,13 @@ static const uint8_t rgb_index_color_table[][3] = {
 };
 // clang-format on
 
-// RGB test related
-// static const uint8_t rgb_test_color_table[][3] = {
-//     {100, 0, 0},
-//     {0, 100, 0},
-//     {0, 0, 100},
-//     {90, 100, 100},
-// };
-// static uint8_t  rgb_test_index  = 0;
-// static bool rgb_test_en = false;
-// static uint32_t rgb_test_time   = 0;
 bool query_vol_flag = false;
 
 static uint32_t last_total_time = 0;
 
-// static uint32_t caps_blink_time = 0;
-// static uint8_t  caps_blink_cnt  = 0;
-// static bool     caps_blink_flag = false;
-
 static uint32_t EE_CLR_press_cnt  = 0;
 static uint32_t EE_CLR_press_time = 0;
 static bool     EE_CLR_flag       = false;
-
-// Battery query
-/* Battery level indicator */
-// uint8_t query_index[10] = BAT_LEVEL_DISPLAY_INDEX;
 
 mode_t mode = MODE_WORKING;
 
@@ -201,14 +178,12 @@ bool Low_power = false;
 typedef struct PACKED {
     uint32_t blink_time;
     uint32_t full_time;
-    // uint32_t entry_chrg_time;
-    // uint32_t entry_full_time;
-    uint8_t blink_count;
-    bool    triggered;
-    bool    full_triggered;
-    bool    blink_state;
-    bool    completed;
-    bool    full_completed;
+    uint8_t  blink_count;
+    bool     triggered;
+    bool     full_triggered;
+    bool     blink_state;
+    bool     completed;
+    bool     full_completed;
 } charge_complete_warning_t;
 static charge_complete_warning_t charge_complete_warning = {0};
 
@@ -254,10 +229,6 @@ void register_mouse(uint8_t mouse_keycode, bool pressed);
 __attribute__((weak)) void register_code(uint8_t code) {
     if (dev_info.devs) {
         bt_process_key_sync(code, true);
-        // bts_task(dev_info.devs);
-        // while (bts_is_busy()) {
-        //     wait_ms(1);
-        // }
     } else {
         if (code == KC_NO) {
             return;
@@ -332,10 +303,6 @@ __attribute__((weak)) void register_code(uint8_t code) {
 __attribute__((weak)) void unregister_code(uint8_t code) {
     if (dev_info.devs) {
         bt_process_key_sync(code, false);
-        // bts_task(dev_info.devs);
-        // while (bts_is_busy()) {
-        //     wait_ms(1);
-        // }
     } else {
         if (code == KC_NO) {
             return;
@@ -537,8 +504,6 @@ void bt_init(void) {
     } else {
         gpio_write_pin_high(A14);
     }
-
-    // rgb_status_save = rgb_matrix_config.enable;
 }
 
 // ===========================================
@@ -593,7 +558,6 @@ void bt_task(void) {
     }
 
     bt_long_pressed_keys_hook();
-    // if (!bt_init_time) bt_scan_mode();
     bt_scan_mode();
     low_voltage_unplug_led_reset_task();
 }
@@ -621,11 +585,6 @@ bool bt_process_record(uint16_t keycode, keyrecord_t *record) {
                     \n pvol          = [%d]\n\n\n",
                       dev_info.devs, bts_info.bt_info.sleeped, bts_info.bt_info.low_vol, bts_info.bt_info.low_vol_offed, bts_info.bt_info.normal_vol, bts_info.bt_info.pairing, bts_info.bt_info.paired, bts_info.bt_info.come_back, bts_info.bt_info.come_back_err, bts_info.bt_info.mode_switched, bts_info.bt_info.pvol);
 
-        // if (!rgb_matrix_config.enable) {
-        //     if (rgb_status_save) {
-        //         rgb_matrix_enable_noeeprom();
-        //     }
-        // }
         pressed_time = timer_read32();
 
         if (indicator_status != INDICATOR_OFF) {
@@ -637,10 +596,6 @@ bool bt_process_record(uint16_t keycode, keyrecord_t *record) {
 
     if (dev_info.devs != DEVS_USB) {
         if (retval != false) {
-            // while (bts_is_busy()) {
-            //     wait_ms(1);
-            // }
-
             if ((keycode > QK_MODS) && (keycode <= QK_MODS_MAX)) {
                 if (QK_MODS_GET_MODS(keycode) & 0x1) {
                     if (QK_MODS_GET_MODS(keycode) & 0x10)
@@ -690,11 +645,6 @@ bool bt_process_record(uint16_t keycode, keyrecord_t *record) {
 // Device switch function
 // ===========================================
 void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
-    // Enable RGB if it was previously enabled
-    // if (!rgb_matrix_config.enable && rgb_status_save) {
-    //     rgb_matrix_enable_noeeprom();
-    // }
-
     // Handle USB driver state changes
     bool usb_sws = !!last_mode ? !now_mode : !!now_mode;
     if (usb_sws) {
@@ -742,8 +692,6 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
                 // Reset - enter pairing mode
                 indicator_status          = 1;
                 indicator_reset_last_time = true;
-                // bts_send_name(DEVS_HOST1);
-                // bts_send_vendor(v_host1);
                 bts_send_vendor(v_pair);
             } else {
                 indicator_status          = 2;
@@ -756,8 +704,6 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
                 // Reset - enter pairing mode
                 indicator_status          = 1;
                 indicator_reset_last_time = true;
-                // bts_send_name(DEVS_HOST2);
-                // bts_send_vendor(v_host2);
                 bts_send_vendor(v_pair);
             } else {
                 indicator_status          = 2;
@@ -770,8 +716,6 @@ void bt_switch_mode(uint8_t last_mode, uint8_t now_mode, uint8_t reset) {
                 // Reset - enter pairing mode
                 indicator_status          = 1;
                 indicator_reset_last_time = true;
-                // bts_send_name(DEVS_HOST3);
-                // bts_send_vendor(v_host3);
                 bts_send_vendor(v_pair);
             } else {
                 indicator_status          = 2;
@@ -938,14 +882,6 @@ static void bt_long_pressed_keys_cb(uint16_t keycode) {
             }
         } break;
 
-            // case RGB_TEST: {
-            //     if (rgb_test_en != true) {
-            //         rgb_test_en    = true;
-            //         rgb_test_index = 1;
-            //         rgb_test_time  = timer_read32();
-            //     }
-            // } break;
-
         default:
             break;
     }
@@ -1072,15 +1008,6 @@ void lp_recovery_hook(void) {
     gpio_set_pin_input_high(C13);
 }
 
-// static void led_off_standby(void) {
-//     if (timer_elapsed32(key_press_time) >= LED_OFF_STANDBY_TIMEOUT_MS) {
-//         if (!backlight_sleep_flag) {
-//             backlight_sleep_flag = true;
-//             led_deconfig_all();
-//         }
-//     }
-// }
-
 // ===========================================
 // RGB close functions
 // ===========================================
@@ -1091,8 +1018,6 @@ static void close_rgb(void) {
         key_press_time = timer_read32();
         return;
     }
-
-    // led_off_standby();
 
     if (sober) {
         if (kb_sleep_flag || (timer_elapsed32(key_press_time) >= LED_OFF_STANDBY_TIMEOUT_MS)) {
@@ -1150,11 +1075,6 @@ static void close_rgb(void) {
 // ===========================================
 static void open_rgb(void) {
     key_press_time = timer_read32();
-
-    // if (backlight_sleep_flag) {
-    //     backlight_sleep_flag = false;
-    //     led_config_all();
-    // }
 
     if (!sober) {
         // ckled2001_sw_return_normal(DRIVER_ADDR_1);
@@ -1343,9 +1263,9 @@ static void bt_charging_indication(void) {
     extern bool is_charging(void);
     extern bool is_fully_charged(void);
 
-    // if (!readPin(MM_CABLE_PIN)) {
-    //     if (readPin(MM_CHARGE_PIN)) {
-    if (is_charging()) {
+    //     if (gpio_read_pin(MM_CHARGE_PIN)) {
+    // if (is_charging()) {
+    if (!gpio_read_pin(MM_CABLE_PIN)) {
         if (is_fully_charged()) {
             // Charge pin indicates full - trigger only if not already displayed
             if (timer_elapsed32(entry_full_time) >= 2000) {
@@ -1763,11 +1683,11 @@ bool bt_indicators_advanced(uint8_t led_min, uint8_t led_max) {
         }
 
         if (dev_info.devs == DEVS_USB) {
-            if (host_keyboard_led_state().num_lock && (USB_DRIVER.state != USB_SUSPENDED) && (get_highest_layer(default_layer_state) == 0)) {
+            if ((!host_keyboard_led_state().num_lock) && (USB_DRIVER.state != USB_SUSPENDED) && ((default_layer_state & (1 << 0)) != 0)) {
                 rgb_matrix_set_color(NUM_LOCK_LED_INDEX, 50, 100, 100);
             }
         } else {
-            if (host_keyboard_led_state().num_lock && bts_info.bt_info.paired && (get_highest_layer(default_layer_state) == 0)) {
+            if ((!host_keyboard_led_state().num_lock) && bts_info.bt_info.paired && ((default_layer_state & (1 << 0)) != 0)) {
                 rgb_matrix_set_color(NUM_LOCK_LED_INDEX, 50, 100, 100);
             }
         }
